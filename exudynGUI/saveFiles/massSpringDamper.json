@@ -1,0 +1,189 @@
+{
+  "modelSequence": [
+    {
+      "type": "CreateGround",
+      "data": {
+        "name": "Ground",
+        "referencePosition": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "referenceRotationMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "graphicsDataList": [
+          "exu.graphics.CheckerBoard(point=[0, 0, 0], normal=[0, 0, 1], size=1, color=[0.7, 0.7, 0.7, 1.0], alternatingColor=[0.85, 0.85, 0.85, 1.0], nTiles=10)"
+        ],
+        "graphicsDataUserFunction": 0,
+        "show": true,
+        "creationUID": "20b7e433-8ef7-463b-87fb-dec80fc1d1c4",
+        "objectType": "CreateGround",
+        "creationIndex": 28,
+        "GUI": {
+          "returnValues": {
+            "objectNumber": 0
+          },
+          "objIndex": 0,
+          "returnInfo": "objectNumber=0"
+        },
+        "returnValues": {
+          "objectNumber": 0
+        },
+        "objIndex": 0,
+        "returnInfo": "objectNumber=0"
+      },
+      "summaryPythonCode": {
+        "graphicsDataList": [
+          "exu.graphics.CheckerBoard(point=[0, 0, 0], normal=[0, 0, 1], size=1, color=[0.7, 0.7, 0.7, 1.0], alternatingColor=[0.85, 0.85, 0.85, 1.0], nTiles=10)"
+        ],
+        "graphicsDataUserFunction": "0"
+      }
+    },
+    {
+      "type": "CreateMassPoint",
+      "data": {
+        "name": "MassPoint",
+        "referencePosition": [
+          0.0,
+          0.0,
+          0.5
+        ],
+        "initialDisplacement": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "physicsMass": 1.0,
+        "gravity": [
+          0.0,
+          0.0,
+          -9.81
+        ],
+        "graphicsDataList": [
+          "exu.graphics.Brick(centerPoint=[0, 0, 0], size=[0.2, 0.2, 0.1], color=[1.0, 0.0, 1.0, 1.0], addNormals=False, addEdges=False, edgeColor=[0.0, 0.0, 0.0, 1.0], addFaces=True, roundness=0, nTiles=12)"
+        ],
+        "drawSize": -1.0,
+        "color": [
+          0.5,
+          0.5,
+          0.5,
+          1.0
+        ],
+        "show": true,
+        "create2D": false,
+        "returnDict": false,
+        "objectType": "CreateMassPoint",
+        "objIndex": 1,
+        "returnInfo": "nodeNumber=0 / bodyNumber=1 / markerBodyMass=0 / loadNumber=0",
+        "returnValues": {
+          "nodeNumber": 0,
+          "bodyNumber": 1
+        },
+        "creationIndex": 41,
+        "GUI": {
+          "returnValues": {
+            "nodeNumber": 0,
+            "bodyNumber": 1,
+            "markerBodyMass": 0,
+            "loadNumber": 0
+          },
+          "objIndex": 1,
+          "returnInfo": "nodeNumber=0 / bodyNumber=1 / markerBodyMass=0 / loadNumber=0"
+        }
+      },
+      "summaryPythonCode": {
+        "graphicsDataList": [
+          "exu.graphics.Brick(centerPoint=[0, 0, 0], size=[0.2, 0.2, 0.1], color=[1.0, 0.0, 1.0, 1.0], addNormals=False, addEdges=False, edgeColor=[0.0, 0.0, 0.0, 1.0], addFaces=True, roundness=0, nTiles=12)"
+        ]
+      }
+    },
+    {
+      "type": "CreateSpringDamper",
+      "data": {
+        "Connection": "bodyNumbers",
+        "bodyNumbers": [
+          0,
+          1
+        ],
+        "name": "SpringDamper",
+        "localPosition0": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "localPosition1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "referenceLength": null,
+        "stiffness": 100.0,
+        "damping": 10,
+        "force": 0.0,
+        "velocityOffset": 0.0,
+        "springForceUserFunction": 0,
+        "show": true,
+        "drawSize": -1.0,
+        "color": [
+          1.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "bodyOrNodeList": [
+          null,
+          null
+        ],
+        "bodyList": [
+          null,
+          null
+        ],
+        "objectType": "CreateSpringDamper",
+        "objIndex": 2,
+        "returnInfo": "objectNumber=2",
+        "returnValues": {
+          "objectNumber": 2
+        },
+        "creationIndex": 54,
+        "GUI": {
+          "returnValues": {
+            "objectNumber": 2
+          },
+          "objIndex": 2,
+          "returnInfo": "objectNumber=2"
+        }
+      },
+      "summaryPythonCode": {
+        "springForceUserFunction": "0"
+      }
+    }
+  ],
+  "userVariables": {
+    "m": 10000.0,
+    "k": 1000.0
+  },
+  "metadata": {
+    "created": "2025-06-20T23:47:13.293866",
+    "version": "1.0"
+  }
+}

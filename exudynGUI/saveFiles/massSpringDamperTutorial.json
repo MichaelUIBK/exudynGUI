@@ -1,0 +1,239 @@
+{
+  "modelSequence": [
+    {
+      "type": "NodePoint",
+      "data": {
+        "name": "Point",
+        "referenceCoordinates": "[L,0,0]",
+        "initialCoordinates": "[u0,0,0]",
+        "initialVelocities": "[v0,0,0]",
+        "Vshow": true,
+        "VdrawSize": -1.0,
+        "Vcolor": [
+          0.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "creationUID": "962c3210-86f9-4316-af59-9abcff4f7185",
+        "objectType": "NodePoint",
+        "summaryPythonCode": {
+          "nodeType": "Point"
+        },
+        "objIndex": null,
+        "returnValues": {
+          "nodeNumber": 0
+        },
+        "returnInfo": "Vshow=True / isLegacy=True",
+        "isLegacy": true,
+        "nodeType": "Point"
+      },
+      "isLegacy": true,
+      "summaryPythonCode": {
+        "nodeType": "exu.NodeType.Point"
+      }
+    },
+    {
+      "type": "NodePointGround",
+      "data": {
+        "name": "PointGround",
+        "referenceCoordinates": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Vshow": true,
+        "VdrawSize": -1.0,
+        "Vcolor": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "creationUID": "c42e17ca-0ff3-4cde-ae82-26c3de6586a0",
+        "objectType": "NodePointGround",
+        "summaryPythonCode": {
+          "nodeType": "PointGround"
+        },
+        "objIndex": null,
+        "returnValues": {
+          "nodeNumber": 1
+        },
+        "returnInfo": "Vshow=True / isLegacy=True",
+        "isLegacy": true,
+        "nodeType": "PointGround"
+      },
+      "isLegacy": true,
+      "summaryPythonCode": {
+        "nodeType": "exu.NodeType.PointGround"
+      }
+    },
+    {
+      "type": "ObjectMassPoint",
+      "data": {
+        "name": "MassPoint",
+        "objectType": "ObjectMassPoint",
+        "physicsMass": "mass",
+        "nodeNumber": 0,
+        "Vshow": true,
+        "VgraphicsData": [
+          {
+            "name": "Sphere",
+            "args": "point=[0.0, 0.0, 0.0], radius=0.1, color=[0.0, 0.0, 1.0, 1.0], nTiles=8, addEdges=False, edgeColor=[0.0, 0.0, 0.0, 1.0], addFaces=True"
+          }
+        ],
+        "creationUID": "964266f5-9a13-4b83-abad-c7a322e970fb",
+        "summaryPythonCode": {
+          "VgraphicsData": [
+            "Sphere(point=[0.0, 0.0, 0.0], radius=0.1, color=[0.0, 0.0, 1.0, 1.0], nTiles=8, addEdges=False, edgeColor=[0.0, 0.0, 0.0, 1.0], addFaces=True)"
+          ]
+        },
+        "objIndex": 0,
+        "returnValues": {
+          "objectNumber": 0
+        },
+        "returnInfo": "nodeNumber=0 / Vshow=True / isLegacy=True",
+        "isLegacy": true
+      },
+      "isLegacy": true
+    },
+    {
+      "type": "MarkerNodeCoordinate",
+      "data": {
+        "name": "groundMarker",
+        "nodeNumber": 1,
+        "coordinate": 0,
+        "Vshow": true,
+        "creationUID": "dec9fcf4-b45a-4c77-b8bf-6569c8bbf490",
+        "objectType": "MarkerNodeCoordinate",
+        "objIndex": 1,
+        "returnValues": {
+          "markerNumber": 0
+        },
+        "returnInfo": "nodeNumber=1 / coordinate=0 / Vshow=True / isLegacy=True",
+        "isLegacy": true,
+        "markerType": "NodeCoordinate"
+      },
+      "isLegacy": true
+    },
+    {
+      "type": "MarkerNodeCoordinate",
+      "data": {
+        "name": "nodeMarker",
+        "nodeNumber": 0,
+        "coordinate": 0,
+        "Vshow": true,
+        "creationUID": "fc72d1b9-8bb3-4da0-a98e-f8e527a6ba53",
+        "objectType": "MarkerNodeCoordinate",
+        "objIndex": 0,
+        "returnValues": {
+          "markerNumber": 1
+        },
+        "returnInfo": "nodeNumber=0 / coordinate=0 / Vshow=True / isLegacy=True",
+        "isLegacy": true,
+        "markerType": "NodeCoordinate"
+      },
+      "isLegacy": true
+    },
+    {
+      "type": "ObjectConnectorCoordinateSpringDamper",
+      "data": {
+        "name": "ConnectorCoordinateSpringDamper",
+        "objectType": "ObjectConnectorCoordinateSpringDamper",
+        "markerNumbers": [
+          0,
+          1
+        ],
+        "stiffness": "spring",
+        "damping": "damper",
+        "offset": 0.0,
+        "activeConnector": true,
+        "springForceUserFunction": 0,
+        "Vshow": true,
+        "VdrawSize": -1.0,
+        "Vcolor": [
+          0.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "creationUID": "af776ba4-a4c7-44fc-904c-c17a860bc8cf",
+        "objIndex": null,
+        "returnValues": {
+          "objectNumber": 1
+        },
+        "returnInfo": "activeConnector=True / springForceUserFunction=0 / Vshow=True / isLegacy=True",
+        "isLegacy": true
+      },
+      "isLegacy": true,
+      "summaryPythonCode": {
+        "springForceUserFunction": "0"
+      }
+    },
+    {
+      "type": "LoadCoordinate",
+      "data": {
+        "name": "Coordinate",
+        "loadType": "Coordinate",
+        "markerNumber": 1,
+        "load": "f",
+        "loadUserFunction": 0,
+        "Vshow": true,
+        "creationUID": "7a83734f-f4da-4e0c-b525-a0e7f0f05d1c",
+        "objectType": "LoadCoordinate",
+        "objIndex": 1,
+        "returnValues": {
+          "loadNumber": 0
+        },
+        "returnInfo": "markerNumber=1 / loadUserFunction=0 / Vshow=True / isLegacy=True",
+        "isLegacy": true
+      },
+      "isLegacy": true,
+      "summaryPythonCode": {
+        "loadUserFunction": "0"
+      }
+    },
+    {
+      "type": "SensorObject",
+      "data": {
+        "name": "sensorObjectSD",
+        "sensorType": "Object",
+        "objectNumber": 1,
+        "writeToFile": true,
+        "fileName": null,
+        "outputVariableType": "Force",
+        "storeInternal": true,
+        "Vshow": true,
+        "creationUID": "46163920-9355-4370-8684-dbf6e5f64488",
+        "objectType": "SensorObject",
+        "summaryPythonCode": {
+          "outputVariableType": "exu.OutputVariableType.Force"
+        },
+        "objIndex": 1,
+        "returnValues": {
+          "sensorNumber": 0
+        },
+        "returnInfo": "objectNumber=1 / writeToFile=True / storeInternal=True / Vshow=True / isLegacy=True",
+        "isLegacy": true
+      },
+      "isLegacy": true,
+      "summaryPythonCode": {
+        "outputVariableType": "exu.OutputVariableType.Force"
+      }
+    }
+  ],
+  "userVariables": {
+    "L": 0.5,
+    "mass": 1.6,
+    "spring": 400,
+    "damper": 8,
+    "f": 80,
+    "u0": 0.08,
+    "v0": 1,
+    "x0": 0.2
+  },
+  "metadata": {
+    "created": "2025-06-30T02:31:00.768733",
+    "version": "1.0"
+  }
+}
