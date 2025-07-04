@@ -1,0 +1,26 @@
+# Include README and documentation
+include README.md
+include LICENSE
+include requirements.txt
+
+# Include design assets
+recursive-include exudynGUI/design *.png
+recursive-include exudynGUI/design *.ico
+recursive-include exudynGUI/design *.txt
+
+# Include documentation
+recursive-include exudynGUI/theDocHelper *.pdf
+recursive-include exudynGUI/theDocHelper *.py
+
+# Include example files
+recursive-include exudynGUI/saveFiles *.json
+recursive-include exudynGUI/saveFiles *.exudyn
+
+# Include STL files
+recursive-include exudynGUI/stlFiles *.stl
+
+# Include logs directory (empty)
+prune logs
+
+# Include __init__.py files
+recursive-include * __init__.py 

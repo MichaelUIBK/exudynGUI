@@ -1,0 +1,708 @@
+{
+  "modelSequence": [
+    {
+      "type": "CreateRigidBody",
+      "data": {
+        "name": "RigidBody",
+        "referencePosition": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "referenceRotationMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "initialVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialAngularVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialDisplacement": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialRotationMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "inertia": {
+          "name": "InertiaSphere",
+          "args": "mass=1.0, radius=0.1, density=None"
+        },
+        "gravity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "nodeType": "NodeType.RotationEulerParameters",
+        "graphicsDataList": [
+          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+        ],
+        "graphicsDataUserFunction": 0,
+        "drawSize": -1.0,
+        "color": [
+          0.5,
+          0.5,
+          0.5,
+          1.0
+        ],
+        "show": true,
+        "create2D": false,
+        "returnDict": false,
+        "creationUID": "ffee94e5-decf-4701-9d32-e64ffc1eb5cc",
+        "objectType": "CreateRigidBody",
+        "creationIndex": 66,
+        "GUI": {
+          "returnValues": {
+            "nodeNumber": 0,
+            "bodyNumber": 0
+          },
+          "objIndex": 0,
+          "returnInfo": "nodeNumber=0 / bodyNumber=0"
+        },
+        "returnValues": {
+          "nodeNumber": 0,
+          "bodyNumber": 0
+        },
+        "objIndex": 0,
+        "returnInfo": "nodeNumber=0 / bodyNumber=0"
+      },
+      "summaryPythonCode": {
+        "graphicsDataList": [
+          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+        ],
+        "graphicsDataUserFunction": "0",
+        "inertia": "InertiaSphere(mass=1.0, radius=0.1, density=None)",
+        "nodeType": "exu.NodeType.RotationEulerParameters"
+      }
+    },
+    {
+      "type": "CreateRigidBody",
+      "data": {
+        "name": "RigidBody2",
+        "referencePosition": [
+          0.25,
+          0.0,
+          0.0
+        ],
+        "referenceRotationMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "initialVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialAngularVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialDisplacement": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialRotationMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "inertia": {
+          "name": "InertiaSphere",
+          "args": "mass=1.0, radius=0.1, density=None"
+        },
+        "gravity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "nodeType": "NodeType.RotationEulerParameters",
+        "graphicsDataList": [
+          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/crossShaft.stl', color=[0.5, 0.5, 0.5, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+        ],
+        "graphicsDataUserFunction": 0,
+        "drawSize": -1.0,
+        "color": [
+          0.5,
+          0.5,
+          0.5,
+          1.0
+        ],
+        "show": true,
+        "create2D": false,
+        "returnDict": false,
+        "creationUID": "ac5ec4e8-060b-4118-8c47-6155de3b56b2",
+        "objectType": "CreateRigidBody",
+        "creationIndex": 95,
+        "GUI": {
+          "returnValues": {
+            "nodeNumber": 1,
+            "bodyNumber": 1
+          },
+          "objIndex": 1,
+          "returnInfo": "nodeNumber=1 / bodyNumber=1"
+        },
+        "returnValues": {
+          "nodeNumber": 1,
+          "bodyNumber": 1
+        },
+        "objIndex": 1,
+        "returnInfo": "nodeNumber=1 / bodyNumber=1"
+      },
+      "summaryPythonCode": {
+        "graphicsDataList": [
+          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/crossShaft.stl', color=[0.5, 0.5, 0.5, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+        ],
+        "graphicsDataUserFunction": "0",
+        "inertia": "InertiaSphere(mass=1.0, radius=0.1, density=None)",
+        "nodeType": "exu.NodeType.RotationEulerParameters"
+      }
+    },
+    {
+      "type": "CreateRigidBody",
+      "data": {
+        "name": "RigidBody3",
+        "referencePosition": [
+          0.5,
+          0.0,
+          0.0
+        ],
+        "referenceRotationMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ]
+        ],
+        "initialVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialAngularVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialDisplacement": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "initialRotationMatrix": [
+          [
+            -1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -0.0,
+            0.0,
+            -1.0
+          ]
+        ],
+        "inertia": {
+          "name": "InertiaSphere",
+          "args": "mass=1.0, radius=0.1, density=None"
+        },
+        "gravity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "nodeType": "NodeType.RotationEulerParameters",
+        "graphicsDataList": [
+          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+        ],
+        "graphicsDataUserFunction": 0,
+        "drawSize": -1.0,
+        "color": [
+          0.5,
+          0.5,
+          0.5,
+          1.0
+        ],
+        "show": true,
+        "create2D": false,
+        "returnDict": false,
+        "creationUID": "db0eb7fa-5132-45f5-8bd7-8f5364414588",
+        "objectType": "CreateRigidBody",
+        "creationIndex": 134,
+        "GUI": {
+          "returnValues": {
+            "nodeNumber": 2,
+            "bodyNumber": 2
+          },
+          "objIndex": 2,
+          "returnInfo": "nodeNumber=2 / bodyNumber=2"
+        },
+        "returnValues": {
+          "nodeNumber": 2,
+          "bodyNumber": 2
+        },
+        "objIndex": 2,
+        "returnInfo": "nodeNumber=2 / bodyNumber=2"
+      },
+      "summaryPythonCode": {
+        "graphicsDataList": [
+          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+        ],
+        "graphicsDataUserFunction": "0",
+        "inertia": "InertiaSphere(mass=1.0, radius=0.1, density=None)",
+        "nodeType": "exu.NodeType.RotationEulerParameters"
+      }
+    },
+    {
+      "type": "CreateGround",
+      "data": {
+        "name": "Ground2",
+        "referencePosition": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "referenceRotationMatrix": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "graphicsDataList": [
+          "exu.graphics.Basis(origin=[0.0, 0.0, 0.0], rotationMatrix=[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], length=0.2, colors=[[1.0, 0.0, 0.0, 1.0],[0.0, 1.0, 0.0, 1.0],[0.0, 0.0, 1.0, 1.0]], headFactor=2.0, headStretch=4.0, nTiles=12)"
+        ],
+        "graphicsDataUserFunction": 0,
+        "show": true,
+        "objectType": "CreateGround",
+        "objIndex": 3,
+        "returnInfo": "objectNumber=3",
+        "returnValues": {
+          "objectNumber": 3
+        },
+        "creationIndex": 292,
+        "GUI": {
+          "returnValues": {
+            "objectNumber": 3
+          },
+          "objIndex": 3,
+          "returnInfo": "objectNumber=3"
+        }
+      },
+      "summaryPythonCode": {
+        "graphicsDataList": [
+          "exu.graphics.Basis(origin=[0.0, 0.0, 0.0], rotationMatrix=[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], length=0.2, colors=[[1.0, 0.0, 0.0, 1.0],[0.0, 1.0, 0.0, 1.0],[0.0, 0.0, 1.0, 1.0]], headFactor=2.0, headStretch=4.0, nTiles=12)"
+        ],
+        "graphicsDataUserFunction": "0"
+      }
+    },
+    {
+      "type": "CreateRevoluteJoint",
+      "data": {
+        "name": "RevoluteJoint",
+        "bodyNumbers": [
+          1,
+          2
+        ],
+        "position": [
+          0.25,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "useGlobalFrame": true,
+        "show": false,
+        "axisRadius": 0.2,
+        "axisLength": 0.4,
+        "color": [
+          1.0,
+          0.0,
+          1.0,
+          1.0
+        ],
+        "graphicsDataList": [],
+        "objectType": "CreateRevoluteJoint",
+        "objIndex": 4,
+        "returnInfo": "objectNumber=4",
+        "returnValues": {
+          "objectNumber": 4
+        },
+        "creationIndex": 104,
+        "GUI": {
+          "returnValues": {
+            "objectNumber": 4
+          },
+          "objIndex": 4,
+          "returnInfo": "objectNumber=4"
+        }
+      }
+    },
+    {
+      "type": "CreateRevoluteJoint",
+      "data": {
+        "name": "RevoluteJoint2",
+        "bodyNumbers": [
+          1,
+          0
+        ],
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "useGlobalFrame": false,
+        "show": true,
+        "axisRadius": 0.02,
+        "axisLength": 0.24,
+        "color": [
+          1.0,
+          1.0,
+          0.0,
+          1.0
+        ],
+        "graphicsDataList": [],
+        "objectType": "CreateRevoluteJoint",
+        "objIndex": 5,
+        "returnInfo": "objectNumber=5",
+        "returnValues": {
+          "objectNumber": 5
+        },
+        "creationIndex": 265,
+        "GUI": {
+          "returnValues": {
+            "objectNumber": 5
+          },
+          "objIndex": 5,
+          "returnInfo": "objectNumber=5"
+        }
+      }
+    },
+    {
+      "type": "CreateTorque",
+      "data": {
+        "name": "Torque",
+        "bodyNumber": 0,
+        "loadVector": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "localPosition": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "bodyFixed": false,
+        "loadVectorUserFunction": 0,
+        "show": true,
+        "graphicsDataList": [],
+        "creationUID": "8cd35a1b-4e96-4e9d-a342-ba8db3f4023a",
+        "objectType": "CreateTorque",
+        "creationIndex": 307,
+        "GUI": {
+          "returnValues": {
+            "objectNumber": 0
+          },
+          "objIndex": 0,
+          "returnInfo": "objectNumber=0"
+        },
+        "returnValues": {
+          "loadNumber": 0
+        },
+        "objIndex": 0,
+        "returnInfo": "objectNumber=0"
+      },
+      "summaryPythonCode": {
+        "loadVectorUserFunction": "0"
+      }
+    },
+    {
+      "type": "CreateRevoluteJoint",
+      "data": {
+        "name": "RevoluteJoint3",
+        "bodyNumbers": [
+          3,
+          0
+        ],
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "axis": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "useGlobalFrame": false,
+        "show": true,
+        "axisRadius": 0.02,
+        "axisLength": 0.22,
+        "color": [
+          0.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "graphicsDataList": [],
+        "creationUID": "3891a933-efd2-4bf3-9a0c-903cde383cb8",
+        "objectType": "CreateRevoluteJoint",
+        "creationIndex": 411,
+        "GUI": {
+          "returnValues": {
+            "objectNumber": 6
+          },
+          "objIndex": 6,
+          "returnInfo": "objectNumber=6"
+        },
+        "returnValues": {
+          "objectNumber": 6
+        },
+        "objIndex": 6,
+        "returnInfo": "objectNumber=6"
+      }
+    },
+    {
+      "type": "CreateGenericJoint",
+      "data": {
+        "name": "GenericJoint",
+        "bodyNumbers": [
+          3,
+          0
+        ],
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotationMatrixAxes": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "constrainedAxes": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "useGlobalFrame": false,
+        "offsetUserFunction": 0,
+        "offsetUserFunction_t": 0,
+        "show": true,
+        "axesRadius": 0.1,
+        "axesLength": 0.4,
+        "color": [
+          0.5,
+          0.5,
+          0.5,
+          1.0
+        ],
+        "graphicsDataList": [],
+        "objectType": "CreateGenericJoint",
+        "objIndex": 7,
+        "returnInfo": "objectNumber=7",
+        "returnValues": {
+          "objectNumber": 7
+        },
+        "creationIndex": 38,
+        "GUI": {
+          "returnValues": {
+            "objectNumber": 7
+          },
+          "objIndex": 7,
+          "returnInfo": "objectNumber=7"
+        }
+      },
+      "summaryPythonCode": {
+        "offsetUserFunction": "0"
+      }
+    },
+    {
+      "type": "CreateGenericJoint",
+      "data": {
+        "name": "GenericJoint2",
+        "bodyNumbers": [
+          2,
+          3
+        ],
+        "position": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotationMatrixAxes": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "constrainedAxes": [
+          0,
+          1,
+          1,
+          0,
+          0,
+          0
+        ],
+        "useGlobalFrame": false,
+        "offsetUserFunction": 0,
+        "offsetUserFunction_t": 0,
+        "show": true,
+        "axesRadius": 0.1,
+        "axesLength": 0.4,
+        "color": [
+          0.5,
+          0.5,
+          0.5,
+          1.0
+        ],
+        "graphicsDataList": [],
+        "creationUID": "1beb5673-d6d7-4b38-ad0e-c1176f8f7ab4",
+        "objectType": "CreateGenericJoint",
+        "creationIndex": 9,
+        "GUI": {
+          "returnValues": {
+            "objectNumber": 8
+          },
+          "objIndex": 8,
+          "returnInfo": "objectNumber=8"
+        },
+        "returnValues": {
+          "objectNumber": 8
+        },
+        "objIndex": 8,
+        "returnInfo": "objectNumber=8"
+      },
+      "summaryPythonCode": {
+        "offsetUserFunction": "0"
+      }
+    }
+  ],
+  "userVariables": {
+    "m": 10000.0,
+    "k": 1000.0
+  },
+  "metadata": {
+    "created": "2025-06-27T02:46:40.144924",
+    "version": "1.0"
+  }
+}

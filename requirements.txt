@@ -1,0 +1,35 @@
+# Exudyn GUI - Requirements File
+# This file lists all Python dependencies required for the Exudyn GUI project
+
+# Core GUI Framework
+PyQt5>=5.15.0
+
+# Scientific Computing
+numpy>=1.20.0
+networkx>=2.6.0  # Graph data structures and algorithms
+
+# PDF Documentation Support
+PyMuPDF>=1.20.0  # fitz module for PDF rendering
+PyPDF2>=3.0.0    # PDF bookmark extraction
+
+# Code Editor Support (Optional - for advanced code editing)
+QScintilla>=2.14.0  # QsciScintilla for code editing
+
+# Jupyter Console Integration (Optional)
+jupyter-client>=7.0.0
+qtconsole>=5.3.0
+ipython>=7.0.0
+
+# Flexible Body Support (Optional - for FEM/FFRF features)
+# Note: These are optional dependencies for advanced features
+# ngsolve>=2022.1.0
+# netgen>=6.2.0
+
+# Development and Debugging (Optional)
+# pytest>=6.0.0
+# black>=22.0.0
+# flake8>=4.0.0
+
+# Note: The main 'exudyn' package is not included here as it should be
+# installed separately according to the Exudyn documentation and requirements.
+# Please see https://exudyn.readthedocs.io/en/v1.9.83.dev1/ for more information.

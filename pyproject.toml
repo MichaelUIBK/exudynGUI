@@ -1,0 +1,100 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "exudynGUI"
+dynamic = ["version"]
+description = "A graphical user interface for Exudyn multibody simulation"
+readme = "README.md"
+license = "BSD-3-Clause"
+authors = [
+    {name = "Michael Pieber", email = "michael.pieber@uibk.ac.at"}
+]
+maintainers = [
+    {name = "Michael Pieber", email = "michael.pieber@uibk.ac.at"}
+]
+keywords = ["exudyn", "multibody", "simulation", "gui", "physics", "engineering"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "PyQt5>=5.15.0",
+    "numpy>=1.20.0",
+    "PyMuPDF>=1.20.0",
+    "PyPDF2>=3.0.0",
+    "QScintilla>=2.14.0",
+    "jupyter-client>=7.0.0",
+    "qtconsole>=5.3.0",
+    "ipython>=7.0.0",
+    "networkx>=2.6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+]
+flexible = [
+    "ngsolve>=2022.1.0",
+    "netgen>=6.2.0",
+]
+editor = [
+    "QScintilla>=2.14.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/MichaelUIBK/exudynGUI"
+Documentation = "https://exudyn.readthedocs.io/"
+Repository = "https://github.com/MichaelUIBK/exudynGUI"
+"Bug Tracker" = "https://github.com/MichaelUIBK/exudynGUI/issues"
+Download = "https://github.com/MichaelUIBK/exudynGUI/releases"
+
+[project.scripts]
+exudyngui = "exudynGUI.main:launchGUI"
+
+[tool.setuptools]
+packages = [
+    "exudynGUI",
+    "exudynGUI.core", 
+    "exudynGUI.design",
+    "exudynGUI.exuPilot",
+    "exudynGUI.functions",
+    "exudynGUI.guiConsole",
+    "exudynGUI.guiForms",
+    "exudynGUI.logs",
+    "exudynGUI.model",
+    "exudynGUI.saveFiles", 
+    "exudynGUI.stlFiles",
+    "exudynGUI.theDocHelper"
+]
+include-package-data = false
+
+[tool.setuptools.package-data]
+"exudynGUI" = [
+    "design/*.png",
+    "design/*.ico",
+    "design/assets/*.png",
+    "design/createItems/*.png",
+    "design/legacyItems/*.png",
+    "theDocHelper/*.pdf",
+    "theDocHelper/*.py",
+    "saveFiles/*.json",
+    "saveFiles/*.exudyn",
+    "stlFiles/*.stl",
+    "model/*.json",
+]
+
+[tool.setuptools_scm]
+write_to = "exudynGUI/_version.py"
