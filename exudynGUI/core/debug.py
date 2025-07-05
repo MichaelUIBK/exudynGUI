@@ -32,7 +32,7 @@ class DebugLevel(IntEnum):
     TRACE = 5    # Very detailed trace information
 
 # Current debug level - can be changed at runtime
-CURRENT_DEBUG_LEVEL = DebugLevel.ERROR
+CURRENT_DEBUG_LEVEL = DebugLevel.TRACE
 
 class DebugCategory:
     """Categories for organizing debug output"""

@@ -46,7 +46,6 @@ from exudyn.utilities import __dict__ as utilDict
 from exudynGUI.functions.graphicsVisualizations import graphicsDataRegistry
 from exudynGUI.core.debug import debugLog
 from exudynGUI.core.debug import debugLog, summarizeDict
-from exudynGUI.model.modelData import generateUniqueName
 from exudynGUI.core.specialFields import SPECIAL_FIELD_HANDLERS, getExclusiveFieldGroups
 from exudynGUI.core.fieldValidation import (
     getValidator,
@@ -61,6 +60,62 @@ from exudynGUI.core.fieldValidation import (
 # from exudynGUI.core.fieldValidation import getValidator
 from exudynGUI.core.fieldValidation import TYPE_NORMALIZATION, VALIDATORS_BY_TYPE, VALIDATORS_BY_KEY
 # from exudynGUI.core.fieldMetadataTools import getDefaultsFor, getDefaultForField, inferTypeFromValue, isMeaningfulDefault, fixMatrixDefaults, importdetectRequiredFieldsWithoutJSON, guessHeuristicDefault
+
+def normalizeMatrixFormat(value):
+    """
+    Comprehensive matrix format normalization.
+    Handles numpy arrays, malformed matrix strings, and various matrix formats.
+    """
+    import numpy as np
+    
+    # Handle numpy arrays first
+    if isinstance(value, np.ndarray):
+        return value.tolist()
+    
+    # Handle numpy scalar types
+    if isinstance(value, np.generic):
+        return value.item()
+    
+    # Handle strings that might be malformed matrices
+    if isinstance(value, str):
+        v = value.strip()
+        
+        # Handle common malformed matrix patterns
+        if v.startswith('[[') and v.endswith(']]'):
+            try:
+                # Fix missing commas in matrix format: [[1 2 3][4 5 6]] → [[1,2,3],[4,5,6]]
+                # Pattern: number-space-number → number-comma-number
+                v = re.sub(r'(?<=\d)\s+(?=\d)', ', ', v)
+                # Pattern: ][  → ],[
+                v = re.sub(r'\]\s*\[', '], [', v)
+                # Remove extra whitespace
+                v = re.sub(r'\s+', ' ', v)
+                return ast.literal_eval(v)
+            except Exception as e:
+                debugLog(f"[normalizeMatrixFormat] ⚠️ Failed to parse matrix string '{value}': {e}")
+                
+        # Handle vector format: [1 2 3] → [1, 2, 3]
+        elif v.startswith('[') and v.endswith(']'):
+            try:
+                v = re.sub(r'(?<=\d)\s+(?=\d)', ', ', v)
+                return ast.literal_eval(v)
+            except Exception as e:
+                debugLog(f"[normalizeMatrixFormat] ⚠️ Failed to parse vector string '{value}': {e}")
+    
+    # Handle lists recursively
+    if isinstance(value, list):
+        return [normalizeMatrixFormat(item) for item in value]
+    
+    # Handle tuples recursively
+    if isinstance(value, tuple):
+        return tuple(normalizeMatrixFormat(item) for item in value)
+    
+    # Handle dictionaries recursively
+    if isinstance(value, dict):
+        return {k: normalizeMatrixFormat(v) for k, v in value.items()}
+    
+    # Return as-is for other types
+    return value
 
 basePath = pathlib.Path(__file__).resolve().parent.parent / "model"
 fieldMetaPath = basePath / "fieldMetadataOutput.py"
@@ -813,15 +868,22 @@ def convertToType(value, metaType: str):
         if v.lower() == "none" or v == "":
             return None
 
-        # Fix missing commas in vector/matrix strings
+        # ✅ Use comprehensive matrix format normalization for matrix/vector types
         if any(t in metaType for t in ["vector3", "matrix3x3", "list", "ndarray", "dict"]):
+            normalized = normalizeMatrixFormat(v)
+            if normalized != v:  # If normalization worked, return it
+                return normalized
+            
+            # Fallback to original regex-based approach if normalization didn't work
             # Replace number-space-number with number-comma-number
             v = re.sub(r'(?<=\d)\s+(?=\d)', ', ', v)
             v = v.replace('\n', '')  # Remove line breaks
 
         try:
             if metaType.startswith(("vector3", "list", "matrix3x3", "ndarray", "dict")):
-                return ast.literal_eval(v)
+                result = ast.literal_eval(v)
+                # Apply final normalization to the result
+                return normalizeMatrixFormat(result)
             elif metaType == "int":
                 return int(v)
             elif metaType == "float":
@@ -832,7 +894,8 @@ def convertToType(value, metaType: str):
             debugLog(f"[convertToType] ⚠️ Failed to parse '{value}' as {metaType}: {e}")
             return value
 
-    return value
+    # ✅ Apply matrix normalization to non-string values too
+    return normalizeMatrixFormat(value)
 
 
 
@@ -865,95 +928,144 @@ def getCreateFunctionDefaults(typeName):
         }
 
         for name, param in sig.parameters.items():
-            lname = name.lower()
+            try:
+                lname = name.lower()
 
-            # 1) returnDict → always False in GUI (we re-add it later if needed)
-            if name == 'returnDict':
-                kwargs[name] = False
+                # 1) returnDict → always False in GUI (we re-add it later if needed)
+                if name == 'returnDict':
+                    kwargs[name] = False
+                    continue
+
+                elif name == 'inertia':
+                    val = getDefaultInertiaEntry()
+                    debugLog(f"[getCreateFunctionDefaults] 🧩 Inserted default inertia entry: {val}")
+                    kwargs[name] = val
+                    continue  # inertia is fully handled → skip remaining logic for this field
+
+                # ✅ PRIORITY 1: Use actual param.default from inspect.signature()
+                # ✅ Use 'is' comparison to avoid numpy array "ambiguous truth value" error
+                if param.default is not inspect.Parameter.empty:
+                    val = param.default
+                    # ✅ Use comprehensive matrix format normalization
+                    val = normalizeMatrixFormat(val)
+                    debugLog(f"[getCreateFunctionDefaults] ✅ Using real default for '{name}': {val}")
+                else:
+                    # ✅ PRIORITY 2: Special handling only if no real default exists
+                    val_override = getDefaultForField(name)
+                    if val_override is not None:
+                        val = normalizeMatrixFormat(val_override)
+                        debugLog(f"[getCreateFunctionDefaults] ✅ Special default for '{name}': {val}")
+                    else:
+                        # ✅ PRIORITY 3: Heuristic guessing only as last resort
+                        val = guessHeuristicDefault(name, typeName)
+                        if val is not None:
+                            val = normalizeMatrixFormat(val)
+                            debugLog(f"[getCreateFunctionDefaults] 🔍 Heuristic default for '{name}': {val}")
+
+                # 4) if still None, try your "knownFieldDefaults" table
+                # ✅ Fix: Use 'is None' check that works with numpy arrays
+                try:
+                    if val is None:
+                        val = _knownFieldDefaults.get(lname)
+                        if val is not None:
+                            val = normalizeMatrixFormat(val)
+                            debugLog(f"[getCreateFunctionDefaults] 🧠 Patched '{name}' with knownFieldDefault → {val}")
+                except Exception as e:
+                    debugLog(f"[getCreateFunctionDefaults] ❌ Error in step 4 (knownFieldDefaults) for '{name}': {e}")
+                    raise
+
+                # 5) attempt annotation‐based fallback
+                try:
+                    expected = param.annotation
+                    if val is None and expected in [int, float, bool, str]:
+                        val = expected()  # e.g. float() → 0.0, int() → 0
+                        debugLog(f"[getCreateFunctionDefaults] 🧪 Filled '{name}' from annotation: {val}")
+                    elif expected in [list, tuple] and isinstance(val, (int, float)):
+                        # e.g. scalar → [scalar, scalar, scalar]
+                        val = [val, val, val]
+                        debugLog(f"[getCreateFunctionDefaults] 🧩 Promoted scalar to vector3 for '{name}' → {val}")
+                    elif expected is float and isinstance(val, int):
+                        val = float(val)
+                    elif expected is bool and isinstance(val, int):
+                        val = bool(val)
+                    
+                    # ✅ Apply matrix normalization after annotation processing
+                    val = normalizeMatrixFormat(val)
+                except Exception as e:
+                    debugLog(f"[getCreateFunctionDefaults] ❌ Error in step 5 (annotation fallback) for '{name}': {e}")
+                    raise
+
+                # 6) final override: enforce a few known field types
+                try:
+                    finalType = _knownFieldTypes.get(lname)
+                    if finalType:
+                        if finalType == 'bool' and isinstance(val, int):
+                            val = bool(val)
+                            debugLog(f"[getCreateFunctionDefaults] 🔁 Forcing '{name}' to bool → {val}")
+                        elif finalType == 'vector3[list]' and isinstance(val, (int, float)):
+                            val = [val, val, val]
+                            debugLog(f"[getCreateFunctionDefaults] 🔁 Forcing '{name}' to vector3 → {val}")
+                except Exception as e:
+                    debugLog(f"[getCreateFunctionDefaults] ❌ Error in step 6 (final override) for '{name}': {e}")
+                    raise
+
+                # 8) Finally, put whatever we wound up with into kwargs
+                try:
+                    kwargs[name] = val
+                    debugLog(f"[getCreateFunctionDefaults] ✅ Successfully stored '{name}' = {repr(val)}")
+                except Exception as e:
+                    debugLog(f"[getCreateFunctionDefaults] ❌ Error storing '{name}': {e}")
+                    raise
+
+            except Exception as e:
+                debugLog(f"[getCreateFunctionDefaults] ❌ Exception processing parameter '{name}': {e}")
+                # Continue with next parameter instead of failing completely
                 continue
 
-            elif name == 'inertia':
-                val = getDefaultInertiaEntry()
-                debugLog(f"[getCreateFunctionDefaults] 🧩 Inserted default inertia entry: {val}")
-                kwargs[name] = val
-                continue  # inertia is fully handled → skip remaining logic for this field
-
-            # 2) check "explicit override" from your getDefaultForField(...) (if any)
-            val_override = getDefaultForField(name)
-            if val_override is not None:
-                val = val_override
-                debugLog(f"[getCreateFunctionDefaults] ✅ Special default for '{name}': {val}")
-            else:
-                # 3) guess via name + type heuristics
-                val = guessHeuristicDefault(name, typeName)
-                if val is not None:
-                    debugLog(f"[getCreateFunctionDefaults] 🔍 Heuristic default for '{name}': {val}")
-
-            # 4) if still None, try your "knownFieldDefaults" table
-            if val is None:
-                val = _knownFieldDefaults.get(lname)
-                if val is not None:
-                    debugLog(f"[getCreateFunctionDefaults] 🧠 Patched '{name}' with knownFieldDefault → {val}")
-
-            # 5) attempt annotation‐based fallback
-            expected = param.annotation
-            try:
-                if val is None and expected in [int, float, bool, str]:
-                    val = expected()  # e.g. float() → 0.0, int() → 0
-                    debugLog(f"[getCreateFunctionDefaults] 🧪 Filled '{name}' from annotation: {val}")
-                elif expected in [list, tuple] and isinstance(val, (int, float)):
-                    # e.g. scalar → [scalar, scalar, scalar]
-                    val = [val, val, val]
-                    debugLog(f"[getCreateFunctionDefaults] 🧩 Promoted scalar to vector3 for '{name}' → {val}")
-                elif expected is float and isinstance(val, int):
-                    val = float(val)
-                elif expected is bool and isinstance(val, int):
-                    val = bool(val)
-            except Exception as e:
-                debugLog(f"[getCreateFunctionDefaults] ⚠️ Annotation fallback failed for '{name}': {e}")
-
-            # 6) final override: enforce a few known field types
-            finalType = _knownFieldTypes.get(lname)
-            if finalType:
-                if finalType == 'bool' and isinstance(val, int):
-                    val = bool(val)
-                    debugLog(f"[getCreateFunctionDefaults] 🔁 Forcing '{name}' to bool → {val}")
-                elif finalType == 'vector3[list]' and isinstance(val, (int, float)):
-                    val = [val, val, val]
-                    debugLog(f"[getCreateFunctionDefaults] 🔁 Forcing '{name}' to vector3 → {val}")
-
-
-
-
-
-            # 8) Finally, put whatever we wound up with into kwargs
-            kwargs[name] = val
-
         # 9) If name wasn't set, give it a default
-        if not kwargs.get('name'):
+        try:
+            name_val = kwargs.get('name')
+            # ✅ Handle numpy arrays in name field
+            if isinstance(name_val, np.ndarray):
+                name_val = name_val.tolist()
+                kwargs['name'] = name_val
+            
+            # ✅ Safe boolean check that works with arrays and None
+            if name_val is None or (isinstance(name_val, str) and name_val.strip() == ''):
+                kwargs['name'] = typeName
+                debugLog(f"[getCreateFunctionDefaults] 🆕 Assigned default name: {kwargs['name']}")
+        except Exception as e:
+            debugLog(f"[getCreateFunctionDefaults] ❌ Error in step 9 (name assignment): {e}")
+            # Fallback: ensure name is set
             kwargs['name'] = typeName
-            debugLog(f"[getCreateFunctionDefaults] 🆕 Assigned default name: {kwargs['name']}")
 
         # 10) Re-insert any previously saved graphicsDataList entries
-        entryName = kwargs['name']
-        if entryName in graphicsDataRegistry:
-            entryGraphics = graphicsDataRegistry[entryName]
-            rebuiltObjects = reconstructGraphicsDataList(entryGraphics)
-            # Only keep the "dict form" here (so GUI can show name+args)
-            metaList = []
-            for idx, gdObj in enumerate(rebuiltObjects):
-                rec = entryGraphics[idx]
-                nameStr = rec.get("name", gdObj.get("type", "<Unknown>"))
-                argsStr = rec.get("args", summarizeGraphicsData(gdObj).rstrip(")"))
-                metaList.append({"name": nameStr, "args": argsStr, "object": gdObj})
-            kwargs['graphicsDataList'] = metaList
-            debugLog(f"[getCreateFunctionDefaults] 🧩 Restored {len(metaList)} graphicsData entries for '{entryName}'")
+        try:
+            entryName = kwargs['name']
+            if entryName in graphicsDataRegistry:
+                entryGraphics = graphicsDataRegistry[entryName]
+                rebuiltObjects = reconstructGraphicsDataList(entryGraphics)
+                # Only keep the "dict form" here (so GUI can show name+args)
+                metaList = []
+                for idx, gdObj in enumerate(rebuiltObjects):
+                    rec = entryGraphics[idx]
+                    nameStr = rec.get("name", gdObj.get("type", "<Unknown>"))
+                    argsStr = rec.get("args", summarizeGraphicsData(gdObj).rstrip(")"))
+                    metaList.append({"name": nameStr, "args": argsStr, "object": gdObj})
+                kwargs['graphicsDataList'] = metaList
+                debugLog(f"[getCreateFunctionDefaults] 🧩 Restored {len(metaList)} graphicsData entries for '{entryName}'")
+        except Exception as e:
+            debugLog(f"[getCreateFunctionDefaults] ❌ Error in step 10 (graphics restoration): {e}")
+            # Continue anyway - graphics restoration is optional
 
+        debugLog(f"[getCreateFunctionDefaults] ✅ Completed processing for {typeName} with {len(kwargs)} fields")
         return kwargs, supportedArgs
 
     except Exception as e:
-        debugLog(f"[getCreateFunctionDefaults] ❌ Failed for {typeName}: {e}")
-        return None, []
+        debugLog(f"[getCreateFunctionDefaults] ❌ Unexpected error for {typeName}: {e}")
+        # ✅ Return partial results instead of complete failure
+        debugLog(f"[getCreateFunctionDefaults] 🔄 Returning partial results: {len(kwargs)} fields")
+        return kwargs if kwargs else {}, supportedArgs if 'supportedArgs' in locals() else []
 
 
 
@@ -993,7 +1105,6 @@ import re
 def patchDefaultFromCppString(valueStr):
     """Convert known C++ default strings to valid Python values."""
 
-
     # ✅ Fix malformed graphicsData placeholder like ["{'graphicsData': '<not requested>'}"]
     if isinstance(valueStr, list) and len(valueStr) == 1:
         single = valueStr[0]
@@ -1006,17 +1117,25 @@ def patchDefaultFromCppString(valueStr):
         
     # Already usable
     if not isinstance(valueStr, str):
-        return valueStr
+        # ✅ Apply matrix normalization to non-string values too
+        return normalizeMatrixFormat(valueStr)
 
     valueStr = valueStr.strip()
 
-    # ✅ Try parsing valid literals early
+    # ✅ Try parsing valid literals early (with matrix normalization)
     try:
         parsed = ast.literal_eval(valueStr)
         if isinstance(parsed, (list, dict, int, float, bool)):
-            return parsed
+            return normalizeMatrixFormat(parsed)
     except:
         pass  # fall back to manual mappings
+
+    # ✅ Handle malformed numpy array strings like "[[1 2 3][4 5 6]]"
+    if valueStr.startswith('[[') and valueStr.endswith(']]') and ',' not in valueStr:
+        # Likely a malformed numpy array string
+        normalized = normalizeMatrixFormat(valueStr)
+        if normalized != valueStr:  # If normalization worked
+            return normalized
 
     # 🔁 Handle EXUmath defaults
     if valueStr in ["EXUmath::unitMatrix3D", "EXUmath::unitMatrix"]:
@@ -1050,8 +1169,8 @@ def patchDefaultFromCppString(valueStr):
     if valueStr == "[]":
         return []
 
-    # Fallback: return as-is
-    return valueStr
+    # ✅ Apply matrix normalization to the final fallback
+    return normalizeMatrixFormat(valueStr)
 
 
 
@@ -1070,6 +1189,8 @@ def transformSystemFieldMetadata(raw):
         # Create* function block
         if isinstance(fields, dict) and all(isinstance(v, (str, int, float, list, bool, type(None))) for v in fields.values()):
             for fieldName, defaultValue in fields.items():
+                # ✅ Apply matrix normalization
+                defaultValue = normalizeMatrixFormat(defaultValue)
                 inferredType = inferTypeFromValue(defaultValue)
                 validator = getValidator(inferredType, fieldName, objectType=className)
     
@@ -1107,6 +1228,8 @@ def transformSystemFieldMetadata(raw):
             else:
                 defaultValue = patchedDefault
         
+            # ✅ Apply matrix normalization
+            defaultValue = normalizeMatrixFormat(defaultValue)
             inferredType = inferTypeFromValue(defaultValue)
             validator = getValidator(inferredType, guiFieldName)
         
@@ -1119,9 +1242,7 @@ def transformSystemFieldMetadata(raw):
                 "validator": validator.__name__ if validator else None
             }
 
-    
         transformed[className] = classDict
-
 
     return transformed
 
@@ -1130,6 +1251,10 @@ def transformSystemFieldMetadata(raw):
 
 
 def serializeDefault(val):
+    """Serialize default values for JSON export, with comprehensive matrix normalization."""
+    # ✅ Apply matrix normalization first
+    val = normalizeMatrixFormat(val)
+    
     if isinstance(val, (int, float, str, bool)) or val is None:
         return val
     elif isinstance(val, (list, tuple)):

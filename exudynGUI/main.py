@@ -23,7 +23,8 @@ import time
 # Import debug module FIRST, before anything else that might use it
 try:
     from exudynGUI.core import debug
-    debug.configureForProduction()  # Only show errors, much quieter
+    #debug.configureForProduction()  # Only show errors, much quieter
+    debug.setDebugLevel(debug.DebugLevel.TRACE)
 except Exception as e:
     print(f"❌ Failed to import debug module: {e}")
     # Create a simple fallback debug function that matches the real signature
@@ -381,7 +382,7 @@ def launchGUI():
                     traceback.print_exc()
 
             # Load global PDF documentation during startup
-            loadGlobalPdfDocumentation()
+            # loadGlobalPdfDocumentation()
             
             window._precompute_legacy_help = precompute_with_progress.__get__(window)
             window._precompute_legacy_help()
@@ -430,14 +431,14 @@ def launchGUI():
             debug.debugError(f"Failed to setup renderer timer: {e}", origin="package.main.py", category=debug.DebugCategory.GUI)
             traceback.print_exc()
         
-        try:
-            if hasattr(window, "stopIdleStateLoop"):
-                window.stopIdleStateLoop()
-            if hasattr(window, "startIdleStateLoop"):
-                window.startIdleStateLoop()
-        except Exception as e:
-            debug.debugError(f"Failed to setup idle state loop: {e}", origin="package.main.py", category=debug.DebugCategory.GUI)
-            traceback.print_exc()
+        # try:
+        #     # if hasattr(window, "stopIdleStateLoop"):
+        #     #     window.stopIdleStateLoop()
+        #     # if hasattr(window, "startIdleStateLoop"):
+        #     #     window.startIdleStateLoop()
+        # except Exception as e:
+        #     debug.debugError(f"Failed to setup idle state loop: {e}", origin="package.main.py", category=debug.DebugCategory.GUI)
+        #     traceback.print_exc()
             
         debug.debugInfo("GUI launched successfully from package.", origin="package.main.py", category=debug.DebugCategory.GUI)
         sys.exit(app.exec_())

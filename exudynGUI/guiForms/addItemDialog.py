@@ -134,7 +134,10 @@ CREATE_FUNCTION_ICONS = {
     "CreateTorque": "Torque.png",
     "CreateDistanceSensor": "DistanceSensor.png",
     "CreateDistanceSensorGeometry": "DistanceSensorGeometry.png",
-    "CreateKinematicTree": "KinematicTree.png"
+    "CreateKinematicTree": "KinematicTree.png",
+    "CreateSphereTriangleContact": "SphereTriangleContact.png",
+    "CreateSphereQuadContact": "SphereQuadContact.png",
+    "CreateSphereSphereContact": "SphereSphereContact.png",
 }
 
 CREATE_FUNCTION_DESCRIPTIONS = {
@@ -157,7 +160,10 @@ CREATE_FUNCTION_DESCRIPTIONS = {
     "CreateTorque": "Applies a torque (moment) vector to a rigid body. Used for rotational actuation and loading.",
     "CreateDistanceSensor": "Creates a sensor to measure distance between two points during simulation.",
     "CreateDistanceSensorGeometry": "Creates a geometric distance sensor for complex distance measurements between bodies.",
-    "CreateKinematicTree": "Creates a kinematic tree structure for efficient multi-body dynamics with tree topology."
+    "CreateKinematicTree": "Creates a kinematic tree structure for efficient multi-body dynamics with tree topology.",
+    "CreateSphereTriangleContact": "Creates contact between a sphere and triangular mesh geometry with collision detection and response.",
+    "CreateSphereQuadContact": "Creates contact between a sphere and quadrilateral mesh geometry for surface contact modeling.",
+    "CreateSphereSphereContact": "Creates contact between two spheres with collision detection, penetration handling, and contact forces.",
 }
 
 
@@ -688,28 +694,22 @@ class AddModelElementDialog(QDialog):
                 if item and item.widget():
                     widget = item.widget()
                     typeName = ""
-                    typeDesc = ""
                     
-                    # Extract the type name and description from the widget structure
-                    # Structure: widget -> vbox -> [buttonWidget, descLabel]
+                    # Extract the type name from the actual widget structure
+                    # Actual structure: widget -> hbox -> [mainButton, helpButton]
                     layout = widget.layout()
-                    if layout and layout.count() >= 2:
-                        # Get button widget (contains button and help button)
-                        buttonWidget = layout.itemAt(0).widget()
-                        if buttonWidget and buttonWidget.layout():
-                            # Get the main button (first widget in horizontal layout)
-                            mainButton = buttonWidget.layout().itemAt(0).widget()
-                            if mainButton:
-                                typeName = mainButton.text()
+                    if layout and layout.count() >= 1:
+                        # Get the main button (first widget in horizontal layout)
+                        mainButton = layout.itemAt(0).widget()
+                        if mainButton and hasattr(mainButton, 'text'):
+                            typeName = mainButton.text()
                         
-                        # Get description label
-                        descLabel = layout.itemAt(1).widget()
-                        if descLabel:
-                            typeDesc = descLabel.text()
-                        
-                        # Check if search text matches type name or description
-                        if typeName and typeDesc:
-                            visible = (text in typeName.lower() or                                     text in typeDesc.lower()) if text else True
+                        # Check if search text matches type name or tooltip description
+                        if typeName:
+                            # Also check the tooltip for description matching
+                            tooltip = mainButton.toolTip() if hasattr(mainButton, 'toolTip') else ""
+                            visible = (text in typeName.lower() or 
+                                     text in tooltip.lower()) if text else True
                             widget.setVisible(visible)
                         else:
                             # Fallback: show all if we can't extract text or no search text

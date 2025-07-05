@@ -193,12 +193,20 @@ def validateIndex(key, value):
     return isinstance(value, int) and value >= 0, f"Expected valid index (>= 0) for {key}"
 
 def validateList(key, value):
+    # ✅ Allow None values to pass validation silently
+    if value is None:
+        return True, ""
     return isinstance(value, list), f"Expected list for {key}"
 
 
 
 def validateVector3(key, value, expectedLength=3):
     import numpy as np
+    
+    # ✅ Allow None values to pass validation silently
+    if value is None:
+        return True, ""
+    
     # 1) If it's literally a list/tuple of numbers, accept as before:
     if isinstance(value, (list, tuple)) \
        and len(value) == expectedLength \
@@ -221,6 +229,9 @@ def validateVector3(key, value, expectedLength=3):
 
 
 def validateVector4(key, value):
+    # ✅ Allow None values to pass validation silently
+    if value is None:
+        return True, ""
     return isinstance(value, list) and len(value) == 4, f"Expected 4D vector for {key}"
 
 
@@ -229,6 +240,11 @@ def validateMatrix3x3(key, value):
     """Validate a 3x3 matrix of floats."""
     import ast
     label = key if key else 'value'
+    
+    # ✅ Allow None values to pass validation silently
+    if value is None:
+        return True, ""
+    
     if isinstance(value, str):
         try:
             value = ast.literal_eval(value)
@@ -258,6 +274,9 @@ def validateFunction(key, value):
     return callable(value) or isinstance(value, str), f"Expected callable or function name string for {key}"
 
 def validateMatrix(key, value):
+    # ✅ Allow None values to pass validation silently
+    if value is None:
+        return True, ""
     return isinstance(value, list), f"Expected matrix-like list for {key}"
 
 def validateNonEmptyList(key, value):
@@ -266,6 +285,9 @@ def validateNonEmptyList(key, value):
     return False, f"'{key}' must be a non-empty list"
 
 def validateSquareMatrix(key, value):
+    # ✅ Allow None values to pass validation silently
+    if value is None:
+        return True, ""
     if isinstance(value, list) and all(isinstance(row, list) for row in value):
         size = len(value)
         if all(len(row) == size for row in value):
@@ -275,6 +297,11 @@ def validateSquareMatrix(key, value):
 def validateVector(key, value):
     """Validate that value is a 1D list-like vector (list, tuple, or np.array)."""
     import numpy as np
+    
+    # ✅ Allow None values to pass validation silently
+    if value is None:
+        return True, ""
+    
     if isinstance(value, (list, tuple)) and all(isinstance(v, (int, float)) for v in value):
         return True, ""
     if isinstance(value, np.ndarray) and value.ndim == 1:
@@ -336,6 +363,9 @@ def validateIntVector6(key, value):
 
 
 def validateGraphicsDataList(key, gList):
+    # ✅ Allow None values to pass validation silently
+    if gList is None:
+        return True, ""
     if not isinstance(gList, list):
         return False, f"{key} is not a list"
     for entry in gList:
@@ -399,8 +429,11 @@ def validateAny1DArray(key, value):
 
 
 def validateMatrixContainer(key, value):
+    # ✅ Allow None values to pass validation silently
+    if value is None:
+        return True, ""
     # Replace with appropriate type check, e.g. for dict, sparse format, etc.
-    return isinstance(value, dict) or hasattr(value, 'shape')
+    return isinstance(value, dict) or hasattr(value, 'shape'), f"Expected matrix container for {key}"
 
 import re
 def makeMatrixValidator(shape):
@@ -416,6 +449,9 @@ def makeMatrixValidator(shape):
 
 
 def validateMatrixND(key, value):
+    # ✅ Allow None values to pass validation silently
+    if value is None:
+        return True, ""
     if isinstance(value, np.ndarray):
         if value.shape == (3, 3):
             return True, ""
@@ -485,7 +521,10 @@ VALIDATORS_BY_KEY = {
     'position': validateVector3,
     'velocityoffset': validateFloat,
     'velocity': validateVector3,
+    'initialvelocity': validateVector3,  # For 3D velocity vectors
     'acceleration': validateVector3,
+    # ✅ Scalar velocity fields that should NOT be validated as vectors
+    'minimumimpactvelocity': validateFloat,
     'nparray2D': validateMatrix,
 
     # Rotation matrices
@@ -939,11 +978,21 @@ def getValidator(metaType: str, fieldName: str = "", objectType: str = None):
         debugLog(f"[getValidator] ✅ Matched '{fieldName}' via _knownFieldValidators")
         return _knownFieldValidators[fieldNameLower]
 
-    # 2. Match via VALIDATORS_BY_KEY (field name contains key)
-    for key, validator in VALIDATORS_BY_KEY.items():
-        if key in fieldNameLower:
-            debugLog(f"[getValidator] 🔍 Matched '{fieldName}' via VALIDATORS_BY_KEY (key: '{key}')")
-            return validator
+    # 2. Match via VALIDATORS_BY_KEY (prioritize exact matches, then substring matches)
+    # First check for exact matches
+    if fieldNameLower in VALIDATORS_BY_KEY:
+        validator = VALIDATORS_BY_KEY[fieldNameLower]
+        debugLog(f"[getValidator] 🎯 Exact match for '{fieldName}' via VALIDATORS_BY_KEY")
+        return validator
+    
+    # Then check for substring matches, prioritizing longer keys (more specific)
+    matching_keys = [(key, validator) for key, validator in VALIDATORS_BY_KEY.items() if key in fieldNameLower]
+    if matching_keys:
+        # Sort by key length (descending) to prioritize more specific matches
+        matching_keys.sort(key=lambda x: len(x[0]), reverse=True)
+        key, validator = matching_keys[0]
+        debugLog(f"[getValidator] 🔍 Substring match for '{fieldName}' via VALIDATORS_BY_KEY (key: '{key}')")
+        return validator
 
     # 3. Match via VALIDATORS_BY_TYPE (type exact match)
     validator = VALIDATORS_BY_TYPE.get(normalizedType)

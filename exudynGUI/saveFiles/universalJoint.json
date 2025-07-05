@@ -36,28 +36,8 @@
           0.0,
           0.0
         ],
-        "initialDisplacement": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "initialRotationMatrix": [
-          [
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0
-          ]
-        ],
+        "initialDisplacement": null,
+        "initialRotationMatrix": null,
         "inertia": {
           "name": "InertiaSphere",
           "args": "mass=1.0, radius=0.1, density=None"
@@ -69,10 +49,10 @@
         ],
         "nodeType": "NodeType.RotationEulerParameters",
         "graphicsDataList": [
-          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+          "exu.graphics.FromSTLfile(fileName='C:/Arbeit/exudynGUI/exudynGUI/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 1.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[6.123233995736766e-17, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 6.123233995736766e-17]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
         ],
         "graphicsDataUserFunction": 0,
-        "drawSize": -1.0,
+        "drawSize": -1,
         "color": [
           0.5,
           0.5,
@@ -82,9 +62,14 @@
         "show": true,
         "create2D": false,
         "returnDict": false,
-        "creationUID": "ffee94e5-decf-4701-9d32-e64ffc1eb5cc",
         "objectType": "CreateRigidBody",
-        "creationIndex": 66,
+        "objIndex": 0,
+        "returnInfo": "nodeNumber=0 / bodyNumber=0",
+        "returnValues": {
+          "nodeNumber": 0,
+          "bodyNumber": 0
+        },
+        "creationIndex": 33,
         "GUI": {
           "returnValues": {
             "nodeNumber": 0,
@@ -92,17 +77,11 @@
           },
           "objIndex": 0,
           "returnInfo": "nodeNumber=0 / bodyNumber=0"
-        },
-        "returnValues": {
-          "nodeNumber": 0,
-          "bodyNumber": 0
-        },
-        "objIndex": 0,
-        "returnInfo": "nodeNumber=0 / bodyNumber=0"
+        }
       },
       "summaryPythonCode": {
         "graphicsDataList": [
-          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+          "exu.graphics.FromSTLfile(fileName='C:/Arbeit/exudynGUI/exudynGUI/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 1.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[6.123233995736766e-17, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 6.123233995736766e-17]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
         ],
         "graphicsDataUserFunction": "0",
         "inertia": "InertiaSphere(mass=1.0, radius=0.1, density=None)",
@@ -145,28 +124,8 @@
           0.0,
           0.0
         ],
-        "initialDisplacement": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "initialRotationMatrix": [
-          [
-            1.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0
-          ],
-          [
-            0.0,
-            0.0,
-            1.0
-          ]
-        ],
+        "initialDisplacement": null,
+        "initialRotationMatrix": null,
         "inertia": {
           "name": "InertiaSphere",
           "args": "mass=1.0, radius=0.1, density=None"
@@ -178,10 +137,10 @@
         ],
         "nodeType": "NodeType.RotationEulerParameters",
         "graphicsDataList": [
-          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/crossShaft.stl', color=[0.5, 0.5, 0.5, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+          "exu.graphics.FromSTLfile(fileName='C:/Arbeit/exudynGUI/exudynGUI/exudynGUI/stlFiles/crossShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[6.123233995736766e-17, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 6.123233995736766e-17]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
         ],
         "graphicsDataUserFunction": 0,
-        "drawSize": -1.0,
+        "drawSize": -1,
         "color": [
           0.5,
           0.5,
@@ -191,9 +150,14 @@
         "show": true,
         "create2D": false,
         "returnDict": false,
-        "creationUID": "ac5ec4e8-060b-4118-8c47-6155de3b56b2",
         "objectType": "CreateRigidBody",
-        "creationIndex": 95,
+        "objIndex": 1,
+        "returnInfo": "nodeNumber=1 / bodyNumber=1",
+        "returnValues": {
+          "nodeNumber": 1,
+          "bodyNumber": 1
+        },
+        "creationIndex": 74,
         "GUI": {
           "returnValues": {
             "nodeNumber": 1,
@@ -201,17 +165,11 @@
           },
           "objIndex": 1,
           "returnInfo": "nodeNumber=1 / bodyNumber=1"
-        },
-        "returnValues": {
-          "nodeNumber": 1,
-          "bodyNumber": 1
-        },
-        "objIndex": 1,
-        "returnInfo": "nodeNumber=1 / bodyNumber=1"
+        }
       },
       "summaryPythonCode": {
         "graphicsDataList": [
-          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/crossShaft.stl', color=[0.5, 0.5, 0.5, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+          "exu.graphics.FromSTLfile(fileName='C:/Arbeit/exudynGUI/exudynGUI/exudynGUI/stlFiles/crossShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[6.123233995736766e-17, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 6.123233995736766e-17]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
         ],
         "graphicsDataUserFunction": "0",
         "inertia": "InertiaSphere(mass=1.0, radius=0.1, density=None)",
@@ -221,7 +179,7 @@
     {
       "type": "CreateRigidBody",
       "data": {
-        "name": "RigidBody3",
+        "name": "RigidBody5",
         "referencePosition": [
           0.5,
           0.0,
@@ -254,28 +212,8 @@
           0.0,
           0.0
         ],
-        "initialDisplacement": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "initialRotationMatrix": [
-          [
-            -1.0,
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0,
-            0.0
-          ],
-          [
-            -0.0,
-            0.0,
-            -1.0
-          ]
-        ],
+        "initialDisplacement": null,
+        "initialRotationMatrix": null,
         "inertia": {
           "name": "InertiaSphere",
           "args": "mass=1.0, radius=0.1, density=None"
@@ -287,10 +225,10 @@
         ],
         "nodeType": "NodeType.RotationEulerParameters",
         "graphicsDataList": [
-          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+          "exu.graphics.FromSTLfile(fileName='C:\\\\Arbeit\\\\exudynGUI\\\\exudynGUI\\\\exudynGUI\\\\stlFiles\\\\rigidShaft.stl', color=[0.5, 0.5, 0.5, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[-6.123233995736766e-17, -1.2246467991473532e-16, -1.0], [7.498798913309288e-33, -1.0, 1.2246467991473532e-16], [-1.0, 0.0, 6.123233995736766e-17]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
         ],
         "graphicsDataUserFunction": 0,
-        "drawSize": -1.0,
+        "drawSize": -1,
         "color": [
           0.5,
           0.5,
@@ -300,9 +238,14 @@
         "show": true,
         "create2D": false,
         "returnDict": false,
-        "creationUID": "db0eb7fa-5132-45f5-8bd7-8f5364414588",
         "objectType": "CreateRigidBody",
-        "creationIndex": 134,
+        "objIndex": 2,
+        "returnInfo": "nodeNumber=2 / bodyNumber=2",
+        "returnValues": {
+          "nodeNumber": 2,
+          "bodyNumber": 2
+        },
+        "creationIndex": 231,
         "GUI": {
           "returnValues": {
             "nodeNumber": 2,
@@ -310,17 +253,11 @@
           },
           "objIndex": 2,
           "returnInfo": "nodeNumber=2 / bodyNumber=2"
-        },
-        "returnValues": {
-          "nodeNumber": 2,
-          "bodyNumber": 2
-        },
-        "objIndex": 2,
-        "returnInfo": "nodeNumber=2 / bodyNumber=2"
+        }
       },
       "summaryPythonCode": {
         "graphicsDataList": [
-          "exu.graphics.FromSTLfile(fileName='C:/Users/piebe/Desktop/ModelBuilderV01/V0/copilotWithGUI/mainExudynGUI_V0.04/exudynGUI/stlFiles/rigidShaft.stl', color=[0.0, 0.0, 0.0, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [-1.0, 0.0, 0.0]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
+          "exu.graphics.FromSTLfile(fileName='C:\\\\Arbeit\\\\exudynGUI\\\\exudynGUI\\\\exudynGUI\\\\stlFiles\\\\rigidShaft.stl', color=[0.5, 0.5, 0.5, 1.0], verbose=False, density=0.0, scale=1.0, Aoff=[[-6.123233995736766e-17, -1.2246467991473532e-16, -1.0], [7.498798913309288e-33, -1.0, 1.2246467991473532e-16], [-1.0, 0.0, 6.123233995736766e-17]], pOff=[0.0, 0.0, 0.0], invertNormals=True, invertTriangles=True)"
         ],
         "graphicsDataUserFunction": "0",
         "inertia": "InertiaSphere(mass=1.0, radius=0.1, density=None)",
@@ -702,7 +639,7 @@
     "k": 1000.0
   },
   "metadata": {
-    "created": "2025-06-27T02:46:40.144924",
+    "created": "2025-07-05T01:42:25.268741",
     "version": "1.0"
   }
 }

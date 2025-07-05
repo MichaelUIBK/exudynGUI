@@ -191,7 +191,7 @@ class MainWindow(QMainWindow):
                 self.modelSequence[i] = build_model_item(item)
         
         # 2. Initialize model tracking state
-        self.resetModelTrackingState()
+        #
         
         # Initialize undoStack and other required variables
         self.undoStack = []
@@ -245,18 +245,18 @@ class MainWindow(QMainWindow):
         self.bind_to_kernel(mbs=self.mbs, SC=self.SC)
         
         # Load console bridge module for external connectivity
-        try:
-            bridge_path = Path(__file__).parent.parent / "gui_console_bridge.py"
-            if bridge_path.exists():
-                with open(bridge_path, 'r', encoding='utf-8') as f:
-                    bridge_code = f.read()
-                self.kernel_client.execute(bridge_code)
-                self.bind_to_kernel(main_window=self)  # Inject main window reference
-                debugLog("Console bridge module loaded - external connectivity enabled", origin="MainWindow")
-            else:
-                debugLog("Console bridge module not found", origin="MainWindow")
-        except Exception as e:
-            debugLog(f"Failed to load console bridge: {e}", origin="MainWindow")        
+        # try:
+        #     bridge_path = Path(__file__).parent.parent / "gui_console_bridge.py"
+        #     if bridge_path.exists():
+        #         with open(bridge_path, 'r', encoding='utf-8') as f:
+        #             bridge_code = f.read()
+        #         self.kernel_client.execute(bridge_code)
+        #         self.bind_to_kernel(main_window=self)  # Inject main window reference
+        #         debugLog("Console bridge module loaded - external connectivity enabled", origin="MainWindow")
+        #     else:
+        #         debugLog("Console bridge module not found", origin="MainWindow")
+        # except Exception as e:
+        #     debugLog(f"Failed to load console bridge: {e}", origin="MainWindow")        
         #######################################################################
         # Create the new organized layout
         self.setupRibbonInterface()
@@ -1479,6 +1479,15 @@ class MainWindow(QMainWindow):
                     "CreateDistanceSensorGeometry": "Creates a geometric distance sensor for complex distance measurements between bodies.",
                     "CreateKinematicTree": "Creates a kinematic tree structure for efficient multi-body dynamics with tree topology."
                 }
+            },
+            "Contact": {
+                "items": ["CreateSphereTriangleContact", "CreateSphereQuadContact", "CreateSphereSphereContact"],
+                "icon": "🔄",
+                "descriptions": {
+                    "CreateSphereTriangleContact": "Creates contact between a sphere and triangular mesh geometry with collision detection and response.",
+                    "CreateSphereQuadContact": "Creates contact between a sphere and quadrilateral mesh geometry for surface contact modeling.",
+                    "CreateSphereSphereContact": "Creates contact between two spheres with collision detection, penetration handling, and contact forces."
+                }
             }
         }
         
@@ -1503,7 +1512,10 @@ class MainWindow(QMainWindow):
             "CreateTorque": "Torque.png",
             "CreateDistanceSensor": "DistanceSensor.png",
             "CreateDistanceSensorGeometry": "DistanceSensorGeometry.png",
-            "CreateKinematicTree": "KinematicTree.png"
+            "CreateKinematicTree": "KinematicTree.png",
+            "CreateSphereTriangleContact": "SphereTriangleContact.png",
+            "CreateSphereQuadContact": "SphereQuadContact.png",
+            "CreateSphereSphereContact": "SphereSphereContact.png"
         }
         
         # Create category groups
@@ -2933,7 +2945,8 @@ except Exception as e:
 
 
         except Exception as e:
-            debugLog(f"❌ SIMULATION WORKFLOW FAILED: {e}", origin="MainWindow")              # CRITICAL: Always resume GUI even if simulation failed
+            debugLog(f"❌ SIMULATION WORKFLOW FAILED: {e}", origin="MainWindow")              
+            # CRITICAL: Always resume GUI even if simulation failed
             self.resumeGUIAfterSimulation()
             
             # Always restart renderer refresh even if simulation failed

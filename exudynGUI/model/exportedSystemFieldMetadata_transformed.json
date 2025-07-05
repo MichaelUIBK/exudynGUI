@@ -35,9 +35,9 @@
     "stiffness": {
       "type": "vector3[list]",
       "defaultValue": [
-        1.0,
-        1.0,
-        1.0
+        0.0,
+        0.0,
+        0.0
       ],
       "required": false,
       "validator": "validateVector3"
@@ -45,9 +45,9 @@
     "damping": {
       "type": "vector3[list]",
       "defaultValue": [
-        0.1,
-        0.1,
-        0.1
+        0.0,
+        0.0,
+        0.0
       ],
       "required": false,
       "validator": "validateVector3"
@@ -87,24 +87,90 @@
       "validator": null
     },
     "drawSize": {
+      "type": "int",
+      "defaultValue": -1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "color": {
+      "type": "color",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "graphicsDataList": {
+      "type": "graphicsDataList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    }
+  },
+  "CreateCoordinateConstraint": {
+    "name": {
+      "type": "string",
+      "defaultValue": "CreateCoordinateConstraint",
+      "required": false,
+      "validator": "validateString"
+    },
+    "bodyNumbers": {
+      "type": "bodyNumbers",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "coordinates": {
+      "type": "list",
+      "defaultValue": [
+        null,
+        null
+      ],
+      "required": false,
+      "validator": "validateList"
+    },
+    "offset": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "factorValue1": {
+      "type": "float",
+      "defaultValue": 1.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "velocityLevel": {
+      "type": "bool",
+      "defaultValue": false,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "offsetUserFunction": {
+      "type": "userFunction",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "offsetUserFunction_t": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "show": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": null
+    },
+    "drawSize": {
       "type": "float",
       "defaultValue": -1.0,
       "required": false,
       "validator": "validateFloat"
     },
     "color": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
-      "required": false,
-      "validator": "<lambda>"
-    },
-    "graphicsDataList": {
-      "type": "graphicsDataList",
+      "type": "color",
       "defaultValue": null,
       "required": false,
       "validator": null
@@ -144,7 +210,7 @@
       "validator": "validateVector3"
     },
     "distance": {
-      "type": "distance",
+      "type": "NoneType",
       "defaultValue": null,
       "required": false,
       "validator": null
@@ -174,23 +240,18 @@
       "validator": "validateFloat"
     },
     "color": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": false,
-      "validator": "<lambda>"
+      "validator": null
     }
   },
   "CreateDistanceSensor": {
     "generalContactIndex": {
-      "type": "int",
-      "defaultValue": 0,
+      "type": "NoneType",
+      "defaultValue": null,
       "required": false,
-      "validator": "validateInt"
+      "validator": null
     },
     "positionOrMarker": {
       "type": "vector3[list]",
@@ -209,28 +270,28 @@
       "validator": null
     },
     "minDistance": {
-      "type": "NoneType",
-      "defaultValue": null,
-      "required": false,
-      "validator": null
-    },
-    "maxDistance": {
-      "type": "NoneType",
-      "defaultValue": null,
-      "required": false,
-      "validator": null
-    },
-    "cylinderRadius": {
       "type": "float",
-      "defaultValue": 0.1,
+      "defaultValue": -10000000.0,
       "required": false,
       "validator": "validateFloat"
     },
-    "selectedTypeIndex": {
+    "maxDistance": {
+      "type": "float",
+      "defaultValue": 10000000.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "cylinderRadius": {
       "type": "int",
       "defaultValue": 0,
       "required": false,
       "validator": "validateInt"
+    },
+    "selectedTypeIndex": {
+      "type": "ContactTypeIndex",
+      "defaultValue": 3,
+      "required": false,
+      "validator": null
     },
     "storeInternal": {
       "type": "bool",
@@ -239,43 +300,34 @@
       "validator": "<lambda>"
     },
     "fileName": {
-      "type": "string",
-      "defaultValue": "",
+      "type": "fileName",
+      "defaultValue": null,
       "required": false,
-      "validator": "validateString"
+      "validator": null
     },
     "measureVelocity": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "required": false,
-      "validator": "validateVector3"
-    },
-    "addGraphicsObject": {
-      "type": "NoneType",
-      "defaultValue": null,
-      "required": false,
-      "validator": null
-    },
-    "drawDisplaced": {
-      "type": "NoneType",
-      "defaultValue": null,
-      "required": false,
-      "validator": null
-    },
-    "color": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "bool",
+      "defaultValue": false,
       "required": false,
       "validator": "<lambda>"
+    },
+    "addGraphicsObject": {
+      "type": "bool",
+      "defaultValue": false,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "drawDisplaced": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "color": {
+      "type": "color",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
     },
     "name": {
       "type": "string",
@@ -298,23 +350,29 @@
       "validator": null
     },
     "rigidBodyMarkerIndex": {
-      "type": "int",
-      "defaultValue": 0,
-      "required": false,
-      "validator": "validateInt"
-    },
-    "searchTreeCellSize": {
       "type": "NoneType",
       "defaultValue": null,
       "required": false,
       "validator": null
+    },
+    "searchTreeCellSize": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        8,
+        8,
+        8
+      ],
+      "required": false,
+      "validator": "validateVector3"
     },
     "name": {
       "type": "string",
       "defaultValue": "CreateDistanceSensorGeometry",
       "required": false,
       "validator": "validateString"
-    }  },  "CreateForce": {
+    }
+  },
+  "CreateForce": {
     "name": {
       "type": "string",
       "defaultValue": "CreateForce",
@@ -372,20 +430,40 @@
       "validator": null
     }
   },
-  "CreateGenericJoint": {
+  "CreateGenericJoint": {},
+  "CreateGround": {},
+  "CreateKinematicTree": {
     "name": {
       "type": "string",
-      "defaultValue": "CreateGenericJoint",
+      "defaultValue": "CreateKinematicTree",
       "required": false,
       "validator": "validateString"
     },
-    "bodyNumbers": {
-      "type": "bodyNumbers",
+    "listOfTreeLinks": {
+      "type": "list",
+      "defaultValue": [],
+      "required": false,
+      "validator": "validateList"
+    },
+    "referenceCoordinates": {
+      "type": "NoneType",
       "defaultValue": null,
       "required": false,
       "validator": null
     },
-    "position": {
+    "initialCoordinates": {
+      "type": "NoneType",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "initialCoordinates_t": {
+      "type": "NoneType",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "gravity": {
       "type": "vector3[list]",
       "defaultValue": [
         0.0,
@@ -395,71 +473,65 @@
       "required": false,
       "validator": "validateVector3"
     },
-    "rotationMatrixAxes": {
-      "type": "matrix3x3",
+    "baseOffset": {
+      "type": "vector3[list]",
       "defaultValue": [
-        [
-          1.0,
-          0.0,
-          0.0
-        ],
-        [
-          0.0,
-          1.0,
-          0.0
-        ],
-        [
-          0.0,
-          0.0,
-          1.0
-        ]
+        0.0,
+        0.0,
+        0.0
       ],
       "required": false,
-      "validator": "validateMatrix3x3"
+      "validator": "validateVector3"
     },
-    "constrainedAxes": {
-      "type": "intvector6",
+    "linkForces": {
+      "type": "NoneType",
       "defaultValue": null,
       "required": false,
       "validator": null
     },
-    "useGlobalFrame": {
-      "type": "bool",
-      "defaultValue": false,
+    "linkTorques": {
+      "type": "NoneType",
+      "defaultValue": null,
       "required": false,
-      "validator": "<lambda>"
+      "validator": null
     },
-    "offsetUserFunction": {
+    "jointForceVector": {
+      "type": "NoneType",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "jointPositionOffsetVector": {
+      "type": "NoneType",
+      "defaultValue": null,
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "jointVelocityOffsetVector": {
+      "type": "NoneType",
+      "defaultValue": null,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "forceUserFunction": {
       "type": "userFunction",
       "defaultValue": null,
       "required": false,
       "validator": null
     },
-    "offsetUserFunction_t": {
-      "type": "int",
-      "defaultValue": 0,
-      "required": false,
-      "validator": "validateInt"
-    },
-    "show": {
-      "type": "bool",
-      "defaultValue": true,
-      "required": false,
-      "validator": null
-    },
-    "axesRadius": {
+    "jointRadius": {
       "type": "float",
-      "defaultValue": 0.1,
+      "defaultValue": 0.05,
       "required": false,
       "validator": "validateFloat"
     },
-    "axesLength": {
+    "jointWidth": {
       "type": "float",
-      "defaultValue": 0.4,
+      "defaultValue": 0.12,
       "required": false,
       "validator": "validateFloat"
     },
-    "color": {
+    "colors": {
       "type": "list",
       "defaultValue": [
         -1.0,
@@ -468,65 +540,30 @@
         -1.0
       ],
       "required": false,
-      "validator": "<lambda>"
+      "validator": "validateList"
     },
-    "graphicsDataList": {
-      "type": "graphicsDataList",
-      "defaultValue": null,
-      "required": false,
-      "validator": null
-    }
-  },
-  "CreateGround": {
-    "name": {
-      "type": "string",
-      "defaultValue": "CreateGround",
-      "required": false,
-      "validator": "validateString"
-    },
-    "referencePosition": {
-      "type": "vector3[list]",
+    "colorsJoints": {
+      "type": "list",
       "defaultValue": [
-        0.0,
-        0.0,
-        0.0
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
       ],
       "required": false,
-      "validator": "validateVector3"
+      "validator": "validateList"
     },
-    "referenceRotationMatrix": {
-      "type": "matrix3x3",
-      "defaultValue": [
-        [
-          1.0,
-          0.0,
-          0.0
-        ],
-        [
-          0.0,
-          1.0,
-          0.0
-        ],
-        [
-          0.0,
-          0.0,
-          1.0
-        ]
-      ],
-      "required": false,
-      "validator": "<lambda>"
-    },
-    "graphicsDataList": {
-      "type": "graphicsDataList",
+    "baseGraphicsDataList": {
+      "type": "NoneType",
       "defaultValue": null,
       "required": false,
       "validator": null
     },
-    "graphicsDataUserFunction": {
-      "type": "userFunction",
-      "defaultValue": null,
+    "linkRoundness": {
+      "type": "float",
+      "defaultValue": 0.2,
       "required": false,
-      "validator": null
+      "validator": "validateFloat"
     },
     "show": {
       "type": "bool",
@@ -573,17 +610,17 @@
       "validator": "validateVector3"
     },
     "physicsMass": {
-      "type": "float",
-      "defaultValue": 1.0,
+      "type": "int",
+      "defaultValue": 0,
       "required": false,
-      "validator": "validateFloat"
+      "validator": "validateInt"
     },
     "gravity": {
       "type": "vector3[list]",
       "defaultValue": [
         0.0,
         0.0,
-        -9.81
+        0.0
       ],
       "required": false,
       "validator": "validateVector3"
@@ -595,21 +632,16 @@
       "validator": null
     },
     "drawSize": {
-      "type": "float",
-      "defaultValue": -1.0,
+      "type": "int",
+      "defaultValue": -1,
       "required": false,
-      "validator": "validateFloat"
+      "validator": "validateInt"
     },
     "color": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": false,
-      "validator": "<lambda>"
+      "validator": null
     },
     "show": {
       "type": "bool",
@@ -644,28 +676,20 @@
       "validator": null
     },
     "position": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        0.0
-      ],
+      "type": "list",
+      "defaultValue": [],
       "required": false,
       "validator": "validateVector3"
     },
     "axis": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        1.0
-      ],
+      "type": "list",
+      "defaultValue": [],
       "required": false,
-      "validator": "validateVector3"
+      "validator": "validateList"
     },
     "useGlobalFrame": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "required": false,
       "validator": "<lambda>"
     },
@@ -677,7 +701,7 @@
     },
     "axisRadius": {
       "type": "float",
-      "defaultValue": 0.2,
+      "defaultValue": 0.1,
       "required": false,
       "validator": "validateFloat"
     },
@@ -688,15 +712,10 @@
       "validator": "validateFloat"
     },
     "color": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": false,
-      "validator": "<lambda>"
+      "validator": null
     },
     "graphicsDataList": {
       "type": "graphicsDataList",
@@ -719,28 +738,20 @@
       "validator": null
     },
     "position": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        0.0
-      ],
+      "type": "list",
+      "defaultValue": [],
       "required": false,
       "validator": "validateVector3"
     },
     "axis": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        1.0
-      ],
+      "type": "list",
+      "defaultValue": [],
       "required": false,
-      "validator": "validateVector3"
+      "validator": "validateList"
     },
     "useGlobalFrame": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "required": false,
       "validator": "<lambda>"
     },
@@ -752,7 +763,7 @@
     },
     "axisRadius": {
       "type": "float",
-      "defaultValue": 0.2,
+      "defaultValue": 0.1,
       "required": false,
       "validator": "validateFloat"
     },
@@ -763,15 +774,10 @@
       "validator": "validateFloat"
     },
     "color": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": false,
-      "validator": "<lambda>"
+      "validator": null
     },
     "graphicsDataList": {
       "type": "graphicsDataList",
@@ -780,129 +786,72 @@
       "validator": null
     }
   },
-  "CreateRigidBody": {
+  "CreateRigidBody": {},
+  "CreateRigidBodySpringDamper": {},
+  "CreateRollingDisc": {
     "name": {
       "type": "string",
-      "defaultValue": "CreateRigidBody",
+      "defaultValue": "CreateRollingDisc",
       "required": false,
       "validator": "validateString"
     },
-    "referencePosition": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "required": false,
-      "validator": "validateVector3"
-    },
-    "referenceRotationMatrix": {
-      "type": "matrix3x3",
-      "defaultValue": [
-        [
-          1.0,
-          0.0,
-          0.0
-        ],
-        [
-          0.0,
-          1.0,
-          0.0
-        ],
-        [
-          0.0,
-          0.0,
-          1.0
-        ]
-      ],
-      "required": false,
-      "validator": "<lambda>"
-    },
-    "initialVelocity": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "required": false,
-      "validator": "validateVector3"
-    },
-    "initialAngularVelocity": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "required": false,
-      "validator": "validateVector3"
-    },
-    "initialDisplacement": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "required": false,
-      "validator": "validateVector3"
-    },
-    "initialRotationMatrix": {
-      "type": "NoneType",
-      "defaultValue": null,
-      "required": false,
-      "validator": "validateMatrix3x3"
-    },
-    "inertia": {
-      "type": "inertia",
+    "bodyNumbers": {
+      "type": "bodyNumbers",
       "defaultValue": null,
       "required": false,
       "validator": null
     },
-    "gravity": {
+    "axisPosition": {
+      "type": "list",
+      "defaultValue": [],
+      "required": false,
+      "validator": "validateList"
+    },
+    "axisVector": {
       "type": "vector3[list]",
       "defaultValue": [
-        0.0,
-        0.0,
-        -9.81
+        1,
+        0,
+        0
       ],
       "required": false,
       "validator": "validateVector3"
     },
-    "nodeType": {
-      "type": "NoneType",
-      "defaultValue": null,
-      "required": false,
-      "validator": null
-    },
-    "graphicsDataList": {
-      "type": "graphicsDataList",
-      "defaultValue": null,
-      "required": false,
-      "validator": null
-    },
-    "graphicsDataUserFunction": {
-      "type": "userFunction",
-      "defaultValue": null,
-      "required": false,
-      "validator": null
-    },
-    "drawSize": {
+    "discRadius": {
       "type": "float",
-      "defaultValue": -1.0,
+      "defaultValue": 0.0,
       "required": false,
       "validator": "validateFloat"
     },
-    "color": {
-      "type": "list",
+    "planePosition": {
+      "type": "vector3[list]",
       "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
+        0,
+        0,
+        0
       ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "planeNormal": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0,
+        0,
+        1
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "constrainedAxes": {
+      "type": "intvector6",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "activeConnector": {
+      "type": "bool",
+      "defaultValue": true,
       "required": false,
       "validator": "<lambda>"
     },
@@ -912,23 +861,292 @@
       "required": false,
       "validator": null
     },
-    "create2D": {
+    "discWidth": {
+      "type": "float",
+      "defaultValue": 0.1,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "color": {
+      "type": "color",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    }
+  },
+  "CreateRollingDiscPenalty": {
+    "name": {
+      "type": "string",
+      "defaultValue": "CreateRollingDiscPenalty",
+      "required": false,
+      "validator": "validateString"
+    },
+    "bodyNumbers": {
+      "type": "bodyNumbers",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "axisPosition": {
+      "type": "list",
+      "defaultValue": [],
+      "required": false,
+      "validator": "validateList"
+    },
+    "axisVector": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        1,
+        0,
+        0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "discRadius": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "planePosition": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0,
+        0,
+        0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "planeNormal": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0,
+        0,
+        1
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "contactStiffness": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "contactDamping": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "dryFriction": {
+      "type": "list",
+      "defaultValue": [
+        0,
+        0
+      ],
+      "required": false,
+      "validator": "validateList"
+    },
+    "dryFrictionAngle": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "dryFrictionProportionalZone": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "viscousFriction": {
+      "type": "list",
+      "defaultValue": [
+        0,
+        0
+      ],
+      "required": false,
+      "validator": "validateList"
+    },
+    "rollingFrictionViscous": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "useLinearProportionalZone": {
       "type": "bool",
       "defaultValue": false,
       "required": false,
       "validator": "<lambda>"
     },
-    "returnDict": {
+    "activeConnector": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "required": false,
       "validator": "<lambda>"
+    },
+    "show": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": null
+    },
+    "discWidth": {
+      "type": "float",
+      "defaultValue": 0.1,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "color": {
+      "type": "color",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
     }
   },
-  "CreateRigidBodySpringDamper": {
+  "CreateSphereQuadContact": {
     "name": {
       "type": "string",
-      "defaultValue": "CreateRigidBodySpringDamper",
+      "defaultValue": "CreateSphereQuadContact",
+      "required": false,
+      "validator": "validateString"
+    },
+    "bodyNumbers": {
+      "type": "bodyNumbers",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "localPosition0": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "radiusSphere": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "quadPoints": {
+      "type": "Vector3DList",
+      "defaultValue": "[array([0., 0., 0.]), array([1., 0., 0.]), array([1., 1., 0.]), array([0., 1., 0.])]",
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "includeEdges": {
+      "type": "int",
+      "defaultValue": 15,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "dynamicFriction": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "frictionProportionalZone": {
+      "type": "float",
+      "defaultValue": 0.001,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "contactStiffness": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "contactDamping": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "contactStiffnessExponent": {
+      "type": "int",
+      "defaultValue": 1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "restitutionCoefficient": {
+      "type": "int",
+      "defaultValue": 1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "minimumImpactVelocity": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "impactModel": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "dataInitialCoordinates": {
+      "type": "list",
+      "defaultValue": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "required": false,
+      "validator": "validateList"
+    },
+    "activeConnector": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "bodyOrNodeList": {
+      "type": "bodyOrNodeList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "localPosition1": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "show": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": null
+    },
+    "color": {
+      "type": "color",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    }
+  },
+  "CreateSphereSphereContact": {
+    "name": {
+      "type": "string",
+      "defaultValue": "CreateSphereSphereContact",
       "required": false,
       "validator": "validateString"
     },
@@ -958,74 +1176,112 @@
       "required": false,
       "validator": "validateVector3"
     },
-    "stiffness": {
-      "type": "vector3[list]",
+    "spheresRadii": {
+      "type": "list",
       "defaultValue": [
-        100.0,
-        100.0,
-        100.0
+        -1,
+        -1
       ],
       "required": false,
-      "validator": "validateVector3"
+      "validator": "validateList"
     },
-    "damping": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        100.0,
-        100.0,
-        100.0
-      ],
-      "required": false,
-      "validator": "validateVector3"
-    },
-    "offset": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "required": false,
-      "validator": "validateVector3"
-    },
-    "rotationMatrixJoint": {
-      "type": "NoneType",
-      "defaultValue": null,
-      "required": false,
-      "validator": "validateMatrix3x3"
-    },
-    "useGlobalFrame": {
+    "isHollowSphere1": {
       "type": "bool",
       "defaultValue": false,
       "required": false,
       "validator": "<lambda>"
     },
-    "intrinsicFormulation": {
-      "type": "NoneType",
-      "defaultValue": null,
+    "dynamicFriction": {
+      "type": "float",
+      "defaultValue": 0.0,
       "required": false,
-      "validator": null
+      "validator": "validateFloat"
     },
-    "springForceTorqueUserFunction": {
-      "type": "userFunction",
-      "defaultValue": null,
+    "frictionProportionalZone": {
+      "type": "float",
+      "defaultValue": 0.001,
       "required": false,
-      "validator": null
+      "validator": "validateFloat"
     },
-    "postNewtonStepUserFunction": {
-      "type": "userFunction",
-      "defaultValue": null,
+    "contactStiffness": {
+      "type": "float",
+      "defaultValue": 0.0,
       "required": false,
-      "validator": null
+      "validator": "validateFloat"
+    },
+    "contactDamping": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "contactStiffnessExponent": {
+      "type": "int",
+      "defaultValue": 1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "constantPullOffForce": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "contactPlasticityRatio": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "adhesionCoefficient": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "adhesionExponent": {
+      "type": "int",
+      "defaultValue": 1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "restitutionCoefficient": {
+      "type": "int",
+      "defaultValue": 1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "minimumImpactVelocity": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "impactModel": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "dataInitialCoordinates": {
+      "type": "list",
+      "defaultValue": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "required": false,
+      "validator": "validateList"
+    },
+    "activeConnector": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": "<lambda>"
     },
     "bodyOrNodeList": {
       "type": "bodyOrNodeList",
-      "defaultValue": null,
-      "required": false,
-      "validator": null
-    },
-    "bodyList": {
-      "type": "bodyList",
       "defaultValue": null,
       "required": false,
       "validator": null
@@ -1036,25 +1292,143 @@
       "required": false,
       "validator": null
     },
-    "drawSize": {
+    "color": {
+      "type": "color",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    }
+  },
+  "CreateSphereTriangleContact": {
+    "name": {
+      "type": "string",
+      "defaultValue": "CreateSphereTriangleContact",
+      "required": false,
+      "validator": "validateString"
+    },
+    "bodyNumbers": {
+      "type": "bodyNumbers",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "localPosition0": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "radiusSphere": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "trianglePoints": {
+      "type": "Vector3DList",
+      "defaultValue": "[array([0., 0., 0.]), array([1., 0., 0.]), array([0., 1., 0.])]",
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "includeEdges": {
+      "type": "int",
+      "defaultValue": 7,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "dynamicFriction": {
       "type": "float",
-      "defaultValue": -1.0,
+      "defaultValue": 0.0,
       "required": false,
       "validator": "validateFloat"
     },
-    "color": {
+    "frictionProportionalZone": {
+      "type": "float",
+      "defaultValue": 0.001,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "contactStiffness": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "contactDamping": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "contactStiffnessExponent": {
+      "type": "int",
+      "defaultValue": 1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "restitutionCoefficient": {
+      "type": "int",
+      "defaultValue": 1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "minimumImpactVelocity": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "impactModel": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "dataInitialCoordinates": {
       "type": "list",
       "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
+        0,
+        0,
+        0,
+        0
       ],
+      "required": false,
+      "validator": "validateList"
+    },
+    "activeConnector": {
+      "type": "bool",
+      "defaultValue": true,
       "required": false,
       "validator": "<lambda>"
     },
-    "graphicsDataList": {
-      "type": "graphicsDataList",
+    "bodyOrNodeList": {
+      "type": "bodyOrNodeList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "localPosition1": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "show": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": null
+    },
+    "color": {
+      "type": "color",
       "defaultValue": null,
       "required": false,
       "validator": null
@@ -1074,12 +1448,8 @@
       "validator": null
     },
     "position": {
-      "type": "vector3[list]",
-      "defaultValue": [
-        0.0,
-        0.0,
-        0.0
-      ],
+      "type": "list",
+      "defaultValue": [],
       "required": false,
       "validator": "validateVector3"
     },
@@ -1091,7 +1461,7 @@
     },
     "useGlobalFrame": {
       "type": "bool",
-      "defaultValue": false,
+      "defaultValue": true,
       "required": false,
       "validator": "<lambda>"
     },
@@ -1108,15 +1478,10 @@
       "validator": "validateFloat"
     },
     "color": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": false,
-      "validator": "<lambda>"
+      "validator": null
     }
   },
   "CreateSpringDamper": {
@@ -1160,13 +1525,13 @@
     },
     "stiffness": {
       "type": "float",
-      "defaultValue": 1.0,
+      "defaultValue": 0.0,
       "required": false,
       "validator": "validateFloat"
     },
     "damping": {
       "type": "float",
-      "defaultValue": 0.1,
+      "defaultValue": 0.0,
       "required": false,
       "validator": "validateFloat"
     },
@@ -1207,21 +1572,16 @@
       "validator": null
     },
     "drawSize": {
-      "type": "float",
-      "defaultValue": -1.0,
+      "type": "int",
+      "defaultValue": -1,
       "required": false,
-      "validator": "validateFloat"
+      "validator": "validateInt"
     },
     "color": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": false,
-      "validator": "<lambda>"
+      "validator": null
     }
   },
   "CreateTorque": {
@@ -1277,6 +1637,106 @@
     },
     "graphicsDataList": {
       "type": "graphicsDataList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    }
+  },
+  "CreateTorsionalSpringDamper": {
+    "name": {
+      "type": "string",
+      "defaultValue": "CreateTorsionalSpringDamper",
+      "required": false,
+      "validator": "validateString"
+    },
+    "bodyNumbers": {
+      "type": "bodyNumbers",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "position": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "axis": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "stiffness": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "damping": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "offset": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "velocityOffset": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "torque": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "useGlobalFrame": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "springTorqueUserFunction": {
+      "type": "userFunction",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "unlimitedRotations": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "show": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": null
+    },
+    "drawSize": {
+      "type": "int",
+      "defaultValue": -1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "color": {
+      "type": "color",
       "defaultValue": null,
       "required": false,
       "validator": null
@@ -1432,6 +1892,136 @@
       "defaultValue": null,
       "required": false,
       "validator": null
+    },
+    "name": {
+      "type": "string",
+      "defaultValue": "",
+      "required": true,
+      "validator": "validateString"
+    },
+    "Vshow": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": true,
+      "validator": "<lambda>"
+    }
+  },
+  "MarkerBodiesRelativeRotationCoordinate": {
+    "markerType": {
+      "type": "string",
+      "defaultValue": "BodiesRelativeTranslationCoordinate",
+      "required": true,
+      "validator": "validateString"
+    },
+    "bodyNumbers": {
+      "type": "bodyNumbers",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
+    },
+    "nodeNumber": {
+      "type": "NodeIndex",
+      "defaultValue": -1,
+      "required": true,
+      "validator": "validateNodeNumber"
+    },
+    "localPosition0": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": true,
+      "validator": "validateVector3"
+    },
+    "localPosition1": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": true,
+      "validator": "validateVector3"
+    },
+    "axis0": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "required": true,
+      "validator": "validateVector3"
+    },
+    "offset": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "name": {
+      "type": "string",
+      "defaultValue": "",
+      "required": true,
+      "validator": "validateString"
+    },
+    "Vshow": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": true,
+      "validator": "<lambda>"
+    }
+  },
+  "MarkerBodiesRelativeTranslationCoordinate": {
+    "markerType": {
+      "type": "string",
+      "defaultValue": "BodiesRelativeTranslationCoordinate",
+      "required": true,
+      "validator": "validateString"
+    },
+    "bodyNumbers": {
+      "type": "bodyNumbers",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
+    },
+    "localPosition0": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": true,
+      "validator": "validateVector3"
+    },
+    "localPosition1": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": true,
+      "validator": "validateVector3"
+    },
+    "axis0": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "required": true,
+      "validator": "validateVector3"
+    },
+    "offset": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
     },
     "name": {
       "type": "string",
@@ -1646,10 +2236,10 @@
       "validator": "validateString"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "coordinate": {
       "type": "UInt",
@@ -1678,10 +2268,10 @@
       "validator": "validateString"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "name": {
       "type": "string",
@@ -1704,10 +2294,10 @@
       "validator": "validateString"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "coordinate": {
       "type": "UInt",
@@ -1736,10 +2326,10 @@
       "validator": "validateString"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "name": {
       "type": "string",
@@ -1762,10 +2352,10 @@
       "validator": "validateString"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "name": {
       "type": "string",
@@ -1788,10 +2378,10 @@
       "validator": "validateString"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "rotationCoordinate": {
       "type": "UInt",
@@ -2178,15 +2768,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodePoint2D": {
@@ -2233,15 +2818,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodePoint2DSlope1": {
@@ -2288,15 +2868,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodePointGround": {
@@ -2331,15 +2906,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodePointSlope1": {
@@ -2386,15 +2956,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodePointSlope12": {
@@ -2441,15 +3006,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodePointSlope23": {
@@ -2496,15 +3056,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodeRigidBody2D": {
@@ -2551,15 +3106,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodeRigidBodyEP": {
@@ -2612,15 +3162,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodeRigidBodyRotVecLG": {
@@ -2667,15 +3212,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "NodeRigidBodyRxyz": {
@@ -2722,15 +3262,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectALEANCFCable2D": {
@@ -2807,7 +3342,7 @@
       "validator": "<lambda>"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -2843,15 +3378,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectANCFBeam": {
@@ -2862,7 +3392,7 @@
       "validator": "validateString"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -2904,15 +3434,10 @@
       "validator": "validateList"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectANCFCable": {
@@ -2971,7 +3496,7 @@
       "validator": "validateFloat"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -3001,15 +3526,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectANCFCable2D": {
@@ -3074,7 +3594,7 @@
       "validator": "validateFloat"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -3116,15 +3636,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectANCFThinPlate": {},
@@ -3136,7 +3651,7 @@
       "validator": "validateString"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -3172,15 +3687,10 @@
       "validator": "validateList"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectBeamGeometricallyExact2D": {
@@ -3191,7 +3701,7 @@
       "validator": "validateString"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -3281,15 +3791,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorCartesianSpringDamper": {
@@ -3354,15 +3859,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorCoordinate": {
@@ -3433,15 +3933,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorCoordinateSpringDamper": {
@@ -3506,15 +4001,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorCoordinateSpringDamperExt": {
@@ -3531,10 +4021,10 @@
       "validator": null
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "stiffness": {
       "type": "Real",
@@ -3675,15 +4165,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorCoordinateVector": {
@@ -3766,15 +4251,10 @@
       "validator": "<lambda>"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorDistance": {
@@ -3791,10 +4271,10 @@
       "validator": null
     },
     "distance": {
-      "type": "distance",
-      "defaultValue": null,
+      "type": "PReal",
+      "defaultValue": 0.0,
       "required": true,
-      "validator": null
+      "validator": "validateFloat"
     },
     "activeConnector": {
       "type": "Bool",
@@ -3821,15 +4301,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorGravity": {
@@ -3894,15 +4369,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorHydraulicActuatorSimple": {
@@ -3919,7 +4389,7 @@
       "validator": null
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -4189,15 +4659,10 @@
       "validator": "<lambda>"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorReevingSystemSprings": {
@@ -4298,15 +4763,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorRigidBodySpringDamper": {
@@ -4323,10 +4783,10 @@
       "validator": null
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": false,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "stiffness": {
       "type": "Matrix6D",
@@ -4401,15 +4861,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorRollingDiscPenalty": {
@@ -4426,10 +4881,10 @@
       "validator": null
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "discRadius": {
       "type": "PReal",
@@ -4522,15 +4977,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorSpringDamper": {
@@ -4607,15 +5057,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectConnectorTorsionalSpringDamper": {
@@ -4632,10 +5077,10 @@
       "validator": null
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": false,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "stiffness": {
       "type": "Real",
@@ -4710,15 +5155,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectContactCircleCable2D": {
@@ -4735,10 +5175,10 @@
       "validator": null
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "numberOfContactSegments": {
       "type": "Index",
@@ -4801,15 +5241,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectContactConvexRoll": {
@@ -4826,10 +5261,10 @@
       "validator": null
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "contactStiffness": {
       "type": "Real",
@@ -4928,15 +5363,10 @@
       "validator": "<lambda>"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectContactCoordinate": {
@@ -4953,10 +5383,10 @@
       "validator": null
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "contactStiffness": {
       "type": "UReal",
@@ -5001,15 +5431,132 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
+    }
+  },
+  "ObjectContactCurveCircles": {
+    "objectType": {
+      "type": "string",
+      "defaultValue": "ContactCurveCircles",
+      "required": true,
+      "validator": "validateString"
+    },
+    "markerNumbers": {
+      "type": "markerNumbers",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
+    },
+    "nodeNumber": {
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
+      "required": true,
+      "validator": "validateNodeNumber"
+    },
+    "circlesRadii": {
+      "type": "NumpyVector",
+      "defaultValue": "Vector()",
       "required": true,
       "validator": "validateList"
+    },
+    "segmentsData": {
+      "type": "PyMatrixContainer",
+      "defaultValue": "PyMatrixContainer()",
+      "required": true,
+      "validator": "validateMatrix"
+    },
+    "polynomialData": {
+      "type": "PyMatrixContainer",
+      "defaultValue": "PyMatrixContainer()",
+      "required": true,
+      "validator": "validateMatrix"
+    },
+    "rotationMarker0": {
+      "type": "Matrix3D",
+      "defaultValue": "EXUmath::unitMatrix3D",
+      "required": true,
+      "validator": "validateMatrix3x3"
+    },
+    "dynamicFriction": {
+      "type": "UReal",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validatePositiveFloat"
+    },
+    "frictionProportionalZone": {
+      "type": "UReal",
+      "defaultValue": 0.001,
+      "required": false,
+      "validator": "validatePositiveFloat"
+    },
+    "contactStiffness": {
+      "type": "Real",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "contactDamping": {
+      "type": "Real",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "contactModel": {
+      "type": "UInt",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "activeConnector": {
+      "type": "Bool",
+      "defaultValue": "true",
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "gapPerSegment": {
+      "type": "ndarray(0,)",
+      "defaultValue": [],
+      "required": true,
+      "validator": "validateVector"
+    },
+    "gapPerSegment_t": {
+      "type": "ndarray(0,)",
+      "defaultValue": [],
+      "required": true,
+      "validator": "validateVector"
+    },
+    "segmentsForceLocalX": {
+      "type": "ndarray(0,)",
+      "defaultValue": [],
+      "required": true,
+      "validator": "validateVector"
+    },
+    "segmentsForceLocalY": {
+      "type": "ndarray(0,)",
+      "defaultValue": [],
+      "required": true,
+      "validator": "validateVector"
+    },
+    "name": {
+      "type": "string",
+      "defaultValue": "",
+      "required": true,
+      "validator": "validateString"
+    },
+    "Vshow": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": true,
+      "validator": "<lambda>"
+    },
+    "Vcolor": {
+      "type": "color",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
     }
   },
   "ObjectContactFrictionCircleCable2D": {
@@ -5026,10 +5573,10 @@
       "validator": null
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "numberOfContactSegments": {
       "type": "PInt",
@@ -5110,21 +5657,16 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
-  "ObjectContactFrictionCircleCable2DOld": {
+  "ObjectContactSphereSphere": {
     "objectType": {
       "type": "string",
-      "defaultValue": "ContactFrictionCircleCable2DOld",
+      "defaultValue": "ContactSphereSphere",
       "required": true,
       "validator": "validateString"
     },
@@ -5135,16 +5677,34 @@
       "validator": null
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
-    "numberOfContactSegments": {
-      "type": "PInt",
-      "defaultValue": 3,
+    "spheresRadii": {
+      "type": "Vector2D",
+      "defaultValue": "Vector2D({-1.,-1.})",
       "required": true,
-      "validator": "validateInt"
+      "validator": "validateList"
+    },
+    "isHollowSphere1": {
+      "type": "bool",
+      "defaultValue": false,
+      "required": true,
+      "validator": "<lambda>"
+    },
+    "dynamicFriction": {
+      "type": "UReal",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validatePositiveFloat"
+    },
+    "frictionProportionalZone": {
+      "type": "UReal",
+      "defaultValue": 0.001,
+      "required": false,
+      "validator": "validatePositiveFloat"
     },
     "contactStiffness": {
       "type": "UReal",
@@ -5155,38 +5715,56 @@
     "contactDamping": {
       "type": "UReal",
       "defaultValue": 0.0,
-      "required": true,
+      "required": false,
       "validator": "validatePositiveFloat"
     },
-    "frictionVelocityPenalty": {
-      "type": "UReal",
-      "defaultValue": 0.0,
-      "required": true,
-      "validator": "validatePositiveFloat"
-    },
-    "frictionStiffness": {
-      "type": "UReal",
-      "defaultValue": 0.0,
-      "required": true,
-      "validator": "validatePositiveFloat"
-    },
-    "frictionCoefficient": {
-      "type": "UReal",
-      "defaultValue": 0.0,
-      "required": true,
-      "validator": "validatePositiveFloat"
-    },
-    "circleRadius": {
-      "type": "UReal",
-      "defaultValue": 0.0,
-      "required": true,
-      "validator": "validatePositiveFloat"
-    },
-    "offset": {
-      "type": "Real",
-      "defaultValue": 0.0,
-      "required": true,
+    "contactStiffnessExponent": {
+      "type": "PReal",
+      "defaultValue": 1.0,
+      "required": false,
       "validator": "validateFloat"
+    },
+    "constantPullOffForce": {
+      "type": "UReal",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validatePositiveFloat"
+    },
+    "contactPlasticityRatio": {
+      "type": "UReal",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validatePositiveFloat"
+    },
+    "adhesionCoefficient": {
+      "type": "UReal",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validatePositiveFloat"
+    },
+    "adhesionExponent": {
+      "type": "UReal",
+      "defaultValue": 1.0,
+      "required": false,
+      "validator": "validatePositiveFloat"
+    },
+    "restitutionCoefficient": {
+      "type": "PReal",
+      "defaultValue": 1.0,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "minimumImpactVelocity": {
+      "type": "UReal",
+      "defaultValue": 0.0,
+      "required": false,
+      "validator": "validatePositiveFloat"
+    },
+    "impactModel": {
+      "type": "UInt",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
     },
     "activeConnector": {
       "type": "Bool",
@@ -5202,26 +5780,245 @@
     },
     "Vshow": {
       "type": "bool",
+      "defaultValue": false,
+      "required": true,
+      "validator": "<lambda>"
+    },
+    "Vcolor": {
+      "type": "color",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
+    }
+  },
+  "ObjectContactSphereTorus": {
+    "objectType": {
+      "type": "string",
+      "defaultValue": "ContactSphereSphere",
+      "required": true,
+      "validator": "validateString"
+    },
+    "markerNumbers": {
+      "type": "markerNumbers",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
+    },
+    "nodeNumber": {
+      "type": "NodeIndex",
+      "defaultValue": -1,
+      "required": true,
+      "validator": "validateNodeNumber"
+    },
+    "radiusSphere": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "torusMajorRadius": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "torusMinorRadius": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "torusAxis": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": true,
+      "validator": "validateVector3"
+    },
+    "dynamicFriction": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "frictionProportionalZone": {
+      "type": "float",
+      "defaultValue": 0.001,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "contactStiffness": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "contactDamping": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "contactStiffnessExponent": {
+      "type": "float",
+      "defaultValue": 1.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "restitutionCoefficient": {
+      "type": "float",
+      "defaultValue": 1.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "minimumImpactVelocity": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "impactModel": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": true,
+      "validator": "validateInt"
+    },
+    "activeConnector": {
+      "type": "bool",
       "defaultValue": true,
       "required": true,
       "validator": "<lambda>"
     },
-    "VdrawSize": {
+    "name": {
+      "type": "string",
+      "defaultValue": "",
+      "required": true,
+      "validator": "validateString"
+    },
+    "Vshow": {
+      "type": "bool",
+      "defaultValue": false,
+      "required": true,
+      "validator": "<lambda>"
+    },
+    "Vcolor": {
+      "type": "color",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
+    }
+  },
+  "ObjectContactSphereTriangle": {
+    "objectType": {
+      "type": "string",
+      "defaultValue": "ContactSphereSphere",
+      "required": true,
+      "validator": "validateString"
+    },
+    "markerNumbers": {
+      "type": "markerNumbers",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
+    },
+    "nodeNumber": {
+      "type": "NodeIndex",
+      "defaultValue": -1,
+      "required": true,
+      "validator": "validateNodeNumber"
+    },
+    "radiusSphere": {
       "type": "float",
-      "defaultValue": -1.0,
+      "defaultValue": 0.0,
       "required": true,
       "validator": "validateFloat"
     },
-    "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+    "trianglePoints": {
+      "type": "Vector3DList",
+      "defaultValue": "[]",
       "required": true,
-      "validator": "validateList"
+      "validator": "validateVector3"
+    },
+    "includeEdges": {
+      "type": "int",
+      "defaultValue": 7,
+      "required": true,
+      "validator": "validateInt"
+    },
+    "dynamicFriction": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "frictionProportionalZone": {
+      "type": "float",
+      "defaultValue": 0.001,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "contactStiffness": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "contactDamping": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "contactStiffnessExponent": {
+      "type": "float",
+      "defaultValue": 1.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "restitutionCoefficient": {
+      "type": "float",
+      "defaultValue": 1.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "minimumImpactVelocity": {
+      "type": "float",
+      "defaultValue": 0.0,
+      "required": true,
+      "validator": "validateFloat"
+    },
+    "impactModel": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": true,
+      "validator": "validateInt"
+    },
+    "activeConnector": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": true,
+      "validator": "<lambda>"
+    },
+    "name": {
+      "type": "string",
+      "defaultValue": "",
+      "required": true,
+      "validator": "validateString"
+    },
+    "Vshow": {
+      "type": "bool",
+      "defaultValue": false,
+      "required": true,
+      "validator": "<lambda>"
+    },
+    "Vcolor": {
+      "type": "color",
+      "defaultValue": null,
+      "required": true,
+      "validator": null
     }
   },
   "ObjectFFRF": {
@@ -5232,7 +6029,7 @@
       "validator": "validateString"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -5364,15 +6161,10 @@
       "validator": "<lambda>"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     },
     "VtriangleMesh": {
       "type": "ndarray(0, 0)",
@@ -5395,7 +6187,7 @@
       "validator": "validateString"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -5545,15 +6337,10 @@
       "validator": "<lambda>"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     },
     "VtriangleMesh": {
       "type": "ndarray(0, 0)",
@@ -5576,7 +6363,7 @@
       "validator": "validateString"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -5638,7 +6425,7 @@
       "validator": "validateString"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -5722,15 +6509,10 @@
       "validator": "<lambda>"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     },
     "VtriangleMesh": {
       "type": "ndarray(0, 0)",
@@ -5827,7 +6609,7 @@
       "validator": "validateFloat"
     },
     "nodeNumbers": {
-      "type": "nodeNumber",
+      "type": "nodeNumbers",
       "defaultValue": null,
       "required": true,
       "validator": null
@@ -5869,15 +6651,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectJointGeneric": {
@@ -5966,15 +6743,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectJointPrismatic2D": {
@@ -6033,15 +6805,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectJointPrismaticX": {
@@ -6100,15 +6867,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectJointRevolute2D": {
@@ -6149,15 +6911,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectJointRevoluteZ": {
@@ -6216,15 +6973,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectJointRollingDisc": {
@@ -6289,15 +7041,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectJointSliding2D": {
@@ -6326,10 +7073,10 @@
       "validator": "validateList"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "classicalFormulation": {
       "type": "Bool",
@@ -6374,15 +7121,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectJointSpherical": {
@@ -6429,15 +7171,10 @@
       "validator": "validateFloat"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     }
   },
   "ObjectKinematicTree": {
@@ -6448,10 +7185,10 @@
       "validator": "validateString"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "gravity": {
       "type": "Vector3D",
@@ -6580,15 +7317,10 @@
       "validator": "<lambda>"
     },
     "Vcolor": {
-      "type": "list",
-      "defaultValue": [
-        -1.0,
-        -1.0,
-        -1.0,
-        -1.0
-      ],
+      "type": "color",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateList"
+      "validator": null
     },
     "VgraphicsDataList": {
       "type": "list",
@@ -6611,10 +7343,10 @@
       "validator": "validatePositiveFloat"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "referencePosition": {
       "type": "Vector3D",
@@ -6661,10 +7393,10 @@
       "validator": "validatePositiveFloat"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "name": {
       "type": "string",
@@ -6699,10 +7431,10 @@
       "validator": "validatePositiveFloat"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "name": {
       "type": "string",
@@ -6749,10 +7481,10 @@
       "validator": "validateVector3"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "name": {
       "type": "string",
@@ -6798,11 +7530,17 @@
       "required": true,
       "validator": "validatePositiveFloat"
     },
+    "physicsCenterOfMass": {
+      "type": "Vector2D",
+      "defaultValue": "Vector2D({0.,0.})",
+      "required": false,
+      "validator": "validateList"
+    },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "name": {
       "type": "string",
@@ -6843,10 +7581,10 @@
       "validator": "validatePositiveFloat"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "referencePosition": {
       "type": "Vector3D",
@@ -6905,16 +7643,16 @@
       "validator": "<lambda>"
     },
     "fileName": {
-      "type": "String",
+      "type": "fileName",
       "defaultValue": null,
       "required": true,
-      "validator": "validateString"
+      "validator": null
     },
     "outputVariableType": {
-      "type": "OutputVariableType",
-      "defaultValue": "OutputVariableType::_None",
+      "type": "outputVariableType",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateInt"
+      "validator": null
     },
     "storeInternal": {
       "type": "Bool",
@@ -6967,16 +7705,16 @@
       "validator": "<lambda>"
     },
     "fileName": {
-      "type": "String",
+      "type": "fileName",
       "defaultValue": null,
       "required": true,
-      "validator": "validateString"
+      "validator": null
     },
     "outputVariableType": {
-      "type": "OutputVariableType",
-      "defaultValue": "OutputVariableType::_None",
+      "type": "outputVariableType",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateInt"
+      "validator": null
     },
     "storeInternal": {
       "type": "Bool",
@@ -7017,10 +7755,10 @@
       "validator": "<lambda>"
     },
     "fileName": {
-      "type": "String",
+      "type": "fileName",
       "defaultValue": null,
       "required": true,
-      "validator": "validateString"
+      "validator": null
     },
     "storeInternal": {
       "type": "Bool",
@@ -7061,16 +7799,16 @@
       "validator": "<lambda>"
     },
     "fileName": {
-      "type": "String",
+      "type": "fileName",
       "defaultValue": null,
       "required": true,
-      "validator": "validateString"
+      "validator": null
     },
     "outputVariableType": {
-      "type": "OutputVariableType",
-      "defaultValue": "OutputVariableType::_None",
+      "type": "outputVariableType",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateInt"
+      "validator": null
     },
     "storeInternal": {
       "type": "Bool",
@@ -7099,10 +7837,10 @@
       "validator": "validateString"
     },
     "nodeNumber": {
-      "type": "nodeNumber",
-      "defaultValue": null,
+      "type": "NodeIndex",
+      "defaultValue": "EXUstd::InvalidIndex",
       "required": true,
-      "validator": null
+      "validator": "validateNodeNumber"
     },
     "writeToFile": {
       "type": "Bool",
@@ -7111,16 +7849,16 @@
       "validator": "<lambda>"
     },
     "fileName": {
-      "type": "String",
+      "type": "fileName",
       "defaultValue": null,
       "required": true,
-      "validator": "validateString"
+      "validator": null
     },
     "outputVariableType": {
-      "type": "OutputVariableType",
-      "defaultValue": "OutputVariableType::_None",
+      "type": "outputVariableType",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateInt"
+      "validator": null
     },
     "storeInternal": {
       "type": "Bool",
@@ -7161,16 +7899,16 @@
       "validator": "<lambda>"
     },
     "fileName": {
-      "type": "String",
+      "type": "fileName",
       "defaultValue": null,
       "required": true,
-      "validator": "validateString"
+      "validator": null
     },
     "outputVariableType": {
-      "type": "OutputVariableType",
-      "defaultValue": "OutputVariableType::_None",
+      "type": "outputVariableType",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateInt"
+      "validator": null
     },
     "storeInternal": {
       "type": "Bool",
@@ -7217,16 +7955,16 @@
       "validator": "<lambda>"
     },
     "fileName": {
-      "type": "String",
+      "type": "fileName",
       "defaultValue": null,
       "required": true,
-      "validator": "validateString"
+      "validator": null
     },
     "outputVariableType": {
-      "type": "OutputVariableType",
-      "defaultValue": "OutputVariableType::_None",
+      "type": "outputVariableType",
+      "defaultValue": null,
       "required": true,
-      "validator": "validateInt"
+      "validator": null
     },
     "storeInternal": {
       "type": "Bool",
@@ -7273,10 +8011,10 @@
       "validator": "<lambda>"
     },
     "fileName": {
-      "type": "String",
+      "type": "fileName",
       "defaultValue": null,
       "required": true,
-      "validator": "validateString"
+      "validator": null
     },
     "sensorUserFunction": {
       "type": "userFunction",

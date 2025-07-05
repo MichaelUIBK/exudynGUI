@@ -125,6 +125,7 @@ class ExudynNativeRendererWidget(QWidget):
         self.embedded_window = None
         self.exudyn_hwnd = None
         self._prefer_undocked = False  # Default to docked mode
+        self._resize_control_active = True  # Default to enabled for docked mode
         # Window embedder
         self.embedder = ExudynRendererEmbedder()
         self.embedder.windowFound.connect(self.delayedEmbedWindow)
@@ -139,8 +140,12 @@ class ExudynNativeRendererWidget(QWidget):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        # Resize the embedded Exudyn window to match the container
-        if hasattr(self, 'exudyn_hwnd') and self.exudyn_hwnd and platform.system() == "Windows":
+        # Only resize embedded window if we're in docked mode and resize control is active
+        if (hasattr(self, 'exudyn_hwnd') and self.exudyn_hwnd and 
+            platform.system() == "Windows" and 
+            getattr(self, '_resize_control_active', True) and
+            not getattr(self, '_prefer_undocked', False)):
+            
             rect = self.renderer_container.geometry()
             try:
                 import win32gui
@@ -154,6 +159,16 @@ class ExudynNativeRendererWidget(QWidget):
                 )
             except Exception as e:
                 pass
+
+    def enableResizeControl(self):
+        """Enable automatic resizing of embedded window (for docked mode)."""
+        self._resize_control_active = True
+        debugLog("[DEBUG] ExudynNativeRenderer: Resize control enabled")
+        
+    def disableResizeControl(self):
+        """Disable automatic resizing (for undocked mode)."""
+        self._resize_control_active = False
+        debugLog("[DEBUG] ExudynNativeRenderer: Resize control disabled")
 
     def setupUI(self):
         """Setup the widget UI - streamlined for automatic embedding."""
@@ -213,7 +228,11 @@ class ExudynNativeRendererWidget(QWidget):
         
     def startRenderer(self):
         """Start the native Exudyn renderer and embed it."""
-        self.SC.renderer.Start()
+        
+        is_active = self.SC.renderer.IsActive()
+        if not is_active:
+            self.SC.renderer.Start()
+        
         if not EXUDYN_AVAILABLE:
             return False
         
@@ -230,14 +249,14 @@ class ExudynNativeRendererWidget(QWidget):
                 self.mbs.Assemble()
 
             # Start Exudyn's renderer in background thread to prevent GUI blocking
-            def run_renderer():
-                try:
-                    self.SC.renderer.Start()
-                except Exception as e:
-                    pass
+            # def run_renderer():
+            #     try:
+            #         self.SC.renderer.Start()
+            #     except Exception as e:
+            #         pass
 
-            renderer_thread = threading.Thread(target=run_renderer, daemon=True)
-            renderer_thread.start()
+            # renderer_thread = threading.Thread(target=run_renderer, daemon=True)
+            # renderer_thread.start()
             
             # Only start embedding if we prefer docked mode
             if not self._prefer_undocked:
@@ -461,6 +480,10 @@ class ExudynNativeRendererWidget(QWidget):
         
     def delayedEmbedWindow(self, hwnd):
         """Set up the renderer window with a slight delay to ensure main window stability."""
+        # Check if we're in undocked mode - if so, don't embed the window
+        if getattr(self, '_prefer_undocked', False):
+            debugLog("🚫 Skipping delayed window embedding - undocked mode preferred")
+            return
         QTimer.singleShot(200, lambda: self.embedWindow(hwnd))
         
     def embedWindow(self, hwnd):
@@ -468,6 +491,12 @@ class ExudynNativeRendererWidget(QWidget):
         if platform.system() != "Windows":
             # Window embedding only supported on Windows
             return
+        
+        # Check if we're in undocked mode - if so, don't embed the window
+        if getattr(self, '_prefer_undocked', False):
+            debugLog("🚫 Skipping window embedding - undocked mode preferred")
+            return
+        
         try:
             self.exudyn_hwnd = hwnd
             main_window = self.window()
@@ -622,6 +651,10 @@ class ExudynNativeRendererWidget(QWidget):
         def restart_operation():
             try:
                 debugLog(f"🔄 Restarting renderer for docked mode... (Thread ID: {threading.get_ident()})")
+                
+                # 1. Set docked preference
+                self._prefer_undocked = False
+                
                 if self.renderer_active:
                     debugLog("🛑 Stopping current renderer...")
                     try:
@@ -654,6 +687,10 @@ class ExudynNativeRendererWidget(QWidget):
                         return False
                 else:
                     self._startFreshDockedRenderer()
+                
+                # 2. ENABLE resize control after restart (delayed to allow window to be created)
+                QTimer.singleShot(1000, self.enableResizeControl)
+                
                 return True
             except Exception as e:
                 debugLog(f"❌ Error restarting renderer for docked mode: {e}")
@@ -683,6 +720,13 @@ class ExudynNativeRendererWidget(QWidget):
         def restart_operation():
             try:
                 debugLog(f"🔄 Restarting renderer for true undocked mode... (Thread ID: {threading.get_ident()})")
+                
+                # 1. DISABLE resize control FIRST to prevent window from being re-embedded
+                self.disableResizeControl()
+                
+                # 2. Set undocked preference
+                self._prefer_undocked = True
+                
                 if self.renderer_active:
                     debugLog("🛑 Stopping current renderer...")
                     try:
@@ -699,6 +743,8 @@ class ExudynNativeRendererWidget(QWidget):
                                     QMessageBox.critical(self, "Renderer Error", "OpenGL Renderer could not be stopped safely after 5 seconds. Please close any modal dialogs and try again.")
                                 except Exception:
                                     pass
+                                # Re-enable resize control on failure
+                                self.enableResizeControl()
                                 return False
                             debugLog("Waiting for renderer to stop...")
                             time.sleep(0.1)
@@ -712,6 +758,8 @@ class ExudynNativeRendererWidget(QWidget):
                             QMessageBox.critical(self, "Renderer Error", f"Error stopping renderer: {e}")
                         except Exception:
                             pass
+                        # Re-enable resize control on failure
+                        self.enableResizeControl()
                         return False
                 else:
                     self._startFreshUndockedRenderer()
@@ -724,6 +772,8 @@ class ExudynNativeRendererWidget(QWidget):
                     QMessageBox.critical(self, "Renderer Error", f"Error restarting renderer: {e}")
                 except Exception:
                     pass
+                # Re-enable resize control on failure
+                self.enableResizeControl()
                 return False
         result = restart_operation()
         return result
@@ -735,6 +785,8 @@ class ExudynNativeRendererWidget(QWidget):
             # Set preference to embed the window when it's found
             self._prefer_undocked = False
             self._restart_mode = True  # Flag to indicate this is a restart for docking
+            # Enable resize control for docked mode
+            self.enableResizeControl()
             # Update UI to show we're restarting
             self.placeholder_label.setText("🔄 Restarting Renderer (Docked Mode)...")
             self.placeholder_label.show()
@@ -767,6 +819,8 @@ class ExudynNativeRendererWidget(QWidget):
             # Set preference to NOT embed the window when it's found
             self._prefer_undocked = True
             self._restart_mode = True  # Flag to indicate this is a restart for undocking
+            # Disable resize control for undocked mode
+            self.disableResizeControl()
             # Update UI to show we're restarting
             self.placeholder_label.setText("🔄 Restarting Renderer (Undocked Mode)...")
             self.placeholder_label.show()
