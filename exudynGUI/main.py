@@ -23,8 +23,8 @@ import time
 # Import debug module FIRST, before anything else that might use it
 try:
     from exudynGUI.core import debug
-    #debug.configureForProduction()  # Only show errors, much quieter
-    debug.setDebugLevel(debug.DebugLevel.TRACE)
+    debug.configureForProduction()  # Only show errors, much quieter
+    #debug.setDebugLevel(debug.DebugLevel.TRACE)
 except Exception as e:
     print(f"❌ Failed to import debug module: {e}")
     # Create a simple fallback debug function that matches the real signature

@@ -14,14 +14,15 @@
 #
 # License:  BSD-3 license
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-from PyQt5.QtGui import QFont, QColor, QIcon
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QEvent
+from PyQt5.QtGui import QFont, QColor, QIcon, QIntValidator, QDoubleValidator, QRegExpValidator, QKeySequence
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QEvent, QRegExp, QTimer
 from PyQt5.QtWidgets import (
     QApplication, QDialog, QVBoxLayout, QFormLayout, QLineEdit,
     QDialogButtonBox, QLabel, QCheckBox, QSpinBox, QDoubleSpinBox, QComboBox,
     QMessageBox, QListWidget, QTextEdit, QPushButton, QHBoxLayout, QWidget,
-    QMainWindow, QListWidgetItem, QApplication, QTreeWidget, QDockWidget,
+    QMainWindow, QListWidgetItem, QTreeWidget, QDockWidget,
     QTreeWidgetItem, QInputDialog, QGridLayout, QStackedWidget, QAbstractItemView,
-    QSizePolicy, QToolButton, QMenu
+    QSizePolicy, QToolButton, QMenu, QAction, QScrollArea, QGroupBox, QTabWidget, QFrame,
+    QShortcut, QColorDialog
 )
 

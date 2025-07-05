@@ -300,8 +300,9 @@ def evaluateGraphicsEntry(entry):
         return None
 
 
-def genericBuilder(mbs, item):
+def genericBuilder(mbs, item, snippet_vars=None):
     # Accepts a model item in the new structure: {'creationIndex', 'type', 'data', 'GUI'}
+    # snippet_vars: Optional dict of variables from PythonSnippets
     if 'data' in item:
         data = item['data']
         gui = item.get('GUI', {})
@@ -619,6 +620,12 @@ def genericBuilder(mbs, item):
         user_text = getLiveUserVariableText()
         user_vars = parseUserVariables(user_text)
         
+        # Combine user variables with snippet variables
+        combined_vars = user_vars.copy()
+        if snippet_vars:
+            combined_vars.update(snippet_vars)
+            debugLog(f"[genericBuilder] 📝 Combined variables: user={list(user_vars.keys())}, snippet={list(snippet_vars.keys())}", origin="objectRegistry.py")
+        
         try:            # Build a mapping from symbolic variable names to actual integer values
             # by scanning the current model sequence for returnValues
             from model.modelData import modelSequence
@@ -652,8 +659,11 @@ def genericBuilder(mbs, item):
                         
                         if not is_symbolic:
                             try:
-                                kwargs[key] = evaluateExpression(val, user_vars)
-                            except Exception:
+                                # ✅ ENHANCED: Use combined variables (user + snippet)
+                                kwargs[key] = evaluateExpression(val, combined_vars)
+                                debugLog(f"[genericBuilder] ✅ Resolved variable '{val}' → {kwargs[key]} (field: {key})", origin="objectRegistry.py")
+                            except Exception as e:
+                                debugLog(f"[genericBuilder] ⚠️ Could not resolve variable '{val}' (field: {key}): {e}", origin="objectRegistry.py")
                                 pass
                         else:
                             debugLog(f"[genericBuilder] ⚠️ Cannot resolve symbolic variable '{val}' (field: {key}) - object may not exist yet", origin="objectRegistry.py")
@@ -1210,6 +1220,88 @@ def genericToCode(data):
         return f"# ⚠️ Unsupported object type: {objType}"
 
 
+class PythonSnippetFormWrapper:
+    """Wrapper to make PythonSnippetDialog compatible with the registry system."""
+    
+    def __init__(self, typeName, existingData=None, parent=None, structure=None, SC=None):
+        from guiForms.pythonSnippetDialog import PythonSnippetDialog
+        
+        # Extract data from existingData
+        label = existingData.get('label', '') if existingData else ''
+        code = existingData.get('code', '') if existingData else ''
+        enabled = existingData.get('enabled', True) if existingData else True
+        
+        # Get kernel client from parent if available
+        kernel_client = getattr(parent, 'kernel_client', None) if parent else None
+        
+        self.dialog = PythonSnippetDialog(
+            parent=parent,
+            label=label,
+            code=code,
+            enabled=enabled,
+            kernel_client=kernel_client
+        )
+        
+        # Store the result
+        self._data = None
+        self.dialog.snippetSaved.connect(self._on_snippet_saved)
+        
+        # Store original data for fallback
+        self._original_data = existingData
+        
+        # Add any additional attributes that might be expected
+        self.existingNames = set()
+    
+    def _on_snippet_saved(self, snippet_data):
+        """Handle snippet saved signal."""
+        self._data = snippet_data
+        debugLog(f"[PythonSnippetFormWrapper] Snippet saved signal received: {snippet_data}", origin="objectRegistry.py")
+    
+    def exec_(self):
+        """Execute the dialog and return result."""
+        result = self.dialog.exec_()
+        if result:  # Dialog was accepted
+            # Always collect data from the form fields regardless of signal
+            self._data = {
+                'type': 'PythonSnippet',
+                'label': self.dialog.label_edit.text().strip(),
+                'enabled': self.dialog.enabled_checkbox.isChecked(),
+                'code': self.dialog.code_edit.text(),
+            }
+            debugLog(f"[PythonSnippetFormWrapper] Dialog accepted, collected data: {self._data}", origin="objectRegistry.py")
+        else:
+            debugLog(f"[PythonSnippetFormWrapper] Dialog rejected", origin="objectRegistry.py")
+        return result
+    
+    def get_data(self):
+        """Return the form data."""
+        if self._data is None:
+            debugLog(f"[PythonSnippetFormWrapper] No data available, returning original data", origin="objectRegistry.py")
+            return self._original_data or {}
+        debugLog(f"[PythonSnippetFormWrapper] Returning collected data: {self._data}", origin="objectRegistry.py")
+        return self._data
+
+def pythonSnippetBuilder(mbs, item, snippet_vars=None):
+    """No-op builder for PythonSnippet - they are executed directly during system build."""
+    # PythonSnippets don't create Exudyn objects, they just execute Python code
+    # The actual execution happens in buildSystemFromSequence
+    return {'executed': True}
+
+def pythonSnippetToCode(data):
+    """Generate code representation for PythonSnippet."""
+    code = data.get('code', '')
+    label = data.get('label', '')
+    enabled = data.get('enabled', True)
+    
+    if not enabled:
+        return f"# PythonSnippet '{label}' (disabled)"
+    
+    if label:
+        return f"# PythonSnippet: {label}\n{code}"
+    else:
+        return f"# PythonSnippet\n{code}"
+
+# Register all standard Exudyn types
 for objType in getAllTypes():
     category = categorize(objType)
     # debugLog(f"📦 Registering {objType} → builder={genericBuilder}", origin="objectRegistry.py:REGISTRATION")
@@ -1220,6 +1312,7 @@ for objType in getAllTypes():
     }
     categorizedRegistry.setdefault(category, []).append(objType)
 
+# Register Create* functions
 for funcName in getCreateFunctions():
     registry[funcName] = {
         'form': AutoGeneratedForm,
@@ -1228,6 +1321,14 @@ for funcName in getCreateFunctions():
         'exudynType': f"ObjectConnector{funcName[6:]}"
     }
     categorizedRegistry.setdefault("Create (Helpers)", []).append(funcName)
+
+# Register PythonSnippet
+registry['PythonSnippet'] = {
+    'form': PythonSnippetFormWrapper,
+    'builder': pythonSnippetBuilder,
+    'toCode': pythonSnippetToCode
+}
+categorizedRegistry.setdefault("Scripts", []).append('PythonSnippet')
 
 def getCategorizedRegistry():
     # Ensure alphabetical order of entries inside each category

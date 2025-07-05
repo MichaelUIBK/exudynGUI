@@ -165,6 +165,10 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
         self.SC = SC
         self.mbs = mbs
+        # Initialize simulation settings with defaults
+        self.simulationSettings = None
+        self.initializeSimulationSettings()
+
         self.app_version = app_version
         self.setupMenuBar()
         self.setWindowTitle("Exudyn Model Builder")
@@ -213,6 +217,7 @@ class MainWindow(QMainWindow):
         # ─── Now continue with the rest of your setup ─────────────────────────
         self.SC = SC if SC else exu.SystemContainer()
         self.mbs = mbs if mbs else self.SC.AddSystem()
+
 
         # Debug log to verify mbs and SC initialization
         # debugLog(f"Initial mbs state: {self.mbs}", origin="MainWindow")  # Reduced for memory
@@ -274,6 +279,49 @@ class MainWindow(QMainWindow):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
+
+    def initializeSimulationSettings(self):
+        """Initialize simulation settings with reasonable defaults."""
+        import exudyn as exu
+        
+        self.simulationSettings = exu.SimulationSettings()
+        
+        # Set reasonable defaults (similar to existing code)
+        self.simulationSettings.solutionSettings.solutionWritePeriod = 5e-3
+        self.simulationSettings.solutionSettings.sensorsWritePeriod = 5e-3
+        self.simulationSettings.timeIntegration.numberOfSteps = 1000
+        self.simulationSettings.timeIntegration.endTime = 1.0
+        self.simulationSettings.displayComputationTime = True
+        self.simulationSettings.timeIntegration.verboseMode = 1
+        self.simulationSettings.timeIntegration.generalizedAlpha.spectralRadius = 1
+        self.simulationSettings.linearSolverType = exu.LinearSolverType.EigenSparse
+
+    def showSimulationSettings(self):
+        """Open the simulation settings dialog."""
+        from guiForms.simulationSettings import createSimulationSettingsForm, collectSimulationSettingsData, applySimulationSettings
+        from exudynGUI.core.debug import debugLog
+        
+        try:
+            # Create the dialog with existing settings
+            dialog = createSimulationSettingsForm(self, self.simulationSettings)
+            
+            # Show the dialog
+            if dialog.exec_() == dialog.Accepted:
+                # Collect the modified settings
+                settings_data = collectSimulationSettingsData(dialog)
+                
+                # Apply the settings to our stored simulation settings
+                applySimulationSettings(self.simulationSettings, settings_data)
+                
+                debugLog("✅ Simulation settings updated successfully", origin="mainWindow.py")
+                
+                # Optionally show a status message
+                self.statusBar().showMessage("Simulation settings updated", 2000)
+                
+        except Exception as e:
+            debugLog(f"❌ Error in simulation settings dialog: {e}", origin="mainWindow.py")
+            from PyQt5.QtWidgets import QMessageBox
+            QMessageBox.critical(self, "Error", f"Failed to open simulation settings:\n{str(e)}")
 
 
     def setupRendererTimer(self):
@@ -372,7 +420,434 @@ class MainWindow(QMainWindow):
             if current_time - self._last_renderer_error_time > 5.0:  # Log error every 5 seconds max
                 debugLog(f"⚠️ Renderer refresh error: {e}", origin="MainWindow")
                 self._last_renderer_error_time = current_time
-
+    
+    def saveView(self):
+        """Save the current view state (camera position, zoom, etc.)."""
+        try:
+            if hasattr(self, 'SC') and self.SC and hasattr(self.SC, 'renderer'):
+                # Get current renderer state
+                current_state = self.SC.renderer.GetState()
+                
+                # Convert to JSON-serializable format
+                serializable_state = self._convertViewStateToSerializable(current_state)
+                
+                # Store the view state
+                self.saved_view_state = serializable_state
+                
+                # Show confirmation message
+                debugLog("📷 View state saved successfully", origin="MainWindow")
+                
+                # Optional: Show a brief status message
+                if hasattr(self, 'statusBar'):
+                    self.statusBar().showMessage("View state saved", 2000)
+                    
+        except Exception as e:
+            debugLog(f"❌ Failed to save view state: {e}", origin="MainWindow")
+            if hasattr(self, 'statusBar'):
+                self.statusBar().showMessage("Failed to save view state", 3000)
+    
+    def restoreView(self, retry_count=0):
+        """Restore the previously saved view state with multiple fallback strategies."""
+        max_retries = 5  # Maximum number of retries
+        
+        try:
+            if not hasattr(self, 'saved_view_state') or not self.saved_view_state:
+                debugLog("⚠️ No saved view state to restore", origin="MainWindow")
+                if hasattr(self, 'statusBar'):
+                    self.statusBar().showMessage("No saved view state to restore", 3000)
+                return
+                
+            # Check if renderer is ready
+            if not self._isRendererReady():
+                if retry_count < max_retries:
+                    debugLog(f"⏰ Renderer not ready, scheduling delayed restoration (attempt {retry_count + 1}/{max_retries})...", origin="MainWindow")
+                    # Store retry count and use proper callback method
+                    self._restore_retry_count = retry_count + 1
+                    QTimer.singleShot(1000, self._delayedRestoreView)
+                    return
+                else:
+                    debugLog(f"❌ Renderer never became ready after {max_retries} attempts, giving up", origin="MainWindow")
+                    if hasattr(self, 'statusBar'):
+                        self.statusBar().showMessage("Renderer not ready for view restoration", 3000)
+                    return
+                
+            if hasattr(self, 'SC') and self.SC and hasattr(self.SC, 'renderer'):
+                success = False
+                
+                # Strategy 1: Try enhanced conversion with type preservation
+                try:
+                    debugLog("🔄 Attempting enhanced view state restoration...", origin="MainWindow")
+                    exudyn_state = self._convertViewStateFromSerializable(self.saved_view_state)
+                    self.SC.renderer.SetState(exudyn_state)
+                    success = True
+                    debugLog("✅ Enhanced view state restoration successful", origin="MainWindow")
+                except Exception as e1:
+                    debugLog(f"⚠️ Enhanced restoration failed: {e1}", origin="MainWindow")
+                
+                # Strategy 2: Try direct restoration (for old format states)
+                if not success:
+                    try:
+                        debugLog("🔄 Attempting direct view state restoration...", origin="MainWindow")
+                        self.SC.renderer.SetState(self.saved_view_state)
+                        success = True
+                        debugLog("✅ Direct view state restoration successful", origin="MainWindow")
+                    except Exception as e2:
+                        debugLog(f"⚠️ Direct restoration failed: {e2}", origin="MainWindow")
+                
+                # Strategy 3: Try simplified state (only basic numeric values)
+                if not success:
+                    try:
+                        debugLog("🔄 Attempting simplified view state restoration...", origin="MainWindow")
+                        simplified_state = self._createSimplifiedViewState(self.saved_view_state)
+                        self.SC.renderer.SetState(simplified_state)
+                        success = True
+                        debugLog("✅ Simplified view state restoration successful", origin="MainWindow")
+                    except Exception as e3:
+                        debugLog(f"⚠️ Simplified restoration failed: {e3}", origin="MainWindow")
+                
+                if success:
+                    # Show confirmation message
+                    debugLog("📷 View state restored successfully", origin="MainWindow")
+                    if hasattr(self, 'statusBar'):
+                        self.statusBar().showMessage("View state restored", 2000)
+                else:
+                    debugLog("❌ All view state restoration strategies failed", origin="MainWindow")
+                    if hasattr(self, 'statusBar'):
+                        self.statusBar().showMessage("Failed to restore view state", 3000)
+                    
+        except Exception as e:
+            debugLog(f"❌ Critical error in view state restoration: {e}", origin="MainWindow")
+            if hasattr(self, 'statusBar'):
+                self.statusBar().showMessage("Failed to restore view state", 3000)
+    
+    def _delayedRestoreView(self):
+        """Callback method for QTimer to handle delayed view restoration."""
+        try:
+            retry_count = getattr(self, '_restore_retry_count', 0)
+            debugLog(f"🔄 Timer callback: Attempting delayed view restoration (retry {retry_count})...", origin="MainWindow")
+            
+            # Clear the stored retry count
+            if hasattr(self, '_restore_retry_count'):
+                delattr(self, '_restore_retry_count')
+            
+            # Call restoreView with the stored retry count
+            self.restoreView(retry_count)
+            
+        except Exception as e:
+            debugLog(f"❌ Error in delayed restore callback: {e}", origin="MainWindow")
+    
+    def _convertViewStateToSerializable(self, state):
+        """Convert exudyn view state to JSON-serializable format."""
+        if not isinstance(state, dict):
+            return state
+        
+        serializable_state = {}
+        for key, value in state.items():
+            try:
+                # Convert numpy arrays and similar objects to lists with type information
+                if hasattr(value, 'tolist'):  # numpy arrays
+                    serializable_state[key] = {
+                        '__type__': 'numpy_array',
+                        '__data__': value.tolist(),
+                        '__dtype__': str(value.dtype) if hasattr(value, 'dtype') else 'float64'
+                    }
+                elif hasattr(value, '__iter__') and not isinstance(value, (str, bytes)):
+                    # Convert iterables (like SlimVector3) to lists with type info
+                    try:
+                        data_list = list(value)
+                        serializable_state[key] = {
+                            '__type__': type(value).__name__,
+                            '__data__': data_list,
+                            '__module__': getattr(type(value), '__module__', 'unknown')
+                        }
+                    except:
+                        serializable_state[key] = str(value)  # Fallback to string
+                else:
+                    # Keep basic types as-is
+                    serializable_state[key] = value
+            except Exception as e:
+                debugLog(f"⚠️ Could not serialize view state key '{key}': {e}", origin="MainWindow")
+                # Store as string fallback
+                serializable_state[key] = str(value)
+        
+        return serializable_state
+    
+    def _convertViewStateFromSerializable(self, serializable_state):
+        """Convert JSON-serializable view state back to exudyn format."""
+        if not isinstance(serializable_state, dict):
+            return serializable_state
+        
+        exudyn_state = {}
+        for key, value in serializable_state.items():
+            try:
+                # Handle any string values that need conversion
+                if isinstance(value, str):
+                    # Handle legacy numpy array strings like "array([1, 2, 3])" 
+                    if value.startswith('array('):
+                        try:
+                            import numpy as np
+                            # Replace 'array(' with 'np.array(' and evaluate
+                            numpy_code = value.replace('array(', 'np.array(')
+                            # Use eval in a controlled environment with only numpy available
+                            safe_globals = {'np': np, 'numpy': np}
+                            exudyn_state[key] = eval(numpy_code, safe_globals, {})
+                            continue
+                        except Exception as e:
+                            debugLog(f"⚠️ Failed to parse legacy numpy array string '{value}': {e}", origin="MainWindow")
+                    
+                    # Handle numeric strings
+                    elif value.replace('.', '').replace('-', '').replace('+', '').replace('e', '').replace('E', '').isdigit():
+                        try:
+                            if '.' in value or 'e' in value.lower():
+                                exudyn_state[key] = float(value)
+                            else:
+                                exudyn_state[key] = int(value)
+                            continue
+                        except ValueError:
+                            pass
+                    
+                    # Handle boolean strings
+                    elif value.lower() in ('true', 'false'):
+                        exudyn_state[key] = value.lower() == 'true'
+                        continue
+                    
+                    # Handle enum strings like "ItemType._None", "LinearSolverType.EigenSparse"
+                    elif '.' in value and any(enum_type in value for enum_type in [
+                        'ItemType', 'LinearSolverType', 'DynamicSolverType', 'NodeType', 
+                        'OutputVariableType', 'AccessFunctionType', 'ConfigurationType', 
+                        'ContactTypeIndex', 'CrossSectionType', 'JointType', 'ObjectType'
+                    ]):
+                        try:
+                            import exudyn as exu
+                            # Parse enum string like "ItemType._None" 
+                            if value.count('.') == 1:
+                                enum_class_name, enum_value_name = value.split('.')
+                                if hasattr(exu, enum_class_name):
+                                    enum_class = getattr(exu, enum_class_name)
+                                    if hasattr(enum_class, enum_value_name):
+                                        exudyn_state[key] = getattr(enum_class, enum_value_name)
+                                        continue
+                            # Handle full module path like "exudyn.ItemType._None"
+                            elif value.startswith('exudyn.') or value.startswith('exu.'):
+                                parts = value.split('.')
+                                if len(parts) >= 3:
+                                    enum_class_name = parts[-2]
+                                    enum_value_name = parts[-1]
+                                    if hasattr(exu, enum_class_name):
+                                        enum_class = getattr(exu, enum_class_name)
+                                        if hasattr(enum_class, enum_value_name):
+                                            exudyn_state[key] = getattr(enum_class, enum_value_name)
+                                            continue
+                        except Exception as e:
+                            debugLog(f"⚠️ Failed to parse enum string '{value}': {e}", origin="MainWindow")
+                    
+                    # Handle list-like strings "[1, 2, 3]"
+                    elif value.startswith('[') and value.endswith(']'):
+                        try:
+                            import ast
+                            parsed_list = ast.literal_eval(value)
+                            if isinstance(parsed_list, list):
+                                # Convert to proper numeric types
+                                if all(isinstance(x, (int, float)) for x in parsed_list):
+                                    exudyn_state[key] = [float(x) for x in parsed_list]
+                                else:
+                                    exudyn_state[key] = parsed_list
+                                continue
+                        except:
+                            pass
+                    
+                    # If string conversion fails, keep as string but log warning
+                    debugLog(f"⚠️ Keeping string value for key '{key}': {value}", origin="MainWindow")
+                    exudyn_state[key] = value
+                    continue
+                
+                # Check if this is a structured type with type information
+                elif isinstance(value, dict) and '__type__' in value and '__data__' in value:
+                    type_name = value['__type__']
+                    data = value['__data__']
+                    
+                    if type_name == 'numpy_array':
+                        # Try to recreate numpy array
+                        try:
+                            import numpy as np
+                            dtype = value.get('__dtype__', 'float64')
+                            exudyn_state[key] = np.array(data, dtype=dtype)
+                        except:
+                            # Fallback to plain list
+                            exudyn_state[key] = [float(x) for x in data]
+                    
+                    elif type_name == 'SlimVector3' or 'Vector' in type_name:
+                        # For exudyn vector types, try to create them or use lists
+                        try:
+                            # First try to import and create the actual exudyn type
+                            import exudyn as exu
+                            if hasattr(exu, type_name):
+                                vector_class = getattr(exu, type_name)
+                                exudyn_state[key] = vector_class(data)
+                            else:
+                                # Fallback to numpy array or list
+                                try:
+                                    import numpy as np
+                                    exudyn_state[key] = np.array(data, dtype='float64')
+                                except:
+                                    exudyn_state[key] = [float(x) for x in data]
+                        except:
+                            # Final fallback to list
+                            exudyn_state[key] = [float(x) for x in data]
+                    
+                    else:
+                        # For other special types, try list conversion
+                        try:
+                            if all(isinstance(x, (int, float)) for x in data):
+                                exudyn_state[key] = [float(x) for x in data]
+                            else:
+                                exudyn_state[key] = data
+                        except:
+                            exudyn_state[key] = data
+                
+                elif isinstance(value, list):
+                    # Handle plain lists (legacy format)
+                    try:
+                        if all(isinstance(x, (int, float)) for x in value):
+                            exudyn_state[key] = [float(x) for x in value]
+                        else:
+                            exudyn_state[key] = value
+                    except:
+                        exudyn_state[key] = value
+                
+                else:
+                    # Keep basic types as-is
+                    exudyn_state[key] = value
+                    
+            except Exception as e:
+                debugLog(f"⚠️ Could not deserialize view state key '{key}': {e}", origin="MainWindow")
+                # Keep original value if conversion fails
+                exudyn_state[key] = value
+        
+        return exudyn_state
+    
+    def _createSimplifiedViewState(self, state):
+        """Create a simplified view state with only basic numeric values that exudyn can handle."""
+        if not isinstance(state, dict):
+            return {}
+        
+        simplified_state = {}
+        
+        # List of essential view state keys that are typically safe
+        safe_keys = [
+            'centerPoint', 'maxSceneSize', 'zoom', 'currentWindowSize',
+            'rotationMatrix', 'openGL'
+        ]
+        
+        for key, value in state.items():
+            try:
+                # Only include keys that are likely to be safe
+                if any(safe_key in key.lower() for safe_key in ['center', 'zoom', 'size', 'matrix', 'opengl']):
+                    
+                    if isinstance(value, (int, float, bool)):
+                        # Basic types are safe
+                        simplified_state[key] = value
+                    
+                    elif isinstance(value, str):
+                        # Try to convert string values
+                        try:
+                            # Handle numeric strings
+                            if value.replace('.', '').replace('-', '').replace('+', '').replace('e', '').replace('E', '').isdigit():
+                                if '.' in value or 'e' in value.lower():
+                                    simplified_state[key] = float(value)
+                                else:
+                                    simplified_state[key] = int(value)
+                            # Handle boolean strings
+                            elif value.lower() in ('true', 'false'):
+                                simplified_state[key] = value.lower() == 'true'
+                            # Handle list-like strings
+                            elif value.startswith('[') and value.endswith(']'):
+                                import ast
+                                parsed_list = ast.literal_eval(value)
+                                if isinstance(parsed_list, list) and all(isinstance(x, (int, float)) for x in parsed_list):
+                                    simplified_state[key] = [float(x) for x in parsed_list]
+                        except:
+                            pass  # Skip if conversion fails
+                    
+                    elif isinstance(value, (list, tuple)):
+                        # Convert lists/tuples to plain Python lists with float values
+                        try:
+                            if all(isinstance(x, (int, float)) for x in value):
+                                simplified_state[key] = [float(x) for x in value]
+                        except:
+                            pass  # Skip if conversion fails
+                    
+                    elif isinstance(value, dict) and '__data__' in value:
+                        # Handle our enhanced format
+                        try:
+                            data = value['__data__']
+                            if all(isinstance(x, (int, float)) for x in data):
+                                simplified_state[key] = [float(x) for x in data]
+                        except:
+                            pass  # Skip if conversion fails
+                    
+                    # Also try to handle numpy arrays if present
+                    elif hasattr(value, 'tolist'):
+                        try:
+                            simplified_state[key] = value.tolist()
+                        except:
+                            pass
+                            
+            except:
+                pass  # Skip any problematic keys
+        
+        debugLog(f"📋 Created simplified view state with {len(simplified_state)} safe keys: {list(simplified_state.keys())}", origin="MainWindow")
+        return simplified_state
+    
+    def _isRendererReady(self):
+        """Check if the renderer is ready to accept state changes."""
+        try:
+            # Check basic renderer existence
+            if not (hasattr(self, 'SC') and self.SC and hasattr(self.SC, 'renderer')):
+                debugLog("❌ Renderer readiness: SC.renderer not available", origin="MainWindow")
+                return False
+            
+            # Check if solution viewer is active
+            if hasattr(self, 'solution_viewer') and self.solution_viewer:
+                if hasattr(self.solution_viewer, 'renderer_active'):
+                    if not self.solution_viewer.renderer_active:
+                        debugLog("❌ Renderer readiness: solution_viewer not active", origin="MainWindow")
+                        return False
+                
+                # Additional checks for renderer state
+                if hasattr(self.solution_viewer, 'isRendererActive'):
+                    if not self.solution_viewer.isRendererActive():
+                        debugLog("❌ Renderer readiness: isRendererActive() returned False", origin="MainWindow")
+                        return False
+            
+            # Try a simple renderer operation to test readiness
+            try:
+                # Test if we can get current state (indicates renderer is responsive)
+                current_state = self.SC.renderer.GetState()
+                if current_state is None:
+                    debugLog("❌ Renderer readiness: GetState() returned None", origin="MainWindow")
+                    return False
+                debugLog("✅ Renderer readiness: GetState() test passed", origin="MainWindow")
+                
+                # Additional test: try to set the same state back (more thorough test)
+                try:
+                    self.SC.renderer.SetState(current_state)
+                    debugLog("✅ Renderer readiness: SetState() test passed", origin="MainWindow")
+                except Exception as e:
+                    debugLog(f"❌ Renderer readiness: SetState() test failed: {e}", origin="MainWindow")
+                    return False
+                    
+            except Exception as e:
+                debugLog(f"❌ Renderer readiness: GetState() test failed: {e}", origin="MainWindow")
+                return False
+            
+            debugLog("✅ Renderer is ready for state restoration", origin="MainWindow")
+            return True
+            
+        except Exception as e:
+            debugLog(f"❌ Error checking renderer readiness: {e}", origin="MainWindow")
+            return False
+ 
     def setupRibbonInterface(self):
         """Setup Microsoft Office-style ribbon interface with Data/Model/Simulation tabs."""
         # Initialize the structure first
@@ -969,15 +1444,15 @@ class MainWindow(QMainWindow):
         new_model_btn.setMinimumHeight(35)
         file_layout.addWidget(new_model_btn)
         
-        load_model_btn = QPushButton("📂 Load Model")
-        load_model_btn.clicked.connect(self.loadModel)
-        load_model_btn.setMinimumHeight(35)
-        file_layout.addWidget(load_model_btn)
+        # load_model_btn = QPushButton("📂 Load Model")
+        # load_model_btn.clicked.connect(self.loadModel)
+        # load_model_btn.setMinimumHeight(35)
+        # file_layout.addWidget(load_model_btn)
         
-        save_model_btn = QPushButton("💾 Save Model")  
-        save_model_btn.clicked.connect(self.saveModel)
-        save_model_btn.setMinimumHeight(35)
-        file_layout.addWidget(save_model_btn)
+        # save_model_btn = QPushButton("💾 Save Model")  
+        # save_model_btn.clicked.connect(self.saveModel)
+        # save_model_btn.setMinimumHeight(35)
+        # file_layout.addWidget(save_model_btn)
         
         load_project_btn = QPushButton("📁 Load Project")
         load_project_btn.clicked.connect(self.loadProject)
@@ -1158,6 +1633,14 @@ class MainWindow(QMainWindow):
         """)
         sim_layout = QHBoxLayout(sim_group)  # Changed from QGridLayout to QHBoxLayout
         sim_layout.setSpacing(15)  # Add spacing between buttons        
+
+        # Add simulation settings button
+        settings_btn = QPushButton("⚙️ Settings")
+        settings_btn.clicked.connect(self.showSimulationSettings)
+        settings_btn.setMinimumHeight(35)
+        settings_btn.setToolTip("Configure simulation parameters and solver settings")
+        sim_layout.addWidget(settings_btn)
+
         simulate_btn = QPushButton("▶️ Simulate")
         simulate_btn.clicked.connect(self.simulateModel)
         simulate_btn.setMinimumHeight(35)
@@ -1805,6 +2288,17 @@ class MainWindow(QMainWindow):
         doc_btn.clicked.connect(show_selected_doc)
         button_bar.addWidget(doc_btn)
 
+        # Button 4: Copy/Duplicate
+        copy_icon = style.standardIcon(QStyle.SP_FileDialogDetailedView) if hasattr(QStyle, 'SP_FileDialogDetailedView') else None
+        copy_btn = QPushButton()
+        copy_btn.setToolTip("Copy selected item and create duplicate")
+        if copy_icon:
+            copy_btn.setIcon(copy_icon)
+        else:
+            copy_btn.setText("Copy")
+        copy_btn.clicked.connect(self.copySelectedItem)
+        button_bar.addWidget(copy_btn)
+
         left_layout.addLayout(button_bar)
 
         # Graphics List widget (hidden by default)
@@ -2056,6 +2550,8 @@ class MainWindow(QMainWindow):
                 self.buildSystemAndShowAndRefreshTree()
                 debugLog(f"[MainWindow.addItem] Finished buildSystemAndShowAndRefreshTree()")
 
+
+
     def editSelectedItem(self):
         item = self.structureTree.currentItem()
         if not item:
@@ -2066,6 +2562,25 @@ class MainWindow(QMainWindow):
         result, oldData = editModelItem(createIdx, self)
         if result:
             self.undoStack.append({'action': 'edit', 'index': createIdx, 'oldData': oldData})
+            self.buildSystemAndShowAndRefreshTree()
+
+    def copySelectedItem(self):
+        """Copy the selected item and open AutoGeneratedForm for duplication."""
+        item = self.structureTree.currentItem()
+        if not item:
+            QMessageBox.information(self, "Copy Item", "Please select an item to copy.")
+            return
+        
+        createIdx = self.resolveModelSequenceIndex(item)
+        if createIdx is None:
+            QMessageBox.warning(self, "Copy Item", "Unable to resolve the selected item for copying.")
+            return
+        
+        # Import and call the copy function
+        from exudynGUI.core.modelManager import copyModelItem
+        result, copiedData = copyModelItem(createIdx, self)
+        if result:
+            self.undoStack.append({'action': 'add', 'index': len(self.modelSequence) - 1, 'oldData': None})
             self.buildSystemAndShowAndRefreshTree()
 
     def removeSelectedItem(self):
@@ -2817,48 +3332,60 @@ except Exception as e:
             # Build the system first
             self.buildSystemAndShow()
             
-            # Ensure the system is assembled
+                        # Ensure the system is assembled
             self.mbs.Assemble()
             
-            # Set up simulation settings for non-interactive execution
-            simulationSettings = exu.SimulationSettings()
-            simulationSettings.solutionSettings.solutionWritePeriod = 5e-3
-            simulationSettings.solutionSettings.sensorsWritePeriod = 5e-3
-            simulationSettings.timeIntegration.numberOfSteps = 50000
-            simulationSettings.timeIntegration.endTime = 3.0
-            simulationSettings.displayComputationTime = True
-            simulationSettings.timeIntegration.verboseMode = 1
-            simulationSettings.timeIntegration.generalizedAlpha.spectralRadius = 1
-            
-           
-            simulationSettings.timeIntegration.newton.useModifiedNewton = True
-            simulationSettings.timeIntegration.generalizedAlpha.spectralRadius = 0.5
-            simulationSettings.timeIntegration.generalizedAlpha.computeInitialAccelerations=True
-
-            simulationSettings.timeIntegration.generalizedAlpha.useNewmark = True
-            simulationSettings.timeIntegration.generalizedAlpha.useIndex2Constraints =  simulationSettings.timeIntegration.generalizedAlpha.useNewmark
-            simulationSettings.linearSolverType = exu.LinearSolverType.EigenDense #use for overconstrained systems
-            simulationSettings.linearSolverSettings.ignoreSingularJacobian = True #use for overconstrained systems
-
             # =====================================
-            # RESTORE RENDERER STATE BEFORE FIRST IDLE TASKS
+            # INJECT SAVED VIEW STATE AFTER ASSEMBLY
             # =====================================
-            debugLog("🔄 Restoring renderer state before first DoIdleTasks()...", origin="MainWindow")
+            debugLog("📷 Attempting to restore saved view state after system assembly...", origin="MainWindow")
             try:
-                if saved_renderer_state and hasattr(self, 'solution_viewer') and self.solution_viewer:
-                    restore_success = self.solution_viewer.restoreRendererState(saved_renderer_state)
-                    if restore_success:
-                        debugLog("✅ Renderer state restored before simulation", origin="MainWindow")
+                # First try to restore from saved_view_state (from Save View menu)
+                if hasattr(self, 'saved_view_state') and self.saved_view_state:
+                    if hasattr(self, 'SC') and self.SC and hasattr(self.SC, 'renderer'):
+                        # Use restoreView() method which includes proper conversion
+
+                    
+                        self.restoreView()
+                        debugLog("✅ View state restored from menubar Save View", origin="MainWindow")
                     else:
-                        debugLog("⚠️ Failed to restore renderer state before simulation", origin="MainWindow")
+                        debugLog("⚠️ SC.renderer not available for view state restoration", origin="MainWindow")
                 else:
-                    debugLog("⚠️ No saved renderer state to restore", origin="MainWindow")
+                    debugLog("ℹ️ No saved view state from menubar to restore", origin="MainWindow")
+                    
+                    # =====================================
+                    # FALLBACK: RESTORE RENDERER STATE FROM BEFORE SIMULATION
+                    # =====================================
+                    debugLog("🔄 Restoring renderer state before first DoIdleTasks()...", origin="MainWindow")
+                    try:
+                        if saved_renderer_state and hasattr(self, 'solution_viewer') and self.solution_viewer:
+                            restore_success = self.solution_viewer.restoreRendererState(saved_renderer_state)
+                            if restore_success:
+                                debugLog("✅ Renderer state restored before simulation", origin="MainWindow")
+                            else:
+                                debugLog("⚠️ Failed to restore renderer state before simulation", origin="MainWindow")
+                        else:
+                            debugLog("⚠️ No saved renderer state to restore", origin="MainWindow")
+                    except Exception as e:
+                        debugLog(f"⚠️ Error restoring renderer state: {e}", origin="MainWindow")
+                    
             except Exception as e:
-                debugLog(f"⚠️ Error restoring renderer state: {e}", origin="MainWindow")
+                debugLog(f"⚠️ Failed to restore saved view state: {e}", origin="MainWindow")
+
+
+
+
+            if self.simulationSettings is None:
+                self.initializeSimulationSettings()
+
+
+            
+            
+            
             # Run the simulation (GUI is paused, OpenGL window is independent)
             self.SC.renderer.DoIdleTasks()  # Ensure renderer is ready before simulation
 
-            exu.SolveDynamic(self.mbs, simulationSettings)            
+            exu.SolveDynamic(self.mbs, self.simulationSettings)            
             debugLog("✅ STEP 4/5 COMPLETE: Simulation finished successfully", origin="MainWindow")
             
             # Post-simulation renderer updates
@@ -2984,7 +3511,25 @@ except Exception as e:
                 return
                 
             # Generate the complete script code for export/display purposes
-            code = generateExudynCodeFromItems(self.modelSequence, self.mbs, fullScript=True)
+            # Pass current settings to generate only the actual changes from defaults
+            
+            # Capture current view state for injection into code
+            current_view_state = None
+            try:
+                if hasattr(self, 'SC') and self.SC and hasattr(self.SC, 'renderer'):
+                    current_view_state = self.SC.renderer.GetState()
+                    debugLog(f"📸 Captured current view state for code generation")
+            except Exception as e:
+                debugLog(f"⚠️ Could not capture view state: {e}")
+            
+            code = generateExudynCodeFromItems(
+                self.modelSequence, 
+                self.mbs, 
+                fullScript=True,
+                simulationSettings=self.simulationSettings,
+                visualizationSettings=self.SC,
+                viewState=current_view_state
+            )
             if code and code.strip():  # Check if code is not empty or just whitespace
                 # Display in a new dialog or save to file
                 from PyQt5.QtWidgets import QDialog, QTextEdit, QVBoxLayout, QPushButton
@@ -3363,6 +3908,75 @@ except Exception as e:
             debugLog(f"Failed to save model: {e}", origin="MainWindow")
             QMessageBox.critical(self, "Save Error", f"Failed to save model: {str(e)}")
 
+    def getSimulationSettingsAsDict(self):
+        """Convert simulation settings to a dictionary for saving."""
+        from guiForms.simulationSettings import simulationSettingsToDict
+        return simulationSettingsToDict(self.simulationSettings)
+
+    def setSimulationSettingsFromDict(self, settings_dict):
+        """Apply simulation settings from a dictionary."""
+        from guiForms.simulationSettings import simulationSettingsFromDict
+        from exudynGUI.core.debug import debugLog
+        
+        # Initialize if needed
+        if self.simulationSettings is None:
+            self.initializeSimulationSettings()
+        
+        # Apply the settings
+        self.simulationSettings = simulationSettingsFromDict(settings_dict, self.simulationSettings)
+        
+        debugLog("✅ Simulation settings loaded from project file", origin="mainWindow.py")
+
+    def getVisualizationSettingsAsDict(self):
+        """Convert visualization settings to a dictionary for saving."""
+        from guiForms.visualizationSettings import visualizationSettingsToDict
+        if hasattr(self, 'SC') and self.SC is not None:
+            return visualizationSettingsToDict(self.SC.visualizationSettings)
+        return {}
+
+    def setVisualizationSettingsFromDict(self, settings_dict):
+        """Apply visualization settings from a dictionary."""
+        from guiForms.visualizationSettings import visualizationSettingsFromDict
+        from exudynGUI.core.debug import debugLog
+        
+        # Ensure SystemContainer exists
+        if not hasattr(self, 'SC') or self.SC is None:
+            import exudyn as exu
+            self.SC = exu.SystemContainer()
+        
+        # Apply the settings
+        self.SC = visualizationSettingsFromDict(settings_dict, self.SC)
+        
+        debugLog("✅ Visualization settings loaded from project file", origin="mainWindow.py")
+
+    def showVisualizationSettings(self):
+        """Show the visualization settings dialog."""
+        from guiForms.visualizationSettings import createVisualizationSettingsForm, collectVisualizationSettingsData, applyVisualizationSettings
+        from exudynGUI.core.debug import debugLog
+        
+        try:
+            # Ensure SystemContainer exists
+            if not hasattr(self, 'SC') or self.SC is None:
+                import exudyn as exu
+                self.SC = exu.SystemContainer()
+            
+            # Create and show the dialog
+            dialog = createVisualizationSettingsForm(self, self.SC)
+            
+            if dialog.exec_() == QDialog.Accepted:
+                # Collect user changes
+                data = collectVisualizationSettingsData(dialog)
+                
+                # Apply to SystemContainer
+                applyVisualizationSettings(self.SC, data)
+                
+                debugLog("✅ Visualization settings applied", origin="mainWindow.py")
+                
+        except Exception as e:
+            debugLog(f"❌ Error in visualization settings: {e}", origin="mainWindow.py")
+            QMessageBox.critical(self, "Error", f"Failed to open visualization settings: {str(e)}")
+
+
     def loadProject(self):
         """Load a project (model + additional settings)."""
         try:
@@ -3379,11 +3993,43 @@ except Exception as e:
                 self.modelSequence.clear()
                 self.modelSequence.extend(data.get('modelSequence', []))
                 self.userVariables = data.get('userVariables', {})
+                
+                # ← ADD THIS BLOCK
+                # Load simulation settings if available
+                if 'simulationSettings' in data:
+                    self.setSimulationSettingsFromDict(data['simulationSettings'])
+                else:
+                    # Initialize with defaults for older project files
+                    self.initializeSimulationSettings()
+                
+                # Load visualization settings if available
+                if 'visualizationSettings' in data:
+                    self.setVisualizationSettingsFromDict(data['visualizationSettings'])
+                
+                # =====================================
+                # LOAD AND RESTORE VIEW STATE
+                # =====================================
+                view_state = data.get('viewState')
+                if view_state:
+                    debugLog("📷 Loading view state from project file...", origin="MainWindow")
+                    self.saved_view_state = view_state
+                
                 if hasattr(self, 'variableEditor'):
                     # Update the variable editor with loaded variables
                     self.variableEditor.updateFromVariables(self.userVariables)
                 self.buildSystemAndShowAndRefreshTree()
                 self.updateVariablesDisplay()
+                
+                # =====================================
+                # AUTOMATICALLY RESTORE VIEW STATE AFTER LOADING
+                # =====================================
+                if view_state:
+                    debugLog("📷 Auto-restoring view state after project load...", origin="MainWindow")
+                    # Use a slight delay to ensure the system is fully built and renderer is ready
+                    QTimer.singleShot(500, self.restoreView)  # Delay 500ms for system to be ready
+                else:
+                    debugLog("ℹ️ No view state found in project file", origin="MainWindow")
+                
                 QMessageBox.information(self, "Load Complete", f"Project loaded from {filename}")
         except Exception as e:
             debugLog(f"Failed to load project: {e}", origin="MainWindow")
@@ -3399,9 +4045,18 @@ except Exception as e:
                 "JSON Files (*.json)"
             )
             if filename:
+                # =====================================
+                # AUTOMATICALLY SAVE CURRENT VIEW STATE
+                # =====================================
+                debugLog("📷 Auto-saving current view state during project save...", origin="MainWindow")
+                self.saveView()  # Explicitly save current view state
+                
                 data = {
                     'modelSequence': self.modelSequence,
                     'userVariables': self.userVariables,
+                    'simulationSettings': self.getSimulationSettingsAsDict(),  # ← ADD THIS
+                    'visualizationSettings': self.getVisualizationSettingsAsDict(),  # ← ADD THIS
+                    'viewState': getattr(self, 'saved_view_state', None),  # ← ADD VIEW STATE
                     'metadata': {
                         'created': datetime.now().isoformat(),
                         'version': '1.0'
@@ -3441,8 +4096,27 @@ except Exception as e:
             if hasattr(self, 'variableEditor'):
                 # Update the variable editor with loaded variables
                 self.variableEditor.updateFromVariables(self.userVariables)
+            
+            # =====================================
+            # LOAD AND RESTORE VIEW STATE
+            # =====================================
+            view_state = data.get('viewState')
+            if view_state:
+                debugLog("📷 Loading view state from project file...", origin="MainWindow")
+                self.saved_view_state = view_state
+            
             self.buildSystemAndShowAndRefreshTree()
             self.updateVariablesDisplay()
+            
+            # =====================================
+            # AUTOMATICALLY RESTORE VIEW STATE AFTER LOADING
+            # =====================================
+            if view_state:
+                debugLog("📷 Auto-restoring view state after project load...", origin="MainWindow")
+                # Use a slight delay to ensure the system is fully built and renderer is ready
+                QTimer.singleShot(500, self.restoreView)  # Delay 500ms for system to be ready
+            else:
+                debugLog("ℹ️ No view state found in project file", origin="MainWindow")
         except Exception as e:
             debugLog(f"Failed to load project: {e}", origin="MainWindow")
 
@@ -3464,12 +4138,24 @@ except Exception as e:
                 )
                 if not filename:
                     return  # User cancelled
+            
+            # =====================================
+            # AUTOMATICALLY SAVE CURRENT VIEW STATE
+            # =====================================
+            debugLog("📷 Auto-saving current view state during project save...", origin="MainWindow")
+            self.saveView()  # Explicitly save current view state
+            
             # Deep copy and filter out unserializable objects
             serializable_modelSequence = self.modelSequence #make_serializable(copy.deepcopy(self.modelSequence))
             serializable_userVariables = self.userVariables #make_serializable(copy.deepcopy(self.userVariables))
+            
+            # Use the saved view state (now guaranteed to be current)
+            view_state = getattr(self, 'saved_view_state', None)
+            
             data = {
                 'modelSequence': serializable_modelSequence,
                 'userVariables': serializable_userVariables,
+                'viewState': view_state,
                 'metadata': {
                     'created': datetime.now().isoformat(),
                     'version': '1.0'
@@ -3477,6 +4163,8 @@ except Exception as e:
             }
             with open(filename, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, default=str)
+            
+            debugLog(f"✅ Project saved with current view state to {filename}", origin="MainWindow")
 
         except Exception as e:
             debugLog(f"Failed to save project: {e}", origin="MainWindow")

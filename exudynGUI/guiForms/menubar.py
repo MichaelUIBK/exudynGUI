@@ -207,56 +207,81 @@ class ExudynMenuBar:
         edit_menu.addAction(preferences_action)
     
     def _createViewMenu(self):
-        """Create the View menu with view controls."""
+        """Create the View menu with viewing options."""
         view_menu = self.menubar.addMenu("&View")
         
-        # Zoom controls
+        # Zoom options
         zoom_in_action = QAction("Zoom &In", self.parent)
-        zoom_in_action.setShortcut(QKeySequence.ZoomIn)
-        zoom_in_action.setStatusTip("Zoom in the view")
+        zoom_in_action.setShortcut("Ctrl++")
+        zoom_in_action.setStatusTip("Zoom in")
         zoom_in_action.triggered.connect(self._zoomIn)
         view_menu.addAction(zoom_in_action)
         
         zoom_out_action = QAction("Zoom &Out", self.parent)
-        zoom_out_action.setShortcut(QKeySequence.ZoomOut)
-        zoom_out_action.setStatusTip("Zoom out the view")
+        zoom_out_action.setShortcut("Ctrl+-")
+        zoom_out_action.setStatusTip("Zoom out")
         zoom_out_action.triggered.connect(self._zoomOut)
         view_menu.addAction(zoom_out_action)
         
-        zoom_fit_action = QAction("&Fit to Window", self.parent)
+        zoom_fit_action = QAction("Zoom &Fit", self.parent)
         zoom_fit_action.setShortcut("Ctrl+0")
-        zoom_fit_action.setStatusTip("Fit all objects in the view")
+        zoom_fit_action.setStatusTip("Fit view to content")
         zoom_fit_action.triggered.connect(self._zoomFit)
         view_menu.addAction(zoom_fit_action)
         
         view_menu.addSeparator()
         
-        # View modes
-        view_modes_menu = view_menu.addMenu("View &Mode")
-        
+        # Rendering modes
         wireframe_action = QAction("&Wireframe", self.parent)
+        wireframe_action.setShortcut("Ctrl+W")
         wireframe_action.setStatusTip("Show wireframe view")
         wireframe_action.triggered.connect(self._setWireframeView)
-        view_modes_menu.addAction(wireframe_action)
+        view_menu.addAction(wireframe_action)
         
         solid_action = QAction("&Solid", self.parent)
+        solid_action.setShortcut("Ctrl+S")
         solid_action.setStatusTip("Show solid view")
         solid_action.triggered.connect(self._setSolidView)
-        view_modes_menu.addAction(solid_action)
+        view_menu.addAction(solid_action)
         
         view_menu.addSeparator()
         
-        # Renderer controls
+        # Visualization settings
+        viz_settings_action = QAction("&Visualization Settings...", self.parent)
+        viz_settings_action.setShortcut("Ctrl+Alt+V")
+        viz_settings_action.setStatusTip("Configure visualization and rendering settings")
+        viz_settings_action.triggered.connect(self._showVisualizationSettings)
+        view_menu.addAction(viz_settings_action)
+        
+        view_menu.addSeparator()
+        
+        # View state management
+        save_view_action = QAction("&Save View", self.parent)
+        save_view_action.setShortcut("Ctrl+Shift+S")
+        save_view_action.setStatusTip("Save current view state (camera position, zoom, etc.)")
+        save_view_action.triggered.connect(self._saveView)
+        view_menu.addAction(save_view_action)
+        
+        restore_view_action = QAction("R&estore View", self.parent)
+        restore_view_action.setShortcut("Ctrl+Shift+R")
+        restore_view_action.setStatusTip("Restore previously saved view state")
+        restore_view_action.triggered.connect(self._restoreView)
+        view_menu.addAction(restore_view_action)
+        
+        view_menu.addSeparator()
+        
+        # Renderer control
         refresh_action = QAction("&Refresh Renderer", self.parent)
         refresh_action.setShortcut("F5")
-        refresh_action.setStatusTip("Refresh the 3D renderer")
+        refresh_action.setStatusTip("Refresh the renderer")
         refresh_action.triggered.connect(self._refreshRenderer)
         view_menu.addAction(refresh_action)
         
-        restart_renderer_action = QAction("&Restart Renderer", self.parent)
-        restart_renderer_action.setStatusTip("Restart the 3D renderer")
-        restart_renderer_action.triggered.connect(self._restartRenderer)
-        view_menu.addAction(restart_renderer_action)
+        restart_action = QAction("R&estart Renderer", self.parent)
+        restart_action.setShortcut("Ctrl+F5")
+        restart_action.setStatusTip("Restart the renderer")
+        restart_action.triggered.connect(self._restartRenderer)
+        view_menu.addAction(restart_action)
     
     def _createSimulationMenu(self):
         """Create the Simulation menu with simulation controls."""
@@ -526,6 +551,13 @@ class ExudynMenuBar:
         else:
             debugInfo("Solid view requested", origin="menubar.py", category=DebugCategory.GUI)
     
+    def _showVisualizationSettings(self):
+        """Show visualization settings dialog."""
+        if hasattr(self.parent, 'showVisualizationSettings'):
+            self.parent.showVisualizationSettings()
+        else:
+            debugInfo("Visualization settings requested", origin="menubar.py", category=DebugCategory.GUI)
+    
     def _refreshRenderer(self):
         """Refresh the 3D renderer."""
         if hasattr(self.parent, 'refreshRenderer'):
@@ -539,6 +571,20 @@ class ExudynMenuBar:
             self.parent.restartRenderer()
         else:
             debugInfo("Restart renderer requested", origin="menubar.py", category=DebugCategory.GUI)
+    
+    def _saveView(self):
+        """Save the current view state."""
+        if hasattr(self.parent, 'saveView'):
+            self.parent.saveView()
+        else:
+            debugInfo("Save view requested", origin="menubar.py", category=DebugCategory.GUI)
+    
+    def _restoreView(self):
+        """Restore the previously saved view state."""
+        if hasattr(self.parent, 'restoreView'):
+            self.parent.restoreView()
+        else:
+            debugInfo("Restore view requested", origin="menubar.py", category=DebugCategory.GUI)
     
     # Simulation menu handlers
     def _runSimulation(self):
@@ -659,6 +705,8 @@ class ExudynMenuBar:
         <tr><td>Ctrl++</td><td>Zoom In</td></tr>
         <tr><td>Ctrl+-</td><td>Zoom Out</td></tr>
         <tr><td>Ctrl+0</td><td>Fit to Window</td></tr>
+        <tr><td>Ctrl+Shift+S</td><td>Save View</td></tr>
+        <tr><td>Ctrl+Shift+R</td><td>Restore View</td></tr>
         <tr><td>F5</td><td>Refresh Renderer</td></tr>
         
         <tr><td><b>Simulation:</b></td></tr>

@@ -132,7 +132,7 @@ def enforceReturnDictTrue(argStrs):
     # strip any existing returnDict=… and always append returnDict=True
     return [a for a in argStrs if not a.strip().startswith('returnDict=')] + ['    returnDict=True']
 
-def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=None, fullScript=False):
+def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=None, fullScript=False, simulationSettings=None, visualizationSettings=None, viewState=None):
     import re
     import os
     
@@ -696,6 +696,9 @@ def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=
             # Single return value → Simple assignment (no dictionary access)
             # Multiple return values → Dictionary unpacking (only if returnDict=True)
             # This eliminates KeyError exceptions and makes code generation robust
+            
+            # Add blank line between items for better readability
+            codeLines.append("")
             continue
 
         # ── 3) Legacy objects/nodes/markers/loads/sensors ──────────────────────────
@@ -1180,6 +1183,9 @@ def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=
                     debugLog(f"🔧 [EXACT MAPPING] Updated ground body mapping: bodyNumber[{objIndex}] → {ground_body_var_name}")
             
         # Legacy items only generate code, they don't execute - skip the wrapper execution
+        
+        # Add blank line between items for better readability  
+        codeLines.append("")
         continue
         # call the wrapper (which may return a list or a dict)
         # Only include arguments accepted by the function
@@ -1355,6 +1361,9 @@ def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=
                     if symName not in definedSymbols:
                         codeLines.append(f"{symName} = {baseName}['{field}']")
                         definedSymbols.add(symName)
+        
+        # Add blank line between items for better readability
+        codeLines.append("")
 
 
     # Add a special case to always ensure that forces and torques get bodyNumber assignments
@@ -1415,28 +1424,319 @@ def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=
             baseHeader.append(funcDef)
         baseHeader.append("")  # Add blank line after user functions
 
+    # Clean up trailing blank lines from the main code
+    while codeLines and codeLines[-1] == "":
+        codeLines.pop()
+    
     # Only append mbs.Assemble() and SolveDynamic if fullScript flag is set
     output_lines = baseHeader + codeLines
     if fullScript:
         output_lines.append("")
         output_lines.append("mbs.Assemble()")
-        output_lines.append("# mbs.SolveDynamic()  # Uncomment to run simulation")
-        output_lines.append("")
-        output_lines.append("simulationSettings = exu.SimulationSettings()")
-        output_lines.append("simulationSettings.solutionSettings.solutionWritePeriod = 5e-3")
-        output_lines.append("simulationSettings.solutionSettings.sensorsWritePeriod = 5e-3")
-        output_lines.append("simulationSettings.timeIntegration.numberOfSteps = 1000")
-        output_lines.append("simulationSettings.timeIntegration.endTime = 1.0")
-        output_lines.append("simulationSettings.displayComputationTime = True")
-        output_lines.append("simulationSettings.timeIntegration.verboseMode = 1")
-        output_lines.append("simulationSettings.timeIntegration.generalizedAlpha.spectralRadius = 1")
-        output_lines.append("")
-        output_lines.append("exu.StartRenderer()")
-        output_lines.append("mbs.WaitForUserToContinue()")
+
+        
+        # Generate dynamic settings based on actual user changes (without view state)
+        settings_lines = _generateDynamicSettings(simulationSettings, visualizationSettings, viewState=None)
+        if settings_lines:
+            output_lines.extend(settings_lines)
+            output_lines.append("")
+        
+        output_lines.append("SC.renderer.Start()")
+        
+        # Generate and apply view state after renderer is started
+        if viewState is not None:
+            try:
+                view_code = _generateViewStateCode(viewState)
+                if view_code:
+                    output_lines.extend(view_code)
+                    output_lines.append("")
+            except Exception as e:
+                debugLog(f"⚠️ Failed to generate view state: {e}")
+        
+        output_lines.append("SC.renderer.DoIdleTasks()")
         output_lines.append("exu.SolveDynamic(mbs, simulationSettings)")
-        output_lines.append("mbs.WaitForUserToContinue()")
-        output_lines.append("exu.StopRenderer()")
+        output_lines.append("SC.renderer.DoIdleTasks()")
+        output_lines.append("SC.renderer.Stop()")
     return '\n'.join(output_lines)
+
+def _generateDynamicSettings(simulationSettings=None, visualizationSettings=None, viewState=None):
+    """
+    Generate dynamic settings code based on actual user changes from defaults.
+    Only includes settings that differ from factory defaults.
+    
+    Args:
+        simulationSettings: Current simulation settings object
+        visualizationSettings: Current SystemContainer with visualization settings
+        viewState: Not used (kept for compatibility)
+        
+    Returns:
+        list: Lines of code for settings (without newlines)
+    """
+    try:
+        from exudynGUI.core.settingsComparison import compare_form_data_with_defaults
+        from exudynGUI.guiForms.simulationSettings import discoverSimulationSettingsStructure
+        from exudynGUI.guiForms.visualizationSettings import discoverVisualizationSettingsStructure
+        import exudyn as exu
+        
+        settings_lines = []
+        
+        # Helper function for extracting flat values from settings structure
+        def extract_flat_values(structure, prefix=""):
+            """Extract all values from the discovered structure."""
+            result = {}
+            for key, info in structure.items():
+                if info['type'] == 'object':
+                    nested_result = extract_flat_values(info['nested'], f"{prefix}.{key}" if prefix else key)
+                    result.update(nested_result)
+                else:
+                    full_key = f"{prefix}.{key}" if prefix else key
+                    result[full_key] = info.get('value')
+            return result
+        
+        # === SIMULATION SETTINGS ===
+        if simulationSettings is not None:
+            try:
+                # Use cached defaults to avoid creating new objects
+                from exudynGUI.core.settingsComparison import get_default_simulation_settings
+                default_structure = get_default_simulation_settings()
+                
+                # Get current settings structure
+                current_structure = discoverSimulationSettingsStructure(exu, simulationSettings)
+                
+                default_values = extract_flat_values(default_structure)
+                current_values = extract_flat_values(current_structure)
+                
+                # Generate differences using existing comparison logic
+                simulation_differences = _findSettingsDifferences(default_values, current_values, "simulationSettings")
+                
+                if simulation_differences:
+                    sim_code = _generateSettingsCode(simulation_differences, "simulationSettings")
+                    if sim_code:
+                        settings_lines.extend(sim_code)
+                        
+            except Exception as e:
+                debugLog(f"⚠️ Failed to generate dynamic simulation settings: {e}")
+                # Fallback to basic required settings
+                settings_lines.extend([
+                    "simulationSettings = exu.SimulationSettings()",
+                    "# Using default simulation settings"
+                ])
+        
+        # === VISUALIZATION SETTINGS ===
+        if visualizationSettings is not None:
+            try:
+                # Use cached defaults to avoid creating new SystemContainers (prevents OpenGL conflicts)
+                from exudynGUI.core.settingsComparison import get_default_visualization_settings
+                default_structure = get_default_visualization_settings(reference_SC=visualizationSettings)
+                
+                # Get current settings structure 
+                current_structure = discoverVisualizationSettingsStructure(visualizationSettings)
+                
+                # Extract flat values
+                default_values = extract_flat_values(default_structure)
+                current_values = extract_flat_values(current_structure)
+                
+                # Generate differences
+                visualization_differences = _findSettingsDifferences(default_values, current_values, "visualizationSettings")
+                
+                if visualization_differences:
+                    viz_code = _generateSettingsCode(visualization_differences, "visualizationSettings")
+                    if viz_code:
+                        if settings_lines:  # Add separator if we have simulation settings too
+                            settings_lines.append("")
+                        settings_lines.extend(viz_code)
+                        
+            except Exception as e:
+                debugLog(f"⚠️ Failed to generate dynamic visualization settings: {e}")
+        
+
+        
+        # If we couldn't generate any settings, provide minimal fallback
+        if not settings_lines and simulationSettings is not None:
+            settings_lines = [
+                "simulationSettings = exu.SimulationSettings()",
+                "# Using default settings (unable to detect differences)"
+            ]
+            
+        return settings_lines
+        
+    except Exception as e:
+        debugLog(f"❌ Failed to generate dynamic settings: {e}")
+        # Fallback to minimal settings
+        return [
+            "simulationSettings = exu.SimulationSettings()",
+            "# Using default settings (error in dynamic generation)"
+        ]
+
+def _findSettingsDifferences(default_values, current_values, settings_name):
+    """Find differences between default and current settings values."""
+    from exudynGUI.core.settingsComparison import values_are_equivalent
+    
+    differences = {}
+    all_keys = set(default_values.keys()) | set(current_values.keys())
+    
+    for key in all_keys:
+        default_val = default_values.get(key)
+        current_val = current_values.get(key)
+        
+        # Check if values are different using smart comparison
+        if current_val is not None and not values_are_equivalent(default_val, current_val):
+            differences[key] = {
+                'default': default_val,
+                'current': current_val,
+                'path': f"{settings_name}.{key}"
+            }
+    
+    return differences
+
+def _generateSettingsCode(differences, settings_name):
+    """Generate code lines from settings differences."""
+    if not differences:
+        return []
+    
+    lines = []
+    
+    # Add the settings object creation line
+    if settings_name == "simulationSettings":
+        lines.append("simulationSettings = exu.SimulationSettings()")
+        class_name = "SimulationSettings"
+    elif settings_name == "visualizationSettings":
+        lines.append("visualizationSettings = exu.VisualizationSettings()")
+        class_name = "VisualizationSettings"
+    else:
+        lines.append(f"{settings_name} = exu.{settings_name.title()}()")
+        class_name = settings_name.title()
+    
+    # Sort differences by path for consistent output
+    sorted_differences = sorted(differences.items(), key=lambda x: x[0])
+    
+    # Generate assignment lines
+    for key, info in sorted_differences:
+        current_val = info['current']
+        formatted_value = _formatValueForCode(current_val)
+        lines.append(f"{settings_name}.{key} = {formatted_value}")
+    
+    return lines
+
+def _formatValueForCode(value):
+    """Format a value for Python code generation."""
+    if value is None:
+        return "None"
+    elif isinstance(value, str):
+        # Handle special cases
+        if value.startswith('[') and value.endswith(']'):
+            # Fix array strings that might be missing commas
+            # e.g., "[0.06993007 0.17622378 0.27474999]" -> "[0.06993007, 0.17622378, 0.27474999]"
+            array_content = value[1:-1].strip()  # Remove brackets
+            if array_content and ' ' in array_content and ',' not in array_content:
+                # Split by spaces and rejoin with commas
+                elements = array_content.split()
+                return f"[{', '.join(elements)}]"
+            else:
+                return value  # Already properly formatted
+        elif value.startswith('(') and value.endswith(')'):
+            return value  # Already a string representation of a tuple
+        elif '.' in value and any(enum_type in value for enum_type in ['LinearSolverType', 'SolverType', 'TimeIntegrationSolver', 'ContactType']):
+            # Handle enum strings like "LinearSolverType.EigenSparse"
+            if not value.startswith('exu.'):
+                return f'exu.{value}'
+            else:
+                return value
+        else:
+            return f'"{value}"'
+    elif isinstance(value, bool):
+        return str(value)  # True/False
+    elif isinstance(value, (int, float)):
+        # Use scientific notation for very small/large numbers
+        if isinstance(value, float) and (abs(value) < 0.001 or abs(value) > 10000):
+            return f"{value:.6e}"
+        else:
+            return str(value)
+    elif isinstance(value, list):
+        formatted_items = [_formatValueForCode(item) for item in value]
+        return f"[{', '.join(formatted_items)}]"
+    elif hasattr(value, '__iter__') and not isinstance(value, str):
+        # Handle numpy arrays, tuples, and other iterables
+        try:
+            formatted_items = [_formatValueForCode(item) for item in value]
+            return f"[{', '.join(formatted_items)}]"
+        except:
+            # Fallback for problematic iterables
+            return str(value)
+    elif hasattr(value, '__class__') and hasattr(value, '__module__'):
+        # Handle enum types
+        if 'exudyn' in str(value.__class__):
+            # Convert exudyn enums to properly qualified form
+            enum_str = str(value)
+            # Check if it's already properly qualified
+            if not enum_str.startswith('exu.'):
+                # Add exu. prefix if not present
+                if '.' in enum_str:
+                    # Handle cases like "LinearSolverType.EigenSparse" -> "exu.LinearSolverType.EigenSparse"
+                    return f"exu.{enum_str}"
+                else:
+                    # Handle cases where we just have the enum value
+                    class_name = value.__class__.__name__
+                    return f"exu.{class_name}.{enum_str}"
+            else:
+                return enum_str
+    
+    return str(value)
+
+def _generateViewStateCode(viewState):
+    """
+    Generate code for setting the renderer view state.
+    
+    Args:
+        viewState: Dictionary with renderer state (from SC.renderer.GetState())
+        
+    Returns:
+        list: Lines of code for setting the view state
+    """
+    if not viewState or not isinstance(viewState, dict):
+        return []
+    
+    try:
+        # Filter out unnecessary or problematic keys
+        filtered_state = {}
+        important_keys = ['centerPoint', 'rotationCenterPoint', 'maxSceneSize', 'zoom', 'rotationMatrix', 'openGLcoordinateSystem']
+        
+        for key in important_keys:
+            if key in viewState:
+                filtered_state[key] = viewState[key]
+        
+        # If no important keys found, use all keys
+        if not filtered_state:
+            filtered_state = viewState.copy()
+        
+        # Format the view state dictionary
+        lines = []
+        lines.append("# Restore view state")
+        
+        # Create the renderState dictionary with proper formatting
+        if filtered_state:
+            # Format each key-value pair
+            items = list(filtered_state.items())
+            
+            for i, (key, value) in enumerate(items):
+                formatted_value = _formatValueForCode(value)
+                comma = "," if i < len(items) - 1 else ""
+                
+                if i == 0:
+                    # First line: renderState = {'key': value,
+                    lines.append(f"renderState = {{'{key}': {formatted_value}{comma}")
+                else:
+                    # Subsequent lines: indented properly
+                    lines.append(f"                '{key}': {formatted_value}{comma}")
+            
+            lines.append("                }")
+            lines.append("SC.renderer.SetState(renderState)")
+        
+        return lines
+        
+    except Exception as e:
+        debugLog(f"⚠️ Error formatting view state: {e}")
+        return []
 
 def buildExactIndexMapping(items):
     """

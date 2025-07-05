@@ -45,7 +45,8 @@
           "objectNumber": 0
         },
         "objIndex": 0,
-        "returnInfo": "objectNumber=0"
+        "returnInfo": "objectNumber=0",
+        "returnDict": true
       },
       "summaryPythonCode": {
         "graphicsDataList": [
@@ -91,7 +92,7 @@
         ],
         "show": true,
         "create2D": false,
-        "returnDict": false,
+        "returnDict": true,
         "objectType": "CreateMassPoint",
         "objIndex": 1,
         "returnInfo": "nodeNumber=0 / bodyNumber=1 / markerBodyMass=0 / loadNumber=0",
@@ -171,7 +172,8 @@
           },
           "objIndex": 2,
           "returnInfo": "objectNumber=2"
-        }
+        },
+        "returnDict": true
       },
       "summaryPythonCode": {
         "springForceUserFunction": "0"
@@ -182,8 +184,1022 @@
     "m": 10000.0,
     "k": 1000.0
   },
+  "simulationSettings": {
+    "cleanUpMemory": false,
+    "displayComputationTime": false,
+    "displayGlobalTimers": false,
+    "displayStatistics": false,
+    "linearSolverSettings": {
+      "ignoreSingularJacobian": false,
+      "pivotThreshold": 0.0,
+      "reuseAnalyzedPattern": false,
+      "showCausingItems": true
+    },
+    "linearSolverType": "LinearSolverType.EigenSparse",
+    "outputPrecision": 6,
+    "parallel": {
+      "multithreadedLLimitJacobians": 20,
+      "multithreadedLLimitLoads": 20,
+      "multithreadedLLimitMassMatrices": 20,
+      "multithreadedLLimitResiduals": 20,
+      "numberOfThreads": 1,
+      "taskSplitMinItems": 50,
+      "taskSplitTasksPerThread": 16,
+      "useLoadBalancing": true
+    },
+    "pauseAfterEachStep": false,
+    "solutionSettings": {
+      "appendToFile": false,
+      "binarySolutionFile": false,
+      "coordinatesSolutionFileName": "coordinatesSolution",
+      "exportAccelerations": true,
+      "exportAlgebraicCoordinates": true,
+      "exportDataCoordinates": true,
+      "exportODE1Velocities": true,
+      "exportVelocities": true,
+      "flushFilesDOF": 10000,
+      "flushFilesImmediately": false,
+      "outputPrecision": 10,
+      "recordImagesInterval": -1.0,
+      "restartFileName": "restartFile.txt",
+      "restartWritePeriod": 0.01,
+      "sensorsAppendToFile": false,
+      "sensorsStoreAndWriteFiles": true,
+      "sensorsWriteFileFooter": false,
+      "sensorsWriteFileHeader": true,
+      "sensorsWritePeriod": 0.005,
+      "solutionInformation": "",
+      "solutionWritePeriod": 0.005,
+      "solverInformationFileName": "solverInformation.txt",
+      "writeFileFooter": true,
+      "writeFileHeader": true,
+      "writeInitialValues": true,
+      "writeRestartFile": false,
+      "writeSolutionToFile": true
+    },
+    "staticSolver": {
+      "adaptiveStep": true,
+      "adaptiveStepDecrease": 0.25,
+      "adaptiveStepIncrease": 2.0,
+      "adaptiveStepRecoveryIterations": 7,
+      "adaptiveStepRecoverySteps": 4,
+      "computeLoadsJacobian": true,
+      "constrainODE1coordinates": true,
+      "discontinuous": {
+        "ignoreMaxIterations": true,
+        "iterationTolerance": 1.0,
+        "maxIterations": 5,
+        "useRecommendedStepSize": true
+      },
+      "loadStepDuration": 1.0,
+      "loadStepGeometric": false,
+      "loadStepGeometricRange": 1000.0,
+      "loadStepStart": 0.0,
+      "minimumStepSize": 1e-08,
+      "newton": {
+        "absoluteTolerance": 1e-10,
+        "adaptInitialResidual": true,
+        "maxIterations": 25,
+        "maxModifiedNewtonIterations": 8,
+        "maxModifiedNewtonRestartIterations": 7,
+        "maximumSolutionNorm": 1e+38,
+        "modifiedNewtonContractivity": 0.5,
+        "modifiedNewtonJacUpdatePerStep": false,
+        "newtonResidualMode": 0,
+        "numericalDifferentiation": {
+          "addReferenceCoordinatesToEpsilon": false,
+          "doSystemWideDifferentiation": false,
+          "forAE": false,
+          "forODE2": false,
+          "forODE2connectors": false,
+          "jacobianConnectorDerivative": true,
+          "minimumCoordinateSize": 0.01,
+          "relativeEpsilon": 1e-07
+        },
+        "relativeTolerance": 1e-08,
+        "useModifiedNewton": false,
+        "useNewtonSolver": true,
+        "weightTolerancePerCoordinate": false
+      },
+      "numberOfLoadSteps": 1,
+      "stabilizerODE2term": 0.0,
+      "stepInformation": 67,
+      "useLoadFactor": true,
+      "verboseMode": 1,
+      "verboseModeFile": 0
+    },
+    "timeIntegration": {
+      "absoluteTolerance": 1e-08,
+      "adaptiveStep": true,
+      "adaptiveStepDecrease": 0.5,
+      "adaptiveStepIncrease": 2.0,
+      "adaptiveStepRecoveryIterations": 7,
+      "adaptiveStepRecoverySteps": 10,
+      "automaticStepSize": true,
+      "computeLoadsJacobian": 0,
+      "discontinuous": {
+        "ignoreMaxIterations": true,
+        "iterationTolerance": 1.0,
+        "maxIterations": 5,
+        "useRecommendedStepSize": true
+      },
+      "endTime": 10.0,
+      "explicitIntegration": {
+        "computeEndOfStepAccelerations": true,
+        "computeMassMatrixInversePerBody": false,
+        "dynamicSolverType": "DynamicSolverType.DOPRI5",
+        "eliminateConstraints": true,
+        "useLieGroupIntegration": true
+      },
+      "generalizedAlpha": {
+        "computeInitialAccelerations": true,
+        "lieGroupAddTangentOperator": true,
+        "lieGroupSimplifiedKinematicRelations": false,
+        "newmarkBeta": 0.25,
+        "newmarkGamma": 0.5,
+        "resetAccelerations": false,
+        "spectralRadius": 1.0,
+        "useIndex2Constraints": false,
+        "useNewmark": false
+      },
+      "initialStepSize": 0.0,
+      "minimumStepSize": 1e-08,
+      "newton": {
+        "absoluteTolerance": 1e-10,
+        "adaptInitialResidual": true,
+        "maxIterations": 25,
+        "maxModifiedNewtonIterations": 8,
+        "maxModifiedNewtonRestartIterations": 7,
+        "maximumSolutionNorm": 1e+38,
+        "modifiedNewtonContractivity": 0.5,
+        "modifiedNewtonJacUpdatePerStep": false,
+        "newtonResidualMode": 0,
+        "numericalDifferentiation": {
+          "addReferenceCoordinatesToEpsilon": false,
+          "doSystemWideDifferentiation": false,
+          "forAE": false,
+          "forODE2": false,
+          "forODE2connectors": false,
+          "jacobianConnectorDerivative": true,
+          "minimumCoordinateSize": 0.01,
+          "relativeEpsilon": 1e-07
+        },
+        "relativeTolerance": 1e-08,
+        "useModifiedNewton": false,
+        "useNewtonSolver": true,
+        "weightTolerancePerCoordinate": false
+      },
+      "numberOfSteps": 1000.0,
+      "realtimeFactor": 1.0,
+      "realtimeWaitMicroseconds": 1000,
+      "relativeTolerance": 1e-08,
+      "reuseConstantMassMatrix": true,
+      "simulateInRealtime": true,
+      "startTime": 0.0,
+      "stepInformation": 67,
+      "stepSizeMaxIncrease": 2.0,
+      "stepSizeSafety": 0.9,
+      "verboseMode": 1,
+      "verboseModeFile": 0
+    }
+  },
+  "visualizationSettings": {
+    "nodes": {
+      "basisSize": 0.20000000298023224,
+      "defaultColor": [
+        0.20000000298023224,
+        0.20000000298023224,
+        1.0,
+        1.0
+      ],
+      "defaultSize": -1.0,
+      "drawNodesAsPoint": true,
+      "show": true,
+      "showBasis": false,
+      "showNodalSlopes": 0,
+      "showNumbers": false,
+      "tiling": 4
+    },
+    "bodies": {
+      "beams": {
+        "axialTiling": 8,
+        "crossSectionFilled": true,
+        "crossSectionTiling": 4,
+        "drawVertical": false,
+        "drawVerticalColor": [
+          0.20000000298023224,
+          0.20000000298023224,
+          0.20000000298023224,
+          1.0
+        ],
+        "drawVerticalFactor": 1.0,
+        "drawVerticalLines": true,
+        "drawVerticalOffset": 0.0,
+        "drawVerticalValues": false,
+        "reducedAxialInterploation": true
+      },
+      "kinematicTree": {
+        "frameSize": 0.20000000298023224,
+        "showCOMframes": false,
+        "showFramesNumbers": false,
+        "showJointFrames": true
+      },
+      "defaultColor": [
+        0.30000001192092896,
+        0.30000001192092896,
+        1.0,
+        1.0
+      ],
+      "defaultSize": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "deformationScaleFactor": 1.0,
+      "show": true,
+      "showNumbers": false
+    },
+    "connectors": {
+      "contactPointsDefaultSize": 0.019999999552965164,
+      "defaultColor": [
+        0.20000000298023224,
+        0.20000000298023224,
+        1.0,
+        1.0
+      ],
+      "defaultSize": 0.10000000149011612,
+      "jointAxesLength": 0.20000000298023224,
+      "jointAxesRadius": 0.019999999552965164,
+      "show": true,
+      "showContact": false,
+      "showJointAxes": false,
+      "showNumbers": false,
+      "springNumberOfWindings": 8
+    },
+    "markers": {
+      "defaultColor": [
+        0.10000000149011612,
+        0.5,
+        0.10000000149011612,
+        1.0
+      ],
+      "defaultSize": -1.0,
+      "drawSimplified": true,
+      "show": true,
+      "showNumbers": false
+    },
+    "loads": {
+      "defaultColor": [
+        0.699999988079071,
+        0.10000000149011612,
+        0.10000000149011612,
+        1.0
+      ],
+      "defaultRadius": 0.004999999888241291,
+      "defaultSize": 0.20000000298023224,
+      "drawSimplified": true,
+      "drawWithUserFunction": true,
+      "fixedLoadSize": true,
+      "loadSizeFactor": 0.10000000149011612,
+      "show": true,
+      "showNumbers": false
+    },
+    "sensors": {
+      "traces": {
+        "lineWidth": 2.0,
+        "listOfPositionSensors": [],
+        "listOfTriadSensors": [],
+        "listOfVectorSensors": [],
+        "positionsShowEvery": 1,
+        "sensorsMbsNumber": 0,
+        "showCurrent": true,
+        "showFuture": false,
+        "showPast": true,
+        "showPositionTrace": false,
+        "showTriads": false,
+        "showVectors": false,
+        "timeSpan": 0.0,
+        "traceColors": [
+          0.20000000298023224,
+          0.20000000298023224,
+          0.20000000298023224,
+          1.0,
+          0.800000011920929,
+          0.20000000298023224,
+          0.20000000298023224,
+          1.0,
+          0.20000000298023224,
+          0.800000011920929,
+          0.20000000298023224,
+          1.0,
+          0.20000000298023224,
+          0.20000000298023224,
+          0.800000011920929,
+          1.0,
+          0.20000000298023224,
+          0.800000011920929,
+          0.800000011920929,
+          1.0,
+          0.800000011920929,
+          0.20000000298023224,
+          0.800000011920929,
+          1.0,
+          0.800000011920929,
+          0.4000000059604645,
+          0.10000000149011612,
+          1.0
+        ],
+        "triadSize": 0.10000000149011612,
+        "triadsShowEvery": 1,
+        "vectorScaling": 0.009999999776482582,
+        "vectorsShowEvery": 1
+      },
+      "defaultColor": [
+        0.6000000238418579,
+        0.6000000238418579,
+        0.10000000149011612,
+        1.0
+      ],
+      "defaultSize": -1.0,
+      "drawSimplified": true,
+      "show": true,
+      "showNumbers": false
+    },
+    "contour": {
+      "alphaTransparency": 1.0,
+      "automaticRange": true,
+      "colorBarPrecision": 4,
+      "colorBarTiling": 12,
+      "maxValue": 1.0,
+      "minValue": 0.0,
+      "nodesColored": true,
+      "outputVariable": "OutputVariableType._None",
+      "outputVariableComponent": 0,
+      "reduceRange": true,
+      "rigidBodiesColored": true,
+      "showColorBar": true
+    },
+    "contact": {
+      "colorBoundingBoxes": [
+        0.8999999761581421,
+        0.10000000149011612,
+        0.10000000149011612,
+        1.0
+      ],
+      "colorSearchTree": [
+        0.10000000149011612,
+        0.10000000149011612,
+        0.8999999761581421,
+        1.0
+      ],
+      "colorSpheres": [
+        0.800000011920929,
+        0.800000011920929,
+        0.20000000298023224,
+        1.0
+      ],
+      "colorTriangles": [
+        0.5,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "contactForcesFactor": 0.0010000000474974513,
+      "contactPointsDefaultSize": 0.0010000000474974513,
+      "showBoundingBoxes": false,
+      "showContactForces": false,
+      "showContactForcesValues": false,
+      "showSearchTree": false,
+      "showSearchTreeCells": false,
+      "showSpheres": false,
+      "showTriangles": false,
+      "tilingCurves": 8,
+      "tilingSpheres": 4
+    },
+    "interactive": {
+      "openVR": {
+        "actionManifestFileName": "C:/openVRactionsManifest.json",
+        "enable": false,
+        "logLevel": 1,
+        "showCompanionWindow": true
+      },
+      "highlightColor": [
+        0.800000011920929,
+        0.05000000074505806,
+        0.05000000074505806,
+        0.75
+      ],
+      "highlightItemIndex": -1,
+      "highlightItemType": "ItemType._None",
+      "highlightMbsNumber": 0,
+      "highlightOtherColor": [
+        0.5,
+        0.5,
+        0.5,
+        0.4000000059604645
+      ],
+      "joystickScaleRotation": 200.0,
+      "joystickScaleTranslation": 6.0,
+      "keypressRotationStep": 5.0,
+      "keypressTranslationStep": 0.10000000149011612,
+      "lockModelView": false,
+      "mouseMoveRotationFactor": 1.0,
+      "pauseWithSpacebar": true,
+      "selectionHighlights": true,
+      "selectionLeftMouse": true,
+      "selectionLeftMouseItemTypes": 31,
+      "selectionRightMouse": true,
+      "selectionRightMouseGraphicsData": false,
+      "trackMarker": -1,
+      "trackMarkerMbsNumber": 0,
+      "trackMarkerOrientation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trackMarkerPosition": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "useJoystickInput": true,
+      "zoomStepFactor": 1.149999976158142
+    },
+    "dialogs": {
+      "alphaTransparency": 0.9399999976158142,
+      "alwaysTopmost": true,
+      "fontScalingMacOS": 1.350000023841858,
+      "multiThreadedDialogs": true,
+      "openTreeView": false
+    },
+    "exportImages": {
+      "heightAlignment": 2,
+      "saveImageAsTextCircles": true,
+      "saveImageAsTextLines": true,
+      "saveImageAsTextTexts": false,
+      "saveImageAsTextTriangles": false,
+      "saveImageFileCounter": 0,
+      "saveImageFileName": "images/frame",
+      "saveImageFormat": "PNG",
+      "saveImageSingleFile": false,
+      "saveImageTimeOut": 5000,
+      "widthAlignment": 4
+    },
+    "window": {
+      "alwaysOnTop": false,
+      "ignoreKeys": false,
+      "limitWindowToScreenSize": true,
+      "maximize": false,
+      "reallyQuitTimeLimit": 900.0,
+      "renderWindowSize": [
+        1024,
+        768
+      ],
+      "showMouseCoordinates": false,
+      "showWindow": true,
+      "startupTimeout": 2500
+    },
+    "openGL": {
+      "clippingPlaneColor": [
+        0.699999988079071,
+        0.5,
+        0.5,
+        0.0
+      ],
+      "clippingPlaneDistance": 0.0,
+      "clippingPlaneNormal": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "depthSorting": false,
+      "drawFaceNormals": false,
+      "drawNormalsLength": 0.10000000149011612,
+      "drawVertexNormals": false,
+      "enableLight0": true,
+      "enableLight1": true,
+      "enableLighting": true,
+      "faceEdgesColor": [
+        0.20000000298023224,
+        0.20000000298023224,
+        0.20000000298023224,
+        1.0
+      ],
+      "facesTransparent": false,
+      "faceTransparencyGlobal": 0.4000000059604645,
+      "initialCenterPoint": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "initialMaxSceneSize": 1.0,
+      "initialModelRotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "initialZoom": 1.0,
+      "light0ambient": 0.30000001192092896,
+      "light0constantAttenuation": 1.0,
+      "light0diffuse": 0.6000000238418579,
+      "light0linearAttenuation": 0.0,
+      "light0position": [
+        0.20000000298023224,
+        0.20000000298023224,
+        10.0,
+        0.0
+      ],
+      "light0quadraticAttenuation": 0.0,
+      "light0specular": 0.5,
+      "light1ambient": 0.0,
+      "light1constantAttenuation": 1.0,
+      "light1diffuse": 0.5,
+      "light1linearAttenuation": 0.0,
+      "light1position": [
+        1.0,
+        1.0,
+        -10.0,
+        0.0
+      ],
+      "light1quadraticAttenuation": 0.0,
+      "light1specular": 0.6000000238418579,
+      "lightModelAmbient": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "lightModelLocalViewer": false,
+      "lightModelTwoSide": false,
+      "lightPositionsInCameraFrame": false,
+      "lineSmooth": true,
+      "lineWidth": 1.0,
+      "materialAmbientAndDiffuse": [
+        0.6000000238418579,
+        0.6000000238418579,
+        0.6000000238418579,
+        1.0
+      ],
+      "materialShininess": 32.0,
+      "materialSpecular": [
+        0.6000000238418579,
+        0.6000000238418579,
+        0.6000000238418579,
+        1.0
+      ],
+      "multiSampling": 1,
+      "perspective": 0.0,
+      "polygonOffset": 0.009999999776482582,
+      "shadeModelSmooth": true,
+      "shadow": 0.0,
+      "shadowPolygonOffset": 0.10000000149011612,
+      "showFaceEdges": false,
+      "showFaces": true,
+      "showLines": true,
+      "showMeshEdges": true,
+      "showMeshFaces": true,
+      "textLineSmooth": false,
+      "textLineWidth": 1.0
+    },
+    "raytracer": {
+      "material0": {
+        "alpha": 1.0,
+        "baseColor": [
+          0.4000000059604645,
+          0.4000000059604645,
+          0.8999999761581421
+        ],
+        "emission": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ior": 1.0,
+        "name": "default",
+        "reflectivity": 0.0,
+        "shininess": 32.0,
+        "specular": [
+          0.6000000238418579,
+          0.6000000238418579,
+          0.6000000238418579
+        ]
+      },
+      "material1": {
+        "alpha": 1.0,
+        "baseColor": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "emission": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ior": 1.0,
+        "name": "matt",
+        "reflectivity": 0.0,
+        "shininess": 5.0,
+        "specular": [
+          0.30000001192092896,
+          0.30000001192092896,
+          0.30000001192092896
+        ]
+      },
+      "material2": {
+        "alpha": 1.0,
+        "baseColor": [
+          0.6000000238418579,
+          0.6000000238418579,
+          0.6000000238418579
+        ],
+        "emission": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ior": 1.0,
+        "name": "steel",
+        "reflectivity": 0.10000000149011612,
+        "shininess": 25.0,
+        "specular": [
+          0.30000001192092896,
+          0.33000001311302185,
+          0.4000000059604645
+        ]
+      },
+      "material3": {
+        "alpha": 1.0,
+        "baseColor": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "emission": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ior": 1.0,
+        "name": "plastic",
+        "reflectivity": 0.10000000149011612,
+        "shininess": 20.0,
+        "specular": [
+          0.4000000059604645,
+          0.44999998807907104,
+          0.44999998807907104
+        ]
+      },
+      "material4": {
+        "alpha": 1.0,
+        "baseColor": [
+          0.75,
+          0.75,
+          0.75
+        ],
+        "emission": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ior": 1.0,
+        "name": "chrome",
+        "reflectivity": 0.25,
+        "shininess": 60.0,
+        "specular": [
+          0.6000000238418579,
+          0.6200000047683716,
+          0.6700000166893005
+        ]
+      },
+      "material5": {
+        "alpha": 1.0,
+        "baseColor": [
+          1.0,
+          0.5,
+          0.0
+        ],
+        "emission": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ior": 1.0,
+        "name": "shiny",
+        "reflectivity": 0.5,
+        "shininess": 100.0,
+        "specular": [
+          0.699999988079071,
+          0.6499999761581421,
+          0.699999988079071
+        ]
+      },
+      "material6": {
+        "alpha": 0.30000001192092896,
+        "baseColor": [
+          0.75,
+          0.75,
+          0.75
+        ],
+        "emission": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ior": 1.0499999523162842,
+        "name": "transparent",
+        "reflectivity": 0.0,
+        "shininess": 20.0,
+        "specular": [
+          0.4000000059604645,
+          0.4000000059604645,
+          0.44999998807907104
+        ]
+      },
+      "material7": {
+        "alpha": 0.15000000596046448,
+        "baseColor": [
+          0.800000011920929,
+          0.800000011920929,
+          0.800000011920929
+        ],
+        "emission": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ior": 1.5,
+        "name": "glass",
+        "reflectivity": 0.6000000238418579,
+        "shininess": 50.0,
+        "specular": [
+          0.6000000238418579,
+          0.6800000071525574,
+          0.6299999952316284
+        ]
+      },
+      "material8": {
+        "alpha": 1.0,
+        "baseColor": [
+          0.800000011920929,
+          0.800000011920929,
+          0.800000011920929
+        ],
+        "emission": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "ior": 1.0,
+        "name": "mirror",
+        "reflectivity": 0.800000011920929,
+        "shininess": 50.0,
+        "specular": [
+          0.4000000059604645,
+          0.4000000059604645,
+          0.4000000059604645
+        ]
+      },
+      "material9": {
+        "alpha": 1.0,
+        "baseColor": [
+          0.8500000238418579,
+          0.8500000238418579,
+          0.699999988079071
+        ],
+        "emission": [
+          0.800000011920929,
+          0.800000011920929,
+          0.699999988079071
+        ],
+        "ior": 1.0,
+        "name": "emission",
+        "reflectivity": 0.0,
+        "shininess": 20.0,
+        "specular": [
+          0.6000000238418579,
+          0.6000000238418579,
+          0.6000000238418579
+        ]
+      },
+      "ambientLightColor": [
+        0.6000000238418579,
+        0.6000000238418579,
+        0.6000000238418579,
+        1.0
+      ],
+      "backgroundColorReflections": [
+        0.4000000059604645,
+        0.4000000059604645,
+        0.4000000059604645,
+        1.0
+      ],
+      "enable": false,
+      "globalFogColor": [
+        0.5,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "globalFogDensity": 0.0,
+      "imageSizeFactor": 1,
+      "keepWindowActive": false,
+      "lightRadius": 0.10000000149011612,
+      "lightRadiusVariations": 1,
+      "maxReflectionDepth": 2,
+      "maxTransparencyDepth": 2,
+      "numberOfThreads": 8,
+      "searchTreeFactor": 1,
+      "tilesPerThread": 12,
+      "verbose": false,
+      "zBiasLines": 0.001,
+      "zOffsetCamera": -0.01
+    },
+    "general": {
+      "autoFitScene": true,
+      "axesTiling": 12,
+      "backgroundColor": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "backgroundColorBottom": [
+        0.800000011920929,
+        0.800000011920929,
+        1.0,
+        1.0
+      ],
+      "circleTiling": 16,
+      "coordinateSystemSize": 5.0,
+      "cylinderTiling": 16,
+      "drawCoordinateSystem": true,
+      "drawWorldBasis": false,
+      "graphicsUpdateInterval": 0.10000000149011612,
+      "linuxDisplayScaleFactor": 1.0,
+      "minSceneSize": 0.10000000149011612,
+      "pointSize": 0.009999999776482582,
+      "rendererPrecision": 4,
+      "renderWindowString": "",
+      "showComputationInfo": true,
+      "showHelpOnStartup": 5,
+      "showSolutionInformation": true,
+      "showSolverInformation": true,
+      "showSolverTime": true,
+      "sphereTiling": 6,
+      "textAlwaysInFront": true,
+      "textColor": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "textHasBackground": false,
+      "textOffsetFactor": 0.004999999888241291,
+      "textSize": 12.0,
+      "threadSafeGraphicsUpdate": true,
+      "useBitmapText": true,
+      "useGradientBackground": false,
+      "useMultiThreadedRendering": true,
+      "useWindowsDisplayScaleFactor": true,
+      "worldBasisSize": 1.0
+    }
+  },
+  "viewState": {
+    "centerPoint": {
+      "__type__": "numpy_array",
+      "__data__": [
+        0.0699300691485405,
+        0.1762237846851349,
+        0.2747499942779541
+      ],
+      "__dtype__": "float64"
+    },
+    "rotationCenterPoint": {
+      "__type__": "numpy_array",
+      "__data__": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "__dtype__": "float64"
+    },
+    "maxSceneSize": 1.5175803899765015,
+    "zoom": 0.46000000834465027,
+    "currentWindowSize": {
+      "__type__": "numpy_array",
+      "__data__": [
+        1076,
+        286
+      ],
+      "__dtype__": "int32"
+    },
+    "displayScaling": 1.0,
+    "modelRotation": {
+      "__type__": "numpy_array",
+      "__data__": [
+        [
+          0.9605360627174377,
+          -0.06656302511692047,
+          0.27007412910461426
+        ],
+        [
+          0.274585485458374,
+          0.3819757103919983,
+          -0.8824383616447449
+        ],
+        [
+          -0.04442398250102997,
+          0.9217721819877625,
+          0.3851786255836487
+        ]
+      ],
+      "__dtype__": "float64"
+    },
+    "projectionMatrix": {
+      "__type__": "numpy_array",
+      "__data__": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "__dtype__": "float64"
+    },
+    "mouseCoordinates": {
+      "__type__": "numpy_array",
+      "__data__": [
+        498.0,
+        139.0
+      ],
+      "__dtype__": "float64"
+    },
+    "openGLcoordinates": {
+      "__type__": "numpy_array",
+      "__data__": [
+        -0.058741262182593346,
+        0.18909091781824827
+      ],
+      "__dtype__": "float64"
+    },
+    "mouseSelectionMbsNumber": 0,
+    "mouseSelectionItemType": "ItemType._None",
+    "mouseSelectionItemID": 0,
+    "mouseSelectionZdepth": 0.0,
+    "joystickPosition": {
+      "__type__": "numpy_array",
+      "__data__": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "__dtype__": "float64"
+    },
+    "joystickRotation": {
+      "__type__": "numpy_array",
+      "__data__": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "__dtype__": "float64"
+    },
+    "joystickAvailable": -1
+  },
   "metadata": {
-    "created": "2025-06-20T23:47:13.293866",
+    "created": "2025-07-05T22:36:48.180616",
     "version": "1.0"
   }
 }
