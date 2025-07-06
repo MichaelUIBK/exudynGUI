@@ -955,7 +955,8 @@ def buildMatrix3x3Widget(fieldName, value=None, parent=None, meta=None, default=
     This way, a default of "EXUmath::unitMatrix3D" becomes identity, not zeros.
     """
     # 1) Decide which "matrix candidate" to use: prefer `value` over `default`
-    matrix_candidate = value if (value not in (None, "")) else default
+    # PATCH: Avoid ambiguous truth value for arrays/matrices
+    matrix_candidate = value if (value is not None and value != "") else default
 
     # 2) If the candidate is exactly the unit‐matrix string, use identity
     if isinstance(matrix_candidate, str) and matrix_candidate.strip() == "EXUmath::unitMatrix3D":
@@ -1159,7 +1160,8 @@ class Vector3Widget(QWidget):
 
 def buildVec3Widget(fieldName, value=None, parent=None, meta=None, default=None, **kwargs):
     variables = kwargs.get("userVariables", {})
-    initial = value if value not in (None, '') else default
+    # PATCH: Avoid ambiguous truth value for arrays/vectors
+    initial = value if (value is not None and value != "") else default
     return EnhancedVector3Widget(default=initial, parent=parent, symbolDict=variables)
 
 

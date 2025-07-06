@@ -838,8 +838,6 @@ def show_tabs_with_matches(form, matching_widgets):
     # Add visual tab overview
     add_tab_overview_widget(form, tabs_with_matches)
 
-
-
 def restore_all_widgets(form):
     """Restore all widgets to their original appearance."""
     if not hasattr(form, '_original_styles'):
@@ -1515,7 +1513,16 @@ def simulationSettingsToDict(simulationSettings):
             if info['type'] == 'object':
                 result[key] = extract_values_from_structure(info['nested'], f"{prefix}.{key}")
             else:
-                result[key] = info.get('value')
+                value = info.get('value')
+                
+                # Convert enum values to string names for proper serialization
+                if value is not None and hasattr(value, '__class__') and hasattr(value.__class__, '__module__'):
+                    full_type = f"{value.__class__.__module__}.{value.__class__.__name__}"
+                    if 'exudyn' in full_type and 'Type' in value.__class__.__name__:
+                        # This is an enum - store the string name
+                        value = str(value).split('.')[-1]  # Get just the enum name part
+                
+                result[key] = value
         return result
     
     return extract_values_from_structure(structure)
@@ -1564,8 +1571,11 @@ def collectSimulationSettingsData(form):
                 if enum_type and enum_class:
                     try:
                         # Get the actual enum value
-                        value = getattr(enum_class, text)
-                    except:
+                        enum_value = getattr(enum_class, text)
+                        # Store the string name for proper serialization
+                        value = text
+                    except AttributeError:
+                        print(f"⚠️  Unknown enum value '{text}' for {enum_type}, using as-is")
                         value = text
                 else:
                     # Fallback for non-enum comboboxes
@@ -1627,6 +1637,24 @@ def applySimulationSettings(simulationSettings, settings_data):
                 # Direct value - apply if attribute exists
                 if hasattr(obj, key):
                     try:
+                        # Handle enum string conversion
+                        if isinstance(value, str):
+                            # Check if this might be an enum value
+                            attr_value = getattr(obj, key)
+                            if hasattr(attr_value, '__class__') and hasattr(attr_value.__class__, '__module__'):
+                                full_type = f"{attr_value.__class__.__module__}.{attr_value.__class__.__name__}"
+                                if 'exudyn' in full_type and 'Type' in attr_value.__class__.__name__:
+                                    # This is an enum field - convert string to enum
+                                    enum_class = attr_value.__class__
+                                    try:
+                                        enum_value = getattr(enum_class, value)
+                                        setattr(obj, key, enum_value)
+                                        print(f"✅ Set {path}.{key} = {enum_value} (from string '{value}')")
+                                        continue
+                                    except AttributeError:
+                                        print(f"⚠️  Unknown enum value '{value}' for {path}.{key}, using as-is")
+                        
+                        # Regular value assignment
                         setattr(obj, key, value)
                         print(f"✅ Set {path}.{key} = {value}")
                     except Exception as e:
@@ -1777,18 +1805,14 @@ def show_simulation_changes(form, original_settings):
     try:
         from exudynGUI.core.settingsComparison import compare_form_data_with_defaults
         
-        # Get baseline settings structure from the ORIGINAL settings passed to the dialog
-        # This ensures we compare against the actual starting values, not factory defaults
-        if original_settings is not None:
-            baseline_structure = discoverSimulationSettingsStructure(exu, original_settings)
-        else:
-            # Fallback to factory defaults if no original settings provided
-            baseline_structure = discoverSimulationSettingsStructure(exu, exu.SimulationSettings())
+        # Always compare against factory defaults, not the original settings passed to the dialog
+        # This ensures that when reopening the dialog, we show changes from factory defaults
+        baseline_structure = discoverSimulationSettingsStructure(exu, exu.SimulationSettings())
         
         # Get current form data (but don't apply it to any settings object)
         current_data = collectSimulationSettingsData(form)
         
-        # Compare form data directly with baseline (safer approach)
+        # Compare form data directly with factory defaults
         if current_data and baseline_structure:
             changes_text = compare_form_data_with_defaults(
                 current_data, 

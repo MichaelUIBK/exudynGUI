@@ -522,6 +522,9 @@ VALIDATORS_BY_KEY = {
     'velocityoffset': validateFloat,
     'velocity': validateVector3,
     'initialvelocity': validateVector3,  # For 3D velocity vectors
+    'initialdisplacement': validateVector3,  # For 3D displacement vectors
+    'initialposition': validateVector3,  # For 3D position vectors
+    'initialangularvelocity': validateVector3,  # For 3D angular velocity vectors
     'acceleration': validateVector3,
     # ✅ Scalar velocity fields that should NOT be validated as vectors
     'minimumimpactvelocity': validateFloat,
@@ -533,6 +536,7 @@ VALIDATORS_BY_KEY = {
     'rotationmatrix': validateMatrix3x3,
     'referencerotationmatrix': validateMatrix3x3,
     'referenceRotationMatrix': lambda x: np.array(eval(x)) if isinstance(x, str) else np.array(x),
+    'initialrotationmatrix': validateMatrix3x3,
     "stiffnessmatrix": validateMatrixContainer,
     "massmatrixreduced": validateMatrixContainer,
     "stiffnessmatrixreduced": validateMatrixContainer,

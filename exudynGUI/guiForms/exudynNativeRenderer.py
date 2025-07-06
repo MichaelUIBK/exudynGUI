@@ -629,6 +629,20 @@ class ExudynNativeRendererWidget(QWidget):
     #         if global_rect.contains(cursor_pos):
     #             self.setFocusToRenderer()
 
+    def checkForIndependentWindow(self):
+        """
+        Return True if this widget is running as an independent (undocked) window.
+        Return False if it is docked inside the main window.
+        """
+        # If the widget has no parent, or its parent is a QMainWindow, it's likely independent
+        parent = self.parent()
+        if parent is None:
+            return True
+        # You can also check for specific parent types if you know your docking logic
+        # For example, if docked, parent might be a QDockWidget or a specific container
+        # If undocked, it might be a top-level window (QWidget with no parent)
+        return self.isWindow()  # True if it's a top-level window
+
     def checkMouseAndSetFocus(self):
         # Only set focus if no modal window is open
         if not QApplication.activeModalWidget():
@@ -922,3 +936,4 @@ def withRendererRestore(preview_operation):
             from PyQt5.QtCore import QTimer
             QTimer.singleShot(100, restoreRendererAfterPreview)
         raise
+

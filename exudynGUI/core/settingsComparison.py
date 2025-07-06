@@ -35,37 +35,13 @@ def get_default_simulation_settings():
 def get_default_visualization_settings(reference_SC=None):
     """
     Get default visualization settings structure (cached).
-    
-    Args:
-        reference_SC: Optional reference SystemContainer to get fresh defaults from
+    This function now always returns the cached structure and never creates a new SystemContainer.
+    The cache must be set at GUI startup using cache_default_visualization_settings(main_SC).
     """
     global _cached_default_visualization
     if _cached_default_visualization is None:
-        if reference_SC is not None:
-            # Use the provided SC to get defaults (safer)
-            try:
-                # Get the dictionary representation to capture current state
-                if hasattr(reference_SC.visualizationSettings, 'GetDictionary'):
-                    default_dict = reference_SC.visualizationSettings.GetDictionary()
-                    _cached_default_visualization = discoverVisualizationSettingsStructure(reference_SC)
-                else:
-                    _cached_default_visualization = discoverVisualizationSettingsStructure(reference_SC)
-            except Exception as e:
-                print(f"⚠️ Error getting defaults from reference SC: {e}")
-                # Fallback to creating new SC
-                _cached_default_visualization = _create_new_default_visualization()
-        else:
-            _cached_default_visualization = _create_new_default_visualization()
+        raise RuntimeError("Default visualization settings cache is not set. Call cache_default_visualization_settings(main_SC) at GUI startup.")
     return _cached_default_visualization
-
-def _create_new_default_visualization():
-    """Create new default visualization settings (fallback)."""
-    try:
-        default_SC = exu.SystemContainer()
-        return discoverVisualizationSettingsStructure(default_SC)
-    except Exception as e:
-        print(f"⚠️ Error creating new default visualization settings: {e}")
-        return {}
 
 def cache_default_visualization_settings(main_SC):
     """
@@ -84,13 +60,14 @@ def cache_default_visualization_settings(main_SC):
         print(f"⚠️ Error caching default visualization settings: {e}")
         _cached_default_visualization = {}
 
-def values_are_equivalent(default_val, current_val):
+def values_are_equivalent(default_val, current_val, path=""):
     """
     Smart comparison that handles type mismatches between form data and defaults.
     
     Args:
         default_val: Value from default structure
         current_val: Value from form data
+        path: Full path to the setting (e.g., "simulationSettings.timeIntegration.numberOfSteps")
         
     Returns:
         bool: True if values represent the same data despite type differences
@@ -108,7 +85,23 @@ def values_are_equivalent(default_val, current_val):
     # Convert both to comparable formats
     def normalize_value(val):
         """Convert value to a comparable format."""
-        if isinstance(val, str):
+        import enum
+        # If it's an enum, use its name
+        if isinstance(val, enum.Enum):
+            print(f"[DEBUG NORM] Enum detected: {val} -> {val.name}")
+            return val.name
+        # Also check if it has enum-like attributes (backup check)
+        elif hasattr(val, 'name') and hasattr(val, 'value') and hasattr(type(val), '__members__'):
+            print(f"[DEBUG NORM] Enum-like detected: {val} -> {val.name}")
+            return val.name
+        # Handle string values (including string representations of enums)
+        elif isinstance(val, str):
+            # If it's a string that looks like EnumType.Value, always split and return the last part
+            if '.' in val and any(enum_type in val for enum_type in ['Type', 'Mode', 'State', 'Index']):
+                return val.split('.')[-1]
+            # If it's a string with a single dot, also split and return the last part
+            if val.count('.') == 1:
+                return val.split('.')[-1]
             # Handle string representations of lists/arrays
             if val.startswith('[') and val.endswith(']'):
                 try:
@@ -143,9 +136,19 @@ def values_are_equivalent(default_val, current_val):
         else:
             return val
     
-    # Normalize both values
     norm_default = normalize_value(default_val)
     norm_current = normalize_value(current_val)
+    
+    # Debug output for enum-like values
+    if path and (isinstance(default_val, type(norm_default)) or '.' in str(default_val) or '.' in str(current_val)):
+        print(f"[DEBUG] Enum comparison at '{path}':")
+        print(f"  default: {repr(default_val)} (type: {type(default_val).__name__}) -> normalized: {repr(norm_default)}")
+        print(f"  current: {repr(current_val)} (type: {type(current_val).__name__}) -> normalized: {repr(norm_current)}")
+        print(f"  equal: {norm_default == norm_current}")
+    
+    # Only show debug for mismatches when path is provided
+    if path and norm_default != norm_current:
+        print(f"[DEBUG] Mismatch at '{path}': default={default_val} (norm={norm_default}), current={current_val} (norm={norm_current})")
     
     # Direct comparison after normalization
     if norm_default == norm_current:
@@ -168,6 +171,10 @@ def values_are_equivalent(default_val, current_val):
     # Handle floating point precision for numbers
     if isinstance(norm_default, (int, float)) and isinstance(norm_current, (int, float)):
         return abs(float(norm_default) - float(norm_current)) < 1e-6
+    
+    # For enum comparisons, ensure case-insensitive string comparison
+    if isinstance(norm_default, str) and isinstance(norm_current, str):
+        return norm_default.lower() == norm_current.lower()
     
     # Fallback to direct comparison
     return norm_default == norm_current
@@ -214,7 +221,7 @@ def compare_form_data_with_defaults(form_data, default_structure, settings_name)
         current_val = current_values.get(key)
         
         # Check if values are different (with smart type handling)
-        if current_val is not None and not values_are_equivalent(default_val, current_val):
+        if current_val is not None and not values_are_equivalent(default_val, current_val, key):
             differences[key] = {
                 'default': default_val,
                 'current': current_val,
@@ -374,7 +381,7 @@ def compare_and_get_differences(default_structure, current_structure, settings_n
         current_val = current_values.get(key)
         
         # Check if values are different (with smart type handling)
-        if not values_are_equivalent(default_val, current_val):
+        if not values_are_equivalent(default_val, current_val, key):
             differences[key] = {
                 'default': default_val,
                 'current': current_val,

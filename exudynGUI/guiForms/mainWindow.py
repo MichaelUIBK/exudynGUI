@@ -215,8 +215,17 @@ class MainWindow(QMainWindow):
 
 
         # ─── Now continue with the rest of your setup ─────────────────────────
-        self.SC = SC if SC else exu.SystemContainer()
-        self.mbs = mbs if mbs else self.SC.AddSystem()
+        # Create or assign the main SystemContainer
+        if SC is not None:
+            self.SC = SC
+        else:
+            import exudyn as exu
+            self.SC = exu.SystemContainer()
+        # ... existing code ...
+        # Cache the default visualization settings from the main SC
+        from exudynGUI.core.settingsComparison import cache_default_visualization_settings
+        cache_default_visualization_settings(self.SC)
+        # ... existing code ...
 
 
         # Debug log to verify mbs and SC initialization
@@ -281,27 +290,26 @@ class MainWindow(QMainWindow):
         super().resizeEvent(event)
 
     def initializeSimulationSettings(self):
-        """Initialize simulation settings with reasonable defaults."""
+        """Initialize simulation settings with exudyn factory defaults."""
         import exudyn as exu
+        import copy
         
+        # Use true exudyn factory defaults, not custom "reasonable" defaults
         self.simulationSettings = exu.SimulationSettings()
         
-        # Set reasonable defaults (similar to existing code)
-        self.simulationSettings.solutionSettings.solutionWritePeriod = 5e-3
-        self.simulationSettings.solutionSettings.sensorsWritePeriod = 5e-3
-        self.simulationSettings.timeIntegration.numberOfSteps = 1000
-        self.simulationSettings.timeIntegration.endTime = 1.0
-        self.simulationSettings.displayComputationTime = True
-        self.simulationSettings.timeIntegration.verboseMode = 1
-        self.simulationSettings.timeIntegration.generalizedAlpha.spectralRadius = 1
-        self.simulationSettings.linearSolverType = exu.LinearSolverType.EigenSparse
+        # Store original settings for comparison
+        self.original_simulation_settings = copy.deepcopy(self.simulationSettings)
 
     def showSimulationSettings(self):
         """Open the simulation settings dialog."""
         from guiForms.simulationSettings import createSimulationSettingsForm, collectSimulationSettingsData, applySimulationSettings
         from exudynGUI.core.debug import debugLog
+        import copy
         
         try:
+            # Store original settings for comparison
+            self.original_simulation_settings = copy.deepcopy(self.simulationSettings)
+            
             # Create the dialog with existing settings
             dialog = createSimulationSettingsForm(self, self.simulationSettings)
             
@@ -1167,6 +1175,7 @@ class MainWindow(QMainWindow):
             graphics_list[idx] = {'name': new_name, 'args': new_args}
             self._temporaryGraphicsList = graphics_list
             self.updateTemporaryGraphicsListWidget()
+            
             argsDlg.deleteLater()
 
         # Connect the OK button to our handler
@@ -1190,6 +1199,7 @@ class MainWindow(QMainWindow):
         if initialGraphicsList is not None:
             self._temporaryGraphicsList = list(initialGraphicsList)
             self.updateTemporaryGraphicsListWidget()
+            self._updateGraphicsPreview()
         self._inGraphicsEditMode = True
         # Optionally: Disable unrelated UI here
 
@@ -1215,6 +1225,30 @@ class MainWindow(QMainWindow):
             os.remove(self._graphicsEditTempFile)
         self._inGraphicsEditMode = False
 
+
+    def _updateGraphicsPreview(self):
+        """Update the preview with the current temporary graphics list."""
+        try:
+            import exudyn.graphics as gfx
+            graphicsDataList = []
+            
+            # Convert all entries to graphics objects
+            for entry in self._temporaryGraphicsList:
+                try:
+                    graphicsDataList.append(
+                        eval(f"gfx.{entry['name']}({entry['args']})", {"gfx": gfx})
+                    )
+                except Exception as e:
+                    debugLog(f"Preview: failed to evaluate entry: {e}")
+
+            # Reset and preview all graphics
+            self.mbs.Reset()
+            self.mbs.CreateGround(referencePosition=[0,0,0], graphicsDataList=graphicsDataList)
+            self.mbs.Assemble()
+
+        except Exception as e:
+            QMessageBox.critical(self, "Preview Error", f"Failed to create preview:\n{str(e)}")
+
     def removeSelectedGraphicsItem(self):
         """Remove the currently selected graphics item from the temporary list."""
         selected_items = self.graphicsListWidget.selectedItems()
@@ -1226,7 +1260,8 @@ class MainWindow(QMainWindow):
         if hasattr(self, '_temporaryGraphicsList') and 0 <= idx < len(self._temporaryGraphicsList):
             del self._temporaryGraphicsList[idx]
             self.updateTemporaryGraphicsListWidget()
-
+            self._updateGraphicsPreview()
+            
     def undoLastGraphicsAction(self):
         """Undo the last graphics action (remove last item from the temporary list)."""
         if not hasattr(self, '_temporaryGraphicsList') or not self._temporaryGraphicsList:
@@ -1234,6 +1269,7 @@ class MainWindow(QMainWindow):
             return
         self._temporaryGraphicsList.pop()
         self.updateTemporaryGraphicsListWidget()
+        self._updateGraphicsPreview()
 
     def updateGraphicsListWidget(self):
         """Refresh the graphics list widget to match graphicsDataList."""
@@ -1299,6 +1335,7 @@ class MainWindow(QMainWindow):
                         self._temporaryGraphicsList = []
                     self._temporaryGraphicsList.append(entry)
                     self.updateTemporaryGraphicsListWidget()
+                    #self.previewCurrentGraphics()
                     # Ensure renderer is docked/visible after adding
                     self.initRendererWidget()
 
@@ -1439,10 +1476,10 @@ class MainWindow(QMainWindow):
         file_layout = QHBoxLayout(file_group)  # Changed from QGridLayout to QHBoxLayout
         file_layout.setSpacing(15)  # Add spacing between buttons
           # Load/Save buttons
-        new_model_btn = QPushButton("🆕 New Model")
-        new_model_btn.clicked.connect(lambda: self.newModel(confirm_save=True))
-        new_model_btn.setMinimumHeight(35)
-        file_layout.addWidget(new_model_btn)
+        new_project_btn = QPushButton("🆕 New Project")
+        new_project_btn.clicked.connect(lambda: self.newModel(confirm_save=True))
+        new_project_btn.setMinimumHeight(35)
+        file_layout.addWidget(new_project_btn)
         
         # load_model_btn = QPushButton("📂 Load Model")
         # load_model_btn.clicked.connect(self.loadModel)
@@ -1635,7 +1672,14 @@ class MainWindow(QMainWindow):
         sim_layout.setSpacing(15)  # Add spacing between buttons        
 
         # Add simulation settings button
-        settings_btn = QPushButton("⚙️ Settings")
+        settings_btn = QPushButton("⚙️ Visualization Settings")
+        settings_btn.clicked.connect(self.showVisualizationSettings)
+        settings_btn.setMinimumHeight(35)
+        settings_btn.setToolTip("Configure visualization parameters")
+        sim_layout.addWidget(settings_btn)
+
+        # Add simulation settings button
+        settings_btn = QPushButton("⚙️ Simulation Settings")
         settings_btn.clicked.connect(self.showSimulationSettings)
         settings_btn.setMinimumHeight(35)
         settings_btn.setToolTip("Configure simulation parameters and solver settings")
@@ -3304,8 +3348,10 @@ except Exception as e:
                             time.sleep(0.1)  # Check every 100ms
                           # Verify undocking completed
                         if undocking_complete:
+                            QApplication.processEvents()
                             debugLog("✅ STEP 2/5 COMPLETE: OpenGL window undocked successfully", origin="MainWindow")
                         else:
+                            QApplication.processEvents()
                             debugLog("⚠️ STEP 2/5 WARNING: Undocking may not have completed within timeout", origin="MainWindow")
                             debugLog(f"⚠️ Button checked: {getattr(self.docking_toggle_btn, 'isChecked', lambda: 'N/A')()}", origin="MainWindow")
                             debugLog(f"⚠️ Prefer undocked: {getattr(self.solution_viewer, '_prefer_undocked', 'N/A')}", origin="MainWindow")
@@ -3344,9 +3390,9 @@ except Exception as e:
                 if hasattr(self, 'saved_view_state') and self.saved_view_state:
                     if hasattr(self, 'SC') and self.SC and hasattr(self.SC, 'renderer'):
                         # Use restoreView() method which includes proper conversion
-
-                    
+                        #.SC.renderer.DoIdleTasks(0.5)  # Ensure renderer is ready before simulation
                         self.restoreView()
+                        QApplication.processEvents()
                         debugLog("✅ View state restored from menubar Save View", origin="MainWindow")
                     else:
                         debugLog("⚠️ SC.renderer not available for view state restoration", origin="MainWindow")
@@ -3377,11 +3423,11 @@ except Exception as e:
 
             if self.simulationSettings is None:
                 self.initializeSimulationSettings()
+            
 
-
-            
-            
-            
+            self.SC.renderer.DoIdleTasks() 
+            self.restoreView()
+            QApplication.processEvents()
             # Run the simulation (GUI is paused, OpenGL window is independent)
             self.SC.renderer.DoIdleTasks()  # Ensure renderer is ready before simulation
 
@@ -3419,6 +3465,7 @@ except Exception as e:
                                 if saved_window_geometry:
                                     debugLog("🔄 Restoring main window geometry...", origin="MainWindow")
                                     self.restoreGeometry(saved_window_geometry)
+                                    QApplication.processEvents()
                                     debugLog("✅ Main window geometry restored", origin="MainWindow")
                                 
                                 debugLog("✅ STEP 5/5 COMPLETE: OpenGL window re-docked successfully", origin="MainWindow")
@@ -3449,7 +3496,7 @@ except Exception as e:
                 else:
                     debugLog("⚠️ Failed to restore original view state after simulation", origin="MainWindow")
 
-
+            
             # Refresh the GUI tree and model view
             self.buildSystemAndShowAndRefreshTree()
             
@@ -3511,7 +3558,7 @@ except Exception as e:
                 return
                 
             # Generate the complete script code for export/display purposes
-            # Pass current settings to generate only the actual changes from defaults
+            # Always use true factory defaults for comparison, not the last dialog state
             
             # Capture current view state for injection into code
             current_view_state = None
@@ -3522,13 +3569,19 @@ except Exception as e:
             except Exception as e:
                 debugLog(f"⚠️ Could not capture view state: {e}")
             
+            # Always use true factory defaults for comparison
+            import exudyn as exu
+            factory_default_simulation_settings = exu.SimulationSettings()
+            
             code = generateExudynCodeFromItems(
                 self.modelSequence, 
                 self.mbs, 
                 fullScript=True,
                 simulationSettings=self.simulationSettings,
                 visualizationSettings=self.SC,
-                viewState=current_view_state
+                viewState=current_view_state,
+                original_simulation_settings=factory_default_simulation_settings,
+                original_visualization_settings=getattr(self, 'original_visualization_settings', None)
             )
             if code and code.strip():  # Check if code is not empty or just whitespace
                 # Display in a new dialog or save to file
@@ -3931,7 +3984,7 @@ except Exception as e:
         """Convert visualization settings to a dictionary for saving."""
         from guiForms.visualizationSettings import visualizationSettingsToDict
         if hasattr(self, 'SC') and self.SC is not None:
-            return visualizationSettingsToDict(self.SC.visualizationSettings)
+            return visualizationSettingsToDict(self.SC.visualizationSettings, self.SC)
         return {}
 
     def setVisualizationSettingsFromDict(self, settings_dict):
@@ -3950,15 +4003,20 @@ except Exception as e:
         debugLog("✅ Visualization settings loaded from project file", origin="mainWindow.py")
 
     def showVisualizationSettings(self):
-        """Show the visualization settings dialog."""
+        """Open the visualization settings dialog."""
         from guiForms.visualizationSettings import createVisualizationSettingsForm, collectVisualizationSettingsData, applyVisualizationSettings
         from exudynGUI.core.debug import debugLog
+        import copy
         
         try:
             # Ensure SystemContainer exists
             if not hasattr(self, 'SC') or self.SC is None:
                 import exudyn as exu
                 self.SC = exu.SystemContainer()
+            
+            # Store original visualization settings structure for comparison (not the entire SC)
+            from exudynGUI.guiForms.visualizationSettings import discoverVisualizationSettingsStructure
+            self.original_visualization_settings = discoverVisualizationSettingsStructure(self.SC)
             
             # Create and show the dialog
             dialog = createVisualizationSettingsForm(self, self.SC)
@@ -4307,6 +4365,18 @@ except Exception as e:
         if focus_timer is not None:
             focus_timer.start(100)
 
+    def showPdfDocumentation(self):
+        # Optionally stop focus timer if it exists
+        focus_timer = None
+        if hasattr(self, 'solution_viewer') and hasattr(self.solution_viewer, '_focus_timer'):
+            focus_timer = self.solution_viewer._focus_timer
+            focus_timer.stop()
+        dlg = showPdfDocumentation(self)
+        dlg.exec_()
+        # Restart focus timer after dialog closes
+        if focus_timer is not None:
+            focus_timer.start(100)
+
     def openPythonSnippetDialog(self):
         from .pythonSnippetDialog import PythonSnippetDialog
         kernel_client = getattr(self, 'kernel_client', None)
@@ -4396,4 +4466,56 @@ class OnlineDocumentationDialog(QDialog):
         layout.addWidget(close_btn)
 
 
-# Qt attributes should be set in launcher.py before QApplication creation
+class showPdfDocumentation(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Exudyn Documentation")
+        self.setModal(True)
+        self.setWindowModality(Qt.ApplicationModal)
+        self.resize(400, 250)  # Make the dialog taller
+        layout = QVBoxLayout(self)
+
+
+
+
+        # Local PDF Documentation
+        local_group = QGroupBox("Local Documentation")
+        local_layout = QVBoxLayout()
+        
+        # Open PDF button
+        open_pdf_btn = QPushButton("Open Local PDF Documentation")
+        open_pdf_btn.clicked.connect(self.openLocalPdf)
+        local_layout.addWidget(open_pdf_btn)
+        
+        local_group.setLayout(local_layout)
+        layout.addWidget(local_group)
+
+        layout.addSpacing(10)
+        close_btn = QPushButton("Close")
+        close_btn.clicked.connect(self.accept)
+        layout.addWidget(close_btn)
+
+    def openLocalPdf(self):
+        import os
+        import subprocess
+        import platform
+        
+        # Get the path to theDoc.pdf
+        pdf_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'theDocHelper', 'theDoc.pdf')
+        
+        if os.path.exists(pdf_path):
+            try:
+                if platform.system() == 'Windows':
+                    os.startfile(pdf_path)  # Windows will use the default PDF viewer
+                elif platform.system() == 'Darwin':  # macOS
+                    subprocess.run(['open', pdf_path])
+                else:  # Linux
+                    subprocess.run(['xdg-open', pdf_path])
+            except Exception as e:
+                QMessageBox.warning(self, "Error Opening PDF", 
+                                  f"Could not open the PDF with your default viewer:\n{str(e)}\n\n"
+                                  f"The PDF is located at:\n{pdf_path}")
+        else:
+            QMessageBox.warning(self, "PDF Not Found", 
+                              f"Could not find the local PDF documentation at:\n{pdf_path}\n\n"
+                              "Please check your installation.")

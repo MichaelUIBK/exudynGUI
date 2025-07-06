@@ -49,8 +49,11 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt, pyqtSignal, QSize
 from PyQt5.QtGui import QIcon
+import exudyn as exu
 import exudyn.graphics as gfx
+import numpy as np
 import inspect
+from PyQt5.QtWidgets import QMessageBox
 
 # Graphics constructor categories and descriptions
 GRAPHICS_CATEGORIES = {
@@ -123,6 +126,7 @@ CONSTRUCTOR_DESCRIPTIONS = {
     "AddEdgesAndSmoothenNormals": "Add edges and smooth normals",
     "ComputeOrthonormalBasisVectors": "Compute orthonormal basis vectors"
 }
+
 
 class AddGraphicsDialog(QDialog):
     constructorSelected = pyqtSignal(str)
@@ -354,6 +358,7 @@ class AddGraphicsDialog(QDialog):
             for i in reversed(range(self.constructorLayout.count())):
                 self.constructorLayout.itemAt(i).widget().setParent(None)
     
+
     def getSelectedConstructor(self):
         """Return the selected constructor name"""
         return self._selectedConstructor

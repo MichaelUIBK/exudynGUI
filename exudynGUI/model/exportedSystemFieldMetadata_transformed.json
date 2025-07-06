@@ -248,10 +248,10 @@
   },
   "CreateDistanceSensor": {
     "generalContactIndex": {
-      "type": "NoneType",
-      "defaultValue": null,
+      "type": "int",
+      "defaultValue": 0,
       "required": false,
-      "validator": null
+      "validator": "validateInt"
     },
     "positionOrMarker": {
       "type": "vector3[list]",
@@ -350,10 +350,10 @@
       "validator": null
     },
     "rigidBodyMarkerIndex": {
-      "type": "NoneType",
-      "defaultValue": null,
+      "type": "int",
+      "defaultValue": 0,
       "required": false,
-      "validator": null
+      "validator": "validateInt"
     },
     "searchTreeCellSize": {
       "type": "vector3[list]",
@@ -430,8 +430,160 @@
       "validator": null
     }
   },
-  "CreateGenericJoint": {},
-  "CreateGround": {},
+  "CreateGenericJoint": {
+    "name": {
+      "type": "string",
+      "defaultValue": "CreateGenericJoint",
+      "required": false,
+      "validator": "validateString"
+    },
+    "bodyNumbers": {
+      "type": "bodyNumbers",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "position": {
+      "type": "list",
+      "defaultValue": [],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "rotationMatrixAxes": {
+      "type": "matrix3x3",
+      "defaultValue": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "required": false,
+      "validator": "validateMatrix3x3"
+    },
+    "constrainedAxes": {
+      "type": "intvector6",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "useGlobalFrame": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "offsetUserFunction": {
+      "type": "userFunction",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "offsetUserFunction_t": {
+      "type": "int",
+      "defaultValue": 0,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "show": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": null
+    },
+    "axesRadius": {
+      "type": "float",
+      "defaultValue": 0.1,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "axesLength": {
+      "type": "float",
+      "defaultValue": 0.4,
+      "required": false,
+      "validator": "validateFloat"
+    },
+    "color": {
+      "type": "color",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "graphicsDataList": {
+      "type": "graphicsDataList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    }
+  },
+  "CreateGround": {
+    "name": {
+      "type": "string",
+      "defaultValue": "CreateGround",
+      "required": false,
+      "validator": "validateString"
+    },
+    "referencePosition": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "referenceRotationMatrix": {
+      "type": "matrix3x3",
+      "defaultValue": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "graphicsDataList": {
+      "type": "graphicsDataList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "graphicsDataUserFunction": {
+      "type": "userFunction",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "show": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": null
+    }
+  },
   "CreateKinematicTree": {
     "name": {
       "type": "string",
@@ -786,8 +938,401 @@
       "validator": null
     }
   },
-  "CreateRigidBody": {},
-  "CreateRigidBodySpringDamper": {},
+  "CreateRigidBody": {
+    "name": {
+      "type": "string",
+      "defaultValue": "CreateRigidBody",
+      "required": false,
+      "validator": "validateString"
+    },
+    "referencePosition": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "referenceRotationMatrix": {
+      "type": "matrix3x3",
+      "defaultValue": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "initialVelocity": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "initialAngularVelocity": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "initialDisplacement": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "initialRotationMatrix": {
+      "type": "matrix3x3[list]",
+      "defaultValue": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "required": false,
+      "validator": "validateMatrix3x3"
+    },
+    "inertia": {
+      "type": "inertia",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "gravity": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "nodeType": {
+      "type": "NodeType",
+      "defaultValue": 128,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "graphicsDataList": {
+      "type": "graphicsDataList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "graphicsDataUserFunction": {
+      "type": "userFunction",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "drawSize": {
+      "type": "int",
+      "defaultValue": -1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "color": {
+      "type": "color",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "show": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": null
+    },
+    "create2D": {
+      "type": "bool",
+      "defaultValue": false,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "returnDict": {
+      "type": "bool",
+      "defaultValue": false,
+      "required": false,
+      "validator": "<lambda>"
+    }
+  },
+  "CreateRigidBodySpringDamper": {
+    "name": {
+      "type": "string",
+      "defaultValue": "CreateRigidBodySpringDamper",
+      "required": false,
+      "validator": "validateString"
+    },
+    "bodyNumbers": {
+      "type": "bodyNumbers",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "localPosition0": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "localPosition1": {
+      "type": "vector3[list]",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateVector3"
+    },
+    "stiffness": {
+      "type": "list",
+      "defaultValue": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "required": false,
+      "validator": "validateList"
+    },
+    "damping": {
+      "type": "list",
+      "defaultValue": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "required": false,
+      "validator": "validateList"
+    },
+    "offset": {
+      "type": "list",
+      "defaultValue": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "required": false,
+      "validator": "validateList"
+    },
+    "rotationMatrixJoint": {
+      "type": "matrix3x3",
+      "defaultValue": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "required": false,
+      "validator": "validateMatrix3x3"
+    },
+    "useGlobalFrame": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "intrinsicFormulation": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": "<lambda>"
+    },
+    "springForceTorqueUserFunction": {
+      "type": "userFunction",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "postNewtonStepUserFunction": {
+      "type": "userFunction",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "bodyOrNodeList": {
+      "type": "bodyOrNodeList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "bodyList": {
+      "type": "bodyList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "show": {
+      "type": "bool",
+      "defaultValue": true,
+      "required": false,
+      "validator": null
+    },
+    "drawSize": {
+      "type": "int",
+      "defaultValue": -1,
+      "required": false,
+      "validator": "validateInt"
+    },
+    "color": {
+      "type": "color",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    },
+    "graphicsDataList": {
+      "type": "graphicsDataList",
+      "defaultValue": null,
+      "required": false,
+      "validator": null
+    }
+  },
   "CreateRollingDisc": {
     "name": {
       "type": "string",
@@ -7617,6 +8162,7 @@
       "validator": null
     }
   },
+  "PythonSnippet": {},
   "SensorBody": {
     "sensorType": {
       "type": "string",

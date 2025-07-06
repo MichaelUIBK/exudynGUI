@@ -155,7 +155,8 @@ class ConstructorArgsDialog(QDialog):
             "name": funcName,
             "args": ', '.join(argsList)
         }
-        self.graphicsDataAccepted.emit(self.result)  # <-- emit here
+        self.graphicsDataAccepted.emit(self.result)
+        self.previewCurrentGraphics()
         self.accept()
 
     def selectConstructor(self):

@@ -186,16 +186,16 @@
   },
   "simulationSettings": {
     "cleanUpMemory": false,
-    "displayComputationTime": false,
+    "displayComputationTime": true,
     "displayGlobalTimers": false,
     "displayStatistics": false,
     "linearSolverSettings": {
-      "ignoreSingularJacobian": false,
+      "ignoreSingularJacobian": true,
       "pivotThreshold": 0.0,
       "reuseAnalyzedPattern": false,
       "showCausingItems": true
     },
-    "linearSolverType": "LinearSolverType.EigenSparse",
+    "linearSolverType": "EXUdense",
     "outputPrecision": 6,
     "parallel": {
       "multithreadedLLimitJacobians": 20,
@@ -307,7 +307,7 @@
       "explicitIntegration": {
         "computeEndOfStepAccelerations": true,
         "computeMassMatrixInversePerBody": false,
-        "dynamicSolverType": "DynamicSolverType.DOPRI5",
+        "dynamicSolverType": "DOPRI5",
         "eliminateConstraints": true,
         "useLieGroupIntegration": true
       },
@@ -367,7 +367,7 @@
     "nodes": {
       "basisSize": 0.20000000298023224,
       "defaultColor": [
-        0.20000000298023224,
+        1.2200000286102295,
         0.20000000298023224,
         1.0,
         1.0
@@ -646,7 +646,7 @@
       "widthAlignment": 4
     },
     "window": {
-      "alwaysOnTop": false,
+      "alwaysOnTop": true,
       "ignoreKeys": false,
       "limitWindowToScreenSize": true,
       "maximize": false,
@@ -680,7 +680,7 @@
       "enableLight1": true,
       "enableLighting": true,
       "faceEdgesColor": [
-        0.20000000298023224,
+        0.2199999988079071,
         0.20000000298023224,
         0.20000000298023224,
         1.0
@@ -717,7 +717,7 @@
       "light0linearAttenuation": 0.0,
       "light0position": [
         0.20000000298023224,
-        0.20000000298023224,
+        10.199999809265137,
         10.0,
         0.0
       ],
@@ -763,7 +763,7 @@
       "perspective": 0.0,
       "polygonOffset": 0.009999999776482582,
       "shadeModelSmooth": true,
-      "shadow": 0.0,
+      "shadow": 0.5,
       "shadowPolygonOffset": 0.10000000149011612,
       "showFaceEdges": false,
       "showFaces": true,
@@ -1046,7 +1046,7 @@
       "coordinateSystemSize": 5.0,
       "cylinderTiling": 16,
       "drawCoordinateSystem": true,
-      "drawWorldBasis": false,
+      "drawWorldBasis": true,
       "graphicsUpdateInterval": 0.10000000149011612,
       "linuxDisplayScaleFactor": 1.0,
       "minSceneSize": 0.10000000149011612,
@@ -1097,7 +1097,7 @@
       "__dtype__": "float64"
     },
     "maxSceneSize": 1.5175803899765015,
-    "zoom": 0.46000000834465027,
+    "zoom": 0.5289999842643738,
     "currentWindowSize": {
       "__type__": "numpy_array",
       "__data__": [
@@ -1111,19 +1111,19 @@
       "__type__": "numpy_array",
       "__data__": [
         [
-          0.9605360627174377,
-          -0.06656302511692047,
-          0.27007412910461426
+          0.9967568516731262,
+          0.00667174905538559,
+          -0.08019709587097168
         ],
         [
-          0.274585485458374,
-          0.3819757103919983,
-          -0.8824383616447449
+          -0.07520544528961182,
+          0.43188410997390747,
+          -0.8987882137298584
         ],
         [
-          -0.04442398250102997,
-          0.9217721819877625,
-          0.3851786255836487
+          0.02863931655883789,
+          0.9019045233726501,
+          0.43098509311676025
         ]
       ],
       "__dtype__": "float64"
@@ -1161,16 +1161,16 @@
     "mouseCoordinates": {
       "__type__": "numpy_array",
       "__data__": [
-        498.0,
-        139.0
+        463.0,
+        165.0
       ],
       "__dtype__": "float64"
     },
     "openGLcoordinates": {
       "__type__": "numpy_array",
       "__data__": [
-        -0.058741262182593346,
-        0.18909091781824827
+        -0.20751747419126332,
+        0.09483917197212577
       ],
       "__dtype__": "float64"
     },
@@ -1199,7 +1199,7 @@
     "joystickAvailable": -1
   },
   "metadata": {
-    "created": "2025-07-05T22:36:48.180616",
+    "created": "2025-07-06T20:10:59.993543",
     "version": "1.0"
   }
 }

@@ -432,7 +432,19 @@ class FieldMetadataBuilder:
                 if objectType == "CreateGenericJoint":
                     overriddenType = "intVector6"
                 elif objectType == "CreateRevoluteJoint":
-                    overriddenType = "intVector3"   
+                    overriddenType = "intVector3"
+            
+            # ✅ Override types for fields that have None defaults but should have specific types
+            if fieldName.lower() == "initialdisplacement":
+                overriddenType = "vector3[list]"
+            if fieldName.lower() == "initialposition":
+                overriddenType = "vector3[list]"
+            if fieldName.lower() == "initialvelocity":
+                overriddenType = "vector3[list]"
+            if fieldName.lower() == "initialangularvelocity":
+                overriddenType = "vector3[list]"
+            if fieldName.lower() == "initialrotationmatrix":
+                overriddenType = "matrix3x3[list]"   
             
             # A) Grab raw JSON metadata for this field, if any
             rawFieldInfo = infoDict.get(fieldName, {})
@@ -1039,7 +1051,38 @@ def getCreateFunctionDefaults(typeName):
             # Fallback: ensure name is set
             kwargs['name'] = typeName
 
-        # 10) Re-insert any previously saved graphicsDataList entries
+        # 10) Improve defaults for existing fields that need better values
+        try:
+            # Fix matrix fields that have None defaults but should have proper identity matrices
+            matrixFields = {
+                'initialRotationMatrix': [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                'referenceRotationMatrix': [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                'rotationMatrix': [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+            }
+            
+            for fieldName, defaultMatrix in matrixFields.items():
+                if fieldName in kwargs and kwargs[fieldName] is None:
+                    kwargs[fieldName] = normalizeMatrixFormat(defaultMatrix)
+                    debugLog(f"[getCreateFunctionDefaults] 🔧 Fixed None default for '{fieldName}' → identity matrix")
+            
+            # Fix vector fields that have None defaults but should have zero vectors
+            vectorFields = {
+                'initialDisplacement': [0.0, 0.0, 0.0],
+                'initialVelocity': [0.0, 0.0, 0.0],
+                'initialAngularVelocity': [0.0, 0.0, 0.0],
+                'referencePosition': [0.0, 0.0, 0.0],
+            }
+            
+            for fieldName, defaultVector in vectorFields.items():
+                if fieldName in kwargs and kwargs[fieldName] is None:
+                    kwargs[fieldName] = normalizeMatrixFormat(defaultVector)
+                    debugLog(f"[getCreateFunctionDefaults] 🔧 Fixed None default for '{fieldName}' → zero vector")
+                    
+        except Exception as e:
+            debugLog(f"[getCreateFunctionDefaults] ❌ Error in step 10 (fixing defaults): {e}")
+            # Continue anyway - fixing defaults is optional
+
+        # 11) Re-insert any previously saved graphicsDataList entries
         try:
             entryName = kwargs['name']
             if entryName in graphicsDataRegistry:
@@ -1055,7 +1098,7 @@ def getCreateFunctionDefaults(typeName):
                 kwargs['graphicsDataList'] = metaList
                 debugLog(f"[getCreateFunctionDefaults] 🧩 Restored {len(metaList)} graphicsData entries for '{entryName}'")
         except Exception as e:
-            debugLog(f"[getCreateFunctionDefaults] ❌ Error in step 10 (graphics restoration): {e}")
+            debugLog(f"[getCreateFunctionDefaults] ❌ Error in step 11 (graphics restoration): {e}")
             # Continue anyway - graphics restoration is optional
 
         debugLog(f"[getCreateFunctionDefaults] ✅ Completed processing for {typeName} with {len(kwargs)} fields")

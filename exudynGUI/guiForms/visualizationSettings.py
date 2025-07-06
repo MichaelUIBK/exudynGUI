@@ -29,6 +29,8 @@ import exudyn as exu
 import inspect
 import io
 from contextlib import redirect_stdout
+import numpy as np
+import ast
 
 def extractVisualizationHelp(obj, attr_name):
     """
@@ -269,7 +271,14 @@ def convert_type_info_to_structure(type_info_dict, prefix="visualizationSettings
                         if isinstance(setting_info, dict) and 'value' in setting_info:
                             # This is a leaf setting with type info
                             value = setting_info.get('value')
-                            type_name = setting_info.get('type', type(value).__name__ if value is not None else 'unknown')
+                            # --- FIX: recognize numpy arrays and lists of floats as VectorFloat ---
+                            if isinstance(value, np.ndarray):
+                                value = value.tolist()
+                                type_name = 'VectorFloat'
+                            elif isinstance(value, list) and all(isinstance(x, (float, int)) for x in value):
+                                type_name = 'VectorFloat'
+                            else:
+                                type_name = setting_info.get('type', type(value).__name__ if value is not None else 'unknown')
                             description = setting_info.get('description', f"Visualization setting: {setting_key.replace('_', ' ').title()}")
                             
                             nested_structure[setting_key] = {
@@ -293,7 +302,14 @@ def convert_type_info_to_structure(type_info_dict, prefix="visualizationSettings
                 else:
                     # This is a simple setting
                     value = category_info.get('value')
-                    type_name = category_info.get('type', type(value).__name__ if value is not None else 'unknown')
+                    # --- FIX: recognize numpy arrays and lists of floats as VectorFloat ---
+                    if isinstance(value, np.ndarray):
+                        value = value.tolist()
+                        type_name = 'VectorFloat'
+                    elif isinstance(value, list) and all(isinstance(x, (float, int)) for x in value):
+                        type_name = 'VectorFloat'
+                    else:
+                        type_name = category_info.get('type', type(value).__name__ if value is not None else 'unknown')
                     description = category_info.get('description', f"Visualization setting: {category_key.replace('_', ' ').title()}")
                     
                     structure[category_key] = {
@@ -394,18 +410,25 @@ def fallback_discovery(SC):
     
     return structure
 
-def createVisualizationSettingsForm(parent, existing_SC=None):
+def createVisualizationSettingsForm(parent, existing_SC):
     """
-    Create a comprehensive visualization settings form with search functionality.
+    Create a comprehensive visualization settings form.
+    
+    Args:
+        parent: Parent widget
+        existing_SC: SystemContainer to use (required - never creates a new one)
+        
+    Returns:
+        QDialog: Configured visualization settings dialog
     """
+    if existing_SC is None:
+        raise ValueError("existing_SC is required - cannot create new SystemContainer for visualization settings")
+    
     # Import additional widgets needed for better UI
     from PyQt5.QtWidgets import QTabWidget, QFrame, QScrollArea
     
-    # Create or use existing SystemContainer
-    if existing_SC is None:
-        SC = exu.SystemContainer()
-    else:
-        SC = existing_SC
+    # Use the provided SystemContainer
+    SC = existing_SC
     
     structure = discoverVisualizationSettingsStructure(SC)
     
@@ -703,21 +726,13 @@ def create_vector_input_widget(vector_values):
     
     return frame
 
-def visualizationSettingsToDict(visualizationSettings):
-    """Convert visualization settings to a dictionary for saving."""
-    if visualizationSettings is None:
-        return {}
+def visualizationSettingsToDict(visualizationSettings, existing_SC):
+    """Convert visualization settings to a dictionary structure."""
+    if existing_SC is None:
+        raise ValueError("existing_SC is required - cannot create new SystemContainer for visualization settings")
     
-    # Method 1: Try to use GetDictionary() method if available
-    try:
-        if hasattr(visualizationSettings, 'GetDictionary'):
-            print("📊 Using GetDictionary() method for visualization settings")
-            return visualizationSettings.GetDictionary()
-    except Exception as e:
-        print(f"⚠️  GetDictionary() failed: {e}")
-    
-    # Method 2: Fallback to discovery mechanism 
-    SC = exu.SystemContainer()
+    # Use the provided SystemContainer
+    SC = existing_SC
     SC.visualizationSettings = visualizationSettings
     structure = discoverVisualizationSettingsStructure(SC)
     
@@ -733,18 +748,19 @@ def visualizationSettingsToDict(visualizationSettings):
     
     return extract_values_from_structure(structure)
 
-def visualizationSettingsFromDict(settings_dict, existing_SC=None):
+def visualizationSettingsFromDict(settings_dict, existing_SC):
     """Create or update visualization settings from a dictionary."""
     import exudyn as exu
     
-    if not settings_dict:
-        return exu.SystemContainer()  # Return default if empty
-    
-    # Use existing SystemContainer if provided, otherwise create new
     if existing_SC is None:
-        SC = exu.SystemContainer()
-    else:
-        SC = existing_SC
+        raise ValueError("existing_SC is required - cannot create new SystemContainer for visualization settings")
+    
+    if not settings_dict:
+        # Return the existing SC unchanged if no settings to apply
+        return existing_SC
+    
+    # Use the provided SystemContainer
+    SC = existing_SC
     
     # Apply the settings
     applyVisualizationSettings(SC, settings_dict)
@@ -845,10 +861,8 @@ def applyVisualizationSettings(SC, settings_data):
     if not hasattr(SC, 'visualizationSettings'):
         print("❌ No visualizationSettings found in SystemContainer")
         return
-    
     print(f"🔧 Applying visualization settings...")
     print(f"Settings data keys: {list(settings_data.keys())}")
-    
     # Method 1: Try to use SetDictionary() method if available
     try:
         if hasattr(SC.visualizationSettings, 'SetDictionary'):
@@ -862,7 +876,6 @@ def applyVisualizationSettings(SC, settings_data):
         print(f"⚠️  SetDictionary() failed: {e}")
         import traceback
         traceback.print_exc()
-    
     # Method 2: Fallback to manual attribute setting with proper conversion
     def apply_nested_settings(obj, data, path=""):
         for key, value in data.items():
@@ -871,19 +884,25 @@ def applyVisualizationSettings(SC, settings_data):
                 nested_obj = getattr(obj, key, None)
                 if nested_obj is not None:
                     apply_nested_settings(nested_obj, value, f"{path}.{key}")
-                else:
-                    print(f"⚠️ Nested object {path}.{key} not found")
             else:
                 # Direct value - apply if attribute exists
                 if hasattr(obj, key):
                     try:
+                        # Fix: Parse stringified lists back to lists of floats
+                        if isinstance(value, str) and value.startswith('[') and value.endswith(']'):
+                            try:
+                                parsed = ast.literal_eval(value)
+                                if isinstance(parsed, list):
+                                    value = [float(x) for x in parsed]
+                            except Exception as e:
+                                print(f"⚠️  Could not parse list from string for {path}.{key}: {e}")
+                        # Fix: Ensure all elements in lists are floats
+                        if isinstance(value, list):
+                            value = [float(x) for x in value]
                         setattr(obj, key, value)
                         print(f"✅ Set {path}.{key} = {value}")
                     except Exception as e:
                         print(f"❌ Failed to set {path}.{key}: {e}")
-                else:
-                    print(f"⚠️ Attribute {path}.{key} not found")
-    
     # Convert data for manual setting
     converted_data = convert_settings_data_for_exudyn(settings_data)
     apply_nested_settings(SC.visualizationSettings, converted_data, "visualizationSettings")
@@ -1143,50 +1162,78 @@ class ShowChangesDialog(QDialog):
 
 
 def show_visualization_changes(form, original_SC):
-    """Show the changes made to visualization settings."""
+    """Show a dialog displaying changes from factory default visualization settings."""
     try:
-        from exudynGUI.core.settingsComparison import compare_form_data_with_defaults
-        
-        # Get baseline settings structure from the ORIGINAL SC passed to the dialog
-        # This ensures we compare against the actual starting values, not factory defaults
-        if original_SC is not None:
-            baseline_structure = discoverVisualizationSettingsStructure(original_SC)
-        else:
-            # Fallback to factory defaults if no original SC provided
-            import exudyn as exu
-            fallback_SC = exu.SystemContainer()
-            baseline_structure = discoverVisualizationSettingsStructure(fallback_SC)
-        
-        # Get current form data (but don't apply it to any SC)
+        # Get current settings from the form
         current_data = collectVisualizationSettingsData(form)
         
-        # Compare form data directly with baseline (safer approach)
-        if current_data and baseline_structure:
-            changes_text = compare_form_data_with_defaults(
-                current_data, 
-                baseline_structure, 
-                "visualizationSettings"
-            )
-        else:
-            # Fallback: minimal changes text
-            if not baseline_structure:
-                changes_text = "# No baseline visualization settings available\n# Please check exudyn installation"
-            else:
-                changes_text = "# No current settings data collected from form\n# Please ensure form widgets are properly configured"
+        # Always compare against factory defaults (cached structure)
+        from exudynGUI.core.settingsComparison import get_default_visualization_settings
+        factory_default_structure = get_default_visualization_settings()
         
-        # Show dialog
+        # Extract factory default values
+        def extract_flat_values(structure, prefix=""):
+            """Extract all values from the discovered structure."""
+            result = {}
+            for key, info in structure.items():
+                if info['type'] == 'object':
+                    nested_result = extract_flat_values(info['nested'], f"{prefix}.{key}" if prefix else key)
+                    result.update(nested_result)
+                else:
+                    full_key = f"{prefix}.{key}" if prefix else key
+                    result[full_key] = info.get('value')
+            return result
+        
+        factory_default_values = extract_flat_values(factory_default_structure)
+        
+        # Convert current form data to flat structure
+        def flatten_form_data(data, prefix=""):
+            """Flatten nested form data dictionary."""
+            flat = {}
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    nested_flat = flatten_form_data(value, f"{prefix}.{key}" if prefix else key)
+                    flat.update(nested_flat)
+                else:
+                    full_key = f"{prefix}.{key}" if prefix else key
+                    flat[full_key] = value
+            return flat
+        
+        current_values = flatten_form_data(current_data)
+        
+        # Find differences
+        from exudynGUI.core.settingsComparison import values_are_equivalent
+        
+        differences = []
+        all_keys = set(factory_default_values.keys()) | set(current_values.keys())
+        
+        for key in sorted(all_keys):
+            factory_val = factory_default_values.get(key)
+            current_val = current_values.get(key)
+            
+            # Check if values are different using smart comparison
+            if current_val is not None and not values_are_equivalent(factory_val, current_val, f"visualizationSettings.{key}"):
+                differences.append({
+                    'key': key,
+                    'factory_default': factory_val,
+                    'current': current_val
+                })
+        
+        if not differences:
+            changes_text = "# Visualization Settings Changes\n# ==================================================\n# No changes detected - all settings match factory defaults"
+        else:
+            changes_text = "# Visualization Settings Changes\n# ==================================================\n"
+            for diff in differences:
+                changes_text += f"visualizationSettings.{diff['key']} = {diff['current']}\n"
+                changes_text += f"# Changed from: {diff['factory_default']}\n"
+        
+        # Show the changes dialog
         dialog = ShowChangesDialog(form, changes_text, "Visualization Settings Changes")
         dialog.exec_()
         
     except Exception as e:
+        from PyQt5.QtWidgets import QMessageBox
+        QMessageBox.critical(form, "Error", f"Failed to show visualization changes:\n{str(e)}")
         import traceback
-        print(f"❌ Error in show_visualization_changes: {e}")
         traceback.print_exc()
-        
-        # Fallback error dialog
-        error_dialog = QMessageBox(form)
-        error_dialog.setWindowTitle("Error")
-        error_dialog.setText(f"Could not generate changes: {str(e)}\n\nSee console for details.")
-        error_dialog.setIcon(QMessageBox.Warning)
-        error_dialog.exec_()
 

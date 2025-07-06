@@ -81,19 +81,19 @@ class ExudynMenuBar:
         file_menu = self.menubar.addMenu("&File")
         
         # New Model
-        new_action = QAction("&New Model", self.parent)
+        new_action = QAction("&New Project", self.parent)
         new_action.setShortcut(QKeySequence.New)
-        new_action.setStatusTip("Create a new Exudyn model")
-        new_action.triggered.connect(self._newModel)
+        new_action.setStatusTip("Create a new Exudyn project")
+        new_action.triggered.connect(self._newProject)
         file_menu.addAction(new_action)
         
         file_menu.addSeparator()
         
         # Open Model
-        open_action = QAction("&Open Model...", self.parent)
+        open_action = QAction("&Open Project...", self.parent)
         open_action.setShortcut(QKeySequence.Open)
-        open_action.setStatusTip("Open an existing Exudyn model")
-        open_action.triggered.connect(self._openModel)
+        open_action.setStatusTip("Open an existing Exudyn project")
+        open_action.triggered.connect(self._openProject)
         file_menu.addAction(open_action)
         
         # Recent Files submenu
@@ -103,17 +103,17 @@ class ExudynMenuBar:
         file_menu.addSeparator()
         
         # Save Model
-        save_action = QAction("&Save Model", self.parent)
+        save_action = QAction("&Save Project", self.parent)
         save_action.setShortcut(QKeySequence.Save)
-        save_action.setStatusTip("Save the current model")
-        save_action.triggered.connect(self._saveModel)
+        save_action.setStatusTip("Save the current project")
+        save_action.triggered.connect(self._saveProject)
         file_menu.addAction(save_action)
         
         # Save As
         save_as_action = QAction("Save &As...", self.parent)
         save_as_action.setShortcut(QKeySequence.SaveAs)
-        save_as_action.setStatusTip("Save the model with a new name")
-        save_as_action.triggered.connect(self._saveModelAs)
+        save_as_action.setStatusTip("Save the project with a new name")
+        save_as_action.triggered.connect(self._saveProjectAs)
         file_menu.addAction(save_as_action)
         
         file_menu.addSeparator()
@@ -380,10 +380,10 @@ class ExudynMenuBar:
         help_menu.addAction(pdf_action)
         
         # Examples
-        examples_action = QAction("&Examples", self.parent)
-        examples_action.setStatusTip("Open example models")
-        examples_action.triggered.connect(self._showExamples)
-        help_menu.addAction(examples_action)
+        # examples_action = QAction("&Examples", self.parent)
+        # examples_action.setStatusTip("Open example models")
+        # examples_action.triggered.connect(self._showExamples)
+        # help_menu.addAction(examples_action)
         
         help_menu.addSeparator()
         
@@ -402,38 +402,38 @@ class ExudynMenuBar:
         help_menu.addAction(about_action)
     
     # File menu handlers
-    def _newModel(self):
-        """Create a new model."""
+    def _newProject(self):
+        """Create a new project."""
         if hasattr(self.parent, 'newModel'):
             self.parent.newModel()
         else:
             debugInfo("New model requested", origin="menubar.py", category=DebugCategory.GUI)
     
-    def _openModel(self):
+    def _openProject(self):
         """Open an existing model."""
-        if hasattr(self.parent, 'openModel'):
-            self.parent.openModel()
+        if hasattr(self.parent, 'loadProject'):
+            self.parent.loadProject()
         else:
             file_path, _ = QFileDialog.getOpenFileName(
                 self.parent,
-                "Open Exudyn Model",
+                "Open Exudyn Project",
                 "",
-                "Exudyn Models (*.json *.py);;All Files (*)"
+                "Exudyn Projects (*.json *.py);;All Files (*)"
             )
             if file_path:
                 debugInfo(f"Opening model: {file_path}", origin="menubar.py", category=DebugCategory.FILE_IO)
     
-    def _saveModel(self):
-        """Save the current model."""
-        if hasattr(self.parent, 'saveModel'):
-            self.parent.saveModel()
+    def _saveProject(self):
+        """Save the current project."""
+        if hasattr(self.parent, 'saveProject'):
+            self.parent.saveProject()
         else:
-            debugInfo("Save model requested", origin="menubar.py", category=DebugCategory.FILE_IO)
+            debugInfo("Save project requested", origin="menubar.py", category=DebugCategory.FILE_IO)
     
-    def _saveModelAs(self):
-        """Save the model with a new name."""
-        if hasattr(self.parent, 'saveModelAs'):
-            self.parent.saveModelAs()
+    def _saveProjectAs(self):
+        """Save the project with a new name."""
+        if hasattr(self.parent, 'saveProjectAs'):
+            self.parent.saveProjectAs()
         else:
             file_path, _ = QFileDialog.getSaveFileName(
                 self.parent,
@@ -673,12 +673,12 @@ class ExudynMenuBar:
         else:
             debugInfo("PDF documentation requested", origin="menubar.py", category=DebugCategory.GUI)
     
-    def _showExamples(self):
-        """Show example models."""
-        if hasattr(self.parent, 'showExamples'):
-            self.parent.showExamples()
-        else:
-            debugInfo("Examples requested", origin="menubar.py", category=DebugCategory.GUI)
+    # def _showExamples(self):
+    #     """Show example models."""
+    #     if hasattr(self.parent, 'showExamples'):
+    #         self.parent.showExamples()
+    #     else:
+    #         debugInfo("Examples requested", origin="menubar.py", category=DebugCategory.GUI)
     
     def _showKeyboardShortcuts(self):
         """Show keyboard shortcuts dialog."""

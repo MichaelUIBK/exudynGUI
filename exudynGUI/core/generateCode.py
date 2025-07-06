@@ -132,7 +132,25 @@ def enforceReturnDictTrue(argStrs):
     # strip any existing returnDict=… and always append returnDict=True
     return [a for a in argStrs if not a.strip().startswith('returnDict=')] + ['    returnDict=True']
 
-def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=None, fullScript=False, simulationSettings=None, visualizationSettings=None, viewState=None):
+def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=None, fullScript=False, simulationSettings=None, visualizationSettings=None, viewState=None, original_simulation_settings=None, original_visualization_settings=None):
+    """
+    Generate Exudyn code from a list of model items.
+    
+    Args:
+        itemList: List of model items to generate code for
+        mbs: MultiBodySystem object
+        sortByIndex: Whether to sort items by index
+        globalIndexMap: Global index mapping
+        fullScript: Whether to generate a complete script
+        simulationSettings: Current simulation settings
+        visualizationSettings: Current visualization settings (SystemContainer)
+        viewState: View state for camera position
+        original_simulation_settings: Original simulation settings before modifications
+        original_visualization_settings: Original visualization settings before modifications
+        
+    Returns:
+        str: Generated Exudyn code
+    """
     import re
     import os
     
@@ -1427,21 +1445,22 @@ def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=
     # Clean up trailing blank lines from the main code
     while codeLines and codeLines[-1] == "":
         codeLines.pop()
-    
+
     # Only append mbs.Assemble() and SolveDynamic if fullScript flag is set
     output_lines = baseHeader + codeLines
     if fullScript:
         output_lines.append("")
         output_lines.append("mbs.Assemble()")
 
-        
+        output_lines.append("SC.renderer.Start()")
+                
         # Generate dynamic settings based on actual user changes (without view state)
-        settings_lines = _generateDynamicSettings(simulationSettings, visualizationSettings, viewState=None)
+        settings_lines = _generateDynamicSettings(simulationSettings, visualizationSettings, viewState=None, original_simulation_settings=original_simulation_settings, original_visualization_settings=original_visualization_settings)
         if settings_lines:
             output_lines.extend(settings_lines)
-            output_lines.append("")
+        output_lines.append("")
         
-        output_lines.append("SC.renderer.Start()")
+
         
         # Generate and apply view state after renderer is started
         if viewState is not None:
@@ -1459,15 +1478,17 @@ def generateExudynCodeFromItems(itemList, mbs, sortByIndex=True, globalIndexMap=
         output_lines.append("SC.renderer.Stop()")
     return '\n'.join(output_lines)
 
-def _generateDynamicSettings(simulationSettings=None, visualizationSettings=None, viewState=None):
+def _generateDynamicSettings(simulationSettings=None, visualizationSettings=None, viewState=None, original_simulation_settings=None, original_visualization_settings=None):
     """
-    Generate dynamic settings code based on actual user changes from defaults.
-    Only includes settings that differ from factory defaults.
+    Generate dynamic settings code based on actual user changes from original settings.
+    Only includes settings that differ from the original settings passed to the dialog.
     
     Args:
         simulationSettings: Current simulation settings object
         visualizationSettings: Current SystemContainer with visualization settings
         viewState: Not used (kept for compatibility)
+        original_simulation_settings: Original simulation settings passed to dialog
+        original_visualization_settings: Original visualization settings passed to dialog
         
     Returns:
         list: Lines of code for settings (without newlines)
@@ -1480,39 +1501,51 @@ def _generateDynamicSettings(simulationSettings=None, visualizationSettings=None
         
         settings_lines = []
         
-        # Helper function for extracting flat values from settings structure
-        def extract_flat_values(structure, prefix=""):
-            """Extract all values from the discovered structure."""
-            result = {}
-            for key, info in structure.items():
-                if info['type'] == 'object':
-                    nested_result = extract_flat_values(info['nested'], f"{prefix}.{key}" if prefix else key)
-                    result.update(nested_result)
-                else:
-                    full_key = f"{prefix}.{key}" if prefix else key
-                    result[full_key] = info.get('value')
-            return result
-        
         # === SIMULATION SETTINGS ===
         if simulationSettings is not None:
             try:
-                # Use cached defaults to avoid creating new objects
-                from exudynGUI.core.settingsComparison import get_default_simulation_settings
-                default_structure = get_default_simulation_settings()
+                # Use original settings as baseline (same as Show Changes dialog)
+                if original_simulation_settings is not None:
+                    baseline_structure = discoverSimulationSettingsStructure(exu, original_simulation_settings)
+                else:
+                    # Fallback to factory defaults if no original settings provided
+                    from exudynGUI.core.settingsComparison import get_default_simulation_settings
+                    baseline_structure = get_default_simulation_settings()
                 
                 # Get current settings structure
                 current_structure = discoverSimulationSettingsStructure(exu, simulationSettings)
                 
-                default_values = extract_flat_values(default_structure)
-                current_values = extract_flat_values(current_structure)
-                
-                # Generate differences using existing comparison logic
-                simulation_differences = _findSettingsDifferences(default_values, current_values, "simulationSettings")
-                
-                if simulation_differences:
-                    sim_code = _generateSettingsCode(simulation_differences, "simulationSettings")
-                    if sim_code:
-                        settings_lines.extend(sim_code)
+                # Use the same comparison logic as Show Changes dialog
+                if current_structure and baseline_structure:
+                    # Convert structures to flat dictionaries for comparison
+                    def extract_flat_values(structure, prefix=""):
+                        """Extract all values from the discovered structure."""
+                        result = {}
+                        for key, info in structure.items():
+                            if info['type'] == 'object':
+                                nested_result = extract_flat_values(info['nested'], f"{prefix}.{key}" if prefix else key)
+                                result.update(nested_result)
+                            else:
+                                full_key = f"{prefix}.{key}" if prefix else key
+                                result[full_key] = info.get('value')
+                        return result
+                    
+                    baseline_values = extract_flat_values(baseline_structure)
+                    current_values = extract_flat_values(current_structure)
+                    
+                    # Generate differences using the same logic as Show Changes
+                    simulation_differences = _findSettingsDifferences(baseline_values, current_values, "simulationSettings")
+                    
+                    if simulation_differences:
+                        sim_code = _generateSettingsCode(simulation_differences, "simulationSettings")
+                        if sim_code:
+                            settings_lines.extend(sim_code)
+                    else:
+                        # No differences found - just create default settings
+                        settings_lines.extend([
+                            "simulationSettings = exu.SimulationSettings()",
+                            "# Using default simulation settings (no changes detected)"
+                        ])
                         
             except Exception as e:
                 debugLog(f"⚠️ Failed to generate dynamic simulation settings: {e}")
@@ -1525,26 +1558,40 @@ def _generateDynamicSettings(simulationSettings=None, visualizationSettings=None
         # === VISUALIZATION SETTINGS ===
         if visualizationSettings is not None:
             try:
-                # Use cached defaults to avoid creating new SystemContainers (prevents OpenGL conflicts)
+                # Always use factory defaults for comparison (same as Show Changes dialog)
                 from exudynGUI.core.settingsComparison import get_default_visualization_settings
-                default_structure = get_default_visualization_settings(reference_SC=visualizationSettings)
+                baseline_structure = get_default_visualization_settings()
                 
                 # Get current settings structure 
                 current_structure = discoverVisualizationSettingsStructure(visualizationSettings)
                 
-                # Extract flat values
-                default_values = extract_flat_values(default_structure)
-                current_values = extract_flat_values(current_structure)
-                
-                # Generate differences
-                visualization_differences = _findSettingsDifferences(default_values, current_values, "visualizationSettings")
-                
-                if visualization_differences:
-                    viz_code = _generateSettingsCode(visualization_differences, "visualizationSettings")
-                    if viz_code:
-                        if settings_lines:  # Add separator if we have simulation settings too
-                            settings_lines.append("")
-                        settings_lines.extend(viz_code)
+                # Use the same comparison logic as Show Changes dialog
+                if current_structure and baseline_structure:
+                    # Convert structures to flat dictionaries for comparison
+                    def extract_flat_values(structure, prefix=""):
+                        """Extract all values from the discovered structure."""
+                        result = {}
+                        for key, info in structure.items():
+                            if info['type'] == 'object':
+                                nested_result = extract_flat_values(info['nested'], f"{prefix}.{key}" if prefix else key)
+                                result.update(nested_result)
+                            else:
+                                full_key = f"{prefix}.{key}" if prefix else key
+                                result[full_key] = info.get('value')
+                        return result
+                    
+                    baseline_values = extract_flat_values(baseline_structure)
+                    current_values = extract_flat_values(current_structure)
+                    
+                    # Generate differences using the same logic as Show Changes
+                    visualization_differences = _findSettingsDifferences(baseline_values, current_values, "visualizationSettings")
+                    
+                    if visualization_differences:
+                        viz_code = _generateSettingsCode(visualization_differences, "visualizationSettings")
+                        if viz_code:
+                            if settings_lines:  # Add separator if we have simulation settings too
+                                settings_lines.append("")
+                            settings_lines.extend(viz_code)
                         
             except Exception as e:
                 debugLog(f"⚠️ Failed to generate dynamic visualization settings: {e}")
@@ -1579,12 +1626,15 @@ def _findSettingsDifferences(default_values, current_values, settings_name):
         default_val = default_values.get(key)
         current_val = current_values.get(key)
         
-        # Check if values are different using smart comparison
-        if current_val is not None and not values_are_equivalent(default_val, current_val):
+        # Pass the full path for context-aware comparison
+        path = f"{settings_name}.{key}"
+        
+        # Check if values are different using smart comparison with path context
+        if current_val is not None and not values_are_equivalent(default_val, current_val, path):
             differences[key] = {
                 'default': default_val,
                 'current': current_val,
-                'path': f"{settings_name}.{key}"
+                'path': path
             }
     
     return differences
@@ -1595,27 +1645,18 @@ def _generateSettingsCode(differences, settings_name):
         return []
     
     lines = []
-    
-    # Add the settings object creation line
     if settings_name == "simulationSettings":
         lines.append("simulationSettings = exu.SimulationSettings()")
-        class_name = "SimulationSettings"
-    elif settings_name == "visualizationSettings":
-        lines.append("visualizationSettings = exu.VisualizationSettings()")
-        class_name = "VisualizationSettings"
-    else:
-        lines.append(f"{settings_name} = exu.{settings_name.title()}()")
-        class_name = settings_name.title()
-    
     # Sort differences by path for consistent output
     sorted_differences = sorted(differences.items(), key=lambda x: x[0])
-    
     # Generate assignment lines
     for key, info in sorted_differences:
         current_val = info['current']
         formatted_value = _formatValueForCode(current_val)
-        lines.append(f"{settings_name}.{key} = {formatted_value}")
-    
+        if settings_name == "visualizationSettings":
+            lines.append(f"SC.visualizationSettings.{key} = {formatted_value}")
+        else:
+            lines.append(f"simulationSettings.{key} = {formatted_value}")
     return lines
 
 def _formatValueForCode(value):
