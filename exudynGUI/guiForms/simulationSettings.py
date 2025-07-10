@@ -28,6 +28,7 @@ import exudyn as exu
 import inspect
 import io
 from contextlib import redirect_stdout
+from exudynGUI.core.debug import debugLog
 
 def extractGenericHelp(obj, attr_name):
     """
@@ -455,31 +456,31 @@ def discoverSimulationSettingsStructure(exu, existing_settings=None):
     discovered_structure = discover_object_structure(simulationSettings)
     
     # Debug print to see what was discovered
-    print(f"\n🔍 DISCOVERED SIMULATION SETTINGS STRUCTURE:")
-    print(f"Total top-level attributes: {len(discovered_structure)}")
+    debugLog(f"\n🔍 DISCOVERED SIMULATION SETTINGS STRUCTURE:")
+    debugLog(f"Total top-level attributes: {len(discovered_structure)}")
     for key, info in discovered_structure.items():
         if info['type'] == 'object':
             nested_count = len(info.get('nested', {}))
-            print(f"  📁 {key} ({info.get('value_type', 'unknown')}) - {nested_count} nested items")
+            debugLog(f"  📁 {key} ({info.get('value_type', 'unknown')}) - {nested_count} nested items")
             # Show nested structure for debugging
             nested = info.get('nested', {})
             for nested_key, nested_info in nested.items():
                 if nested_info['type'] == 'object':
                     deep_nested_count = len(nested_info.get('nested', {}))
-                    print(f"    📁 {nested_key} ({nested_info.get('value_type', 'unknown')}) - {deep_nested_count} nested items")
+                    debugLog(f"    📁 {nested_key} ({nested_info.get('value_type', 'unknown')}) - {deep_nested_count} nested items")
                     # Show even deeper nesting
                     deep_nested = nested_info.get('nested', {})
                     for deep_key, deep_info in deep_nested.items():
                         if deep_info['type'] == 'object':
                             deeper_count = len(deep_info.get('nested', {}))
-                            print(f"      📁 {deep_key} ({deep_info.get('value_type', 'unknown')}) - {deeper_count} nested items")
+                            debugLog(f"      📁 {deep_key} ({deep_info.get('value_type', 'unknown')}) - {deeper_count} nested items")
                         else:
-                            print(f"      📄 {deep_key} = {deep_info.get('value')} ({deep_info['type']})")
+                            debugLog(f"      📄 {deep_key} = {deep_info.get('value')} ({deep_info['type']})")
                 else:
-                    print(f"    📄 {nested_key} = {nested_info.get('value')} ({nested_info['type']})")
+                    debugLog(f"    📄 {nested_key} = {nested_info.get('value')} ({nested_info['type']})")
         else:
-            print(f"  📄 {key} = {info.get('value')} ({info['type']})")
-    print()
+            debugLog(f"  📄 {key} = {info.get('value')} ({info['type']})")
+    debugLog("\n")
     
     return discovered_structure
 
@@ -824,7 +825,7 @@ def show_tabs_with_matches(form, matching_widgets):
                     # Set custom data to identify matching tabs
                     tab_bar.setTabData(tab_index, {'has_matches': True, 'match_count': match_count})
             except Exception as e:
-                print(f"Note: Could not set tab data: {e}")
+                debugLog(f"Note: Could not set tab data: {e}")
     
     # Switch to first tab with matches if not already on a matching tab
     current_tab = tab_widget.currentIndex()
@@ -1490,7 +1491,7 @@ def create_enum_dropdown(type_name, default_value):
         return widget
         
     except Exception as e:
-        print(f"⚠️  Failed to create dropdown for {detected_enum}: {e}")
+        debugLog(f"⚠️  Failed to create dropdown for {detected_enum}: {e}")
         # Fallback to line edit
         widget = QLineEdit()
         if default_value is not None:
@@ -1575,7 +1576,7 @@ def collectSimulationSettingsData(form):
                         # Store the string name for proper serialization
                         value = text
                     except AttributeError:
-                        print(f"⚠️  Unknown enum value '{text}' for {enum_type}, using as-is")
+                        debugLog(f"⚠️  Unknown enum value '{text}' for {enum_type}, using as-is")
                         value = text
                 else:
                     # Fallback for non-enum comboboxes
@@ -1591,7 +1592,7 @@ def collectSimulationSettingsData(form):
                         # Parse scientific notation
                         value = float(text)
                     except ValueError:
-                        print(f"⚠️  Invalid scientific notation: {text}")
+                        debugLog(f"⚠️  Invalid scientific notation: {text}")
                         continue
                 else:
                     # Regular line edit - try to convert to appropriate type
@@ -1649,16 +1650,16 @@ def applySimulationSettings(simulationSettings, settings_data):
                                     try:
                                         enum_value = getattr(enum_class, value)
                                         setattr(obj, key, enum_value)
-                                        print(f"✅ Set {path}.{key} = {enum_value} (from string '{value}')")
+                                        debugLog(f"✅ Set {path}.{key} = {enum_value} (from string '{value}')")
                                         continue
                                     except AttributeError:
-                                        print(f"⚠️  Unknown enum value '{value}' for {path}.{key}, using as-is")
+                                        debugLog(f"⚠️  Unknown enum value '{value}' for {path}.{key}, using as-is")
                         
                         # Regular value assignment
                         setattr(obj, key, value)
-                        print(f"✅ Set {path}.{key} = {value}")
+                        debugLog(f"✅ Set {path}.{key} = {value}")
                     except Exception as e:
-                        print(f"❌ Failed to set {path}.{key}: {e}")
+                        debugLog(f"❌ Failed to set {path}.{key}: {e}")
     
     apply_nested_settings(simulationSettings, settings_data, "simulationSettings")
 
@@ -1742,45 +1743,45 @@ class ShowChangesDialog(QDialog):
     
     def copy_to_clipboard(self):
         """Copy the changes text to clipboard."""
-        print("🔄 Copy to clipboard called...")
+        debugLog("🔄 Copy to clipboard called...")
         try:
-            print("🔄 Getting QApplication instance...")
+            debugLog("🔄 Getting QApplication instance...")
             app = QApplication.instance()
             if app is None:
-                print("❌ No QApplication instance found!")
+                debugLog("❌ No QApplication instance found!")
                 return
                 
-            print("🔄 Getting clipboard...")
+            debugLog("🔄 Getting clipboard...")
             clipboard = app.clipboard()
             if clipboard is None:
-                print("❌ Failed to get clipboard!")
+                debugLog("❌ Failed to get clipboard!")
                 return
                 
-            print("🔄 Getting text from text area...")
+            debugLog("🔄 Getting text from text area...")
             text_content = self.text_area.toPlainText()
-            print(f"🔄 Text length: {len(text_content)} characters")
+            debugLog(f"🔄 Text length: {len(text_content)} characters")
             
-            print("🔄 Setting clipboard text...")
+            debugLog("🔄 Setting clipboard text...")
             clipboard.setText(text_content)
-            print("✅ Clipboard text set successfully!")
+            debugLog("✅ Clipboard text set successfully!")
             
             # Show brief confirmation with proper button reference capture
-            print("🔄 Getting sender button...")
+            debugLog("🔄 Getting sender button...")
             sender_button = self.sender()
             if sender_button:
-                print("🔄 Setting button text to 'Copied!'...")
+                debugLog("🔄 Setting button text to 'Copied!'...")
                 sender_button.setText("✅ Copied!")
-                print("🔄 Scheduling button text reset...")
+                debugLog("🔄 Scheduling button text reset...")
                 # Use proper button reference instead of self.sender() in lambda
                 QTimer.singleShot(2000, lambda: self._reset_button_text(sender_button))
-                print("✅ Copy operation completed successfully!")
+                debugLog("✅ Copy operation completed successfully!")
             else:
-                print("⚠️ No sender button found")
+                debugLog("⚠️ No sender button found")
                 
         except Exception as e:
             import traceback
-            print(f"❌ Failed to copy to clipboard: {e}")
-            print("❌ Full traceback:")
+            debugLog(f"❌ Failed to copy to clipboard: {e}")
+            debugLog("❌ Full traceback:")
             traceback.print_exc()
             
             # Still show confirmation even if copy failed
@@ -1790,14 +1791,14 @@ class ShowChangesDialog(QDialog):
                     sender_button.setText("❌ Copy Failed!")
                     QTimer.singleShot(2000, lambda: self._reset_button_text(sender_button))
             except Exception as e2:
-                print(f"❌ Even error handling failed: {e2}")
+                debugLog(f"❌ Even error handling failed: {e2}")
     
     def _reset_button_text(self, button):
         """Helper method to reset button text."""
         try:
             button.setText("📋 Copy to Clipboard")
         except Exception as e:
-            print(f"❌ Failed to reset button text: {e}")
+            debugLog(f"❌ Failed to reset button text: {e}")
 
 
 def show_simulation_changes(form, original_settings):
@@ -1832,7 +1833,7 @@ def show_simulation_changes(form, original_settings):
         
     except Exception as e:
         import traceback
-        print(f"❌ Error in show_simulation_changes: {e}")
+        debugLog(f"❌ Error in show_simulation_changes: {e}")
         traceback.print_exc()
         
         # Fallback error dialog

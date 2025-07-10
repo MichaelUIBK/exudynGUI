@@ -124,7 +124,7 @@ ExudynGUI is released under the **BSD 3-Clause License**. See [LICENSE](LICENSE)
 
 ## 📈 Project Status
 
-**Current Version**: 0.4.1 (Glockturm)
+**Current Version**: 0.4.3 (Glockturm)
 **Status**: Alpha - Active Development
 **Stability**: Experimental - API may change
 

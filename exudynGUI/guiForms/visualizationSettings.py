@@ -31,6 +31,7 @@ import io
 from contextlib import redirect_stdout
 import numpy as np
 import ast
+from exudynGUI.core.debug import debugLog
 
 def extractVisualizationHelp(obj, attr_name):
     """
@@ -223,35 +224,35 @@ def discoverVisualizationSettingsStructure(SC):
     """
     Use exudyn's built-in GetDictionaryWithTypeInfo() to get complete structure with descriptions.
     """
-    print(f"🚀 Starting visualization settings discovery using GetDictionaryWithTypeInfo()...")
+    debugLog(f"🚀 Starting visualization settings discovery using GetDictionaryWithTypeInfo()...")
     
     if not hasattr(SC, 'visualizationSettings'):
-        print(f"❌ SC has no visualizationSettings attribute")
+        debugLog(f"❌ SC has no visualizationSettings attribute")
         return {}
     
     try:
         # Use exudyn's built-in method to get complete structure
         if hasattr(SC.visualizationSettings, 'GetDictionaryWithTypeInfo'):
-            print(f"✅ Using GetDictionaryWithTypeInfo() method")
+            debugLog(f"✅ Using GetDictionaryWithTypeInfo() method")
             type_info_dict = SC.visualizationSettings.GetDictionaryWithTypeInfo()
             
             # Convert the type info dictionary to our expected structure format
             structure = convert_type_info_to_structure(type_info_dict)
             
-            print(f"\n🔍 DISCOVERED VISUALIZATION SETTINGS:")
-            print(f"Total categories: {len(structure)}")
+            debugLog(f"\n🔍 DISCOVERED VISUALIZATION SETTINGS:")
+            debugLog(f"Total categories: {len(structure)}")
             total_settings = sum(count_nested_settings(info.get('nested', {})) for info in structure.values() if info.get('type') == 'object')
-            print(f"Total settings: {total_settings}")
-            print("Discovery complete! ✅\n")
+            debugLog(f"Total settings: {total_settings}")
+            debugLog("Discovery complete! ✅\n")
             
             return structure
             
         else:
-            print(f"⚠️ GetDictionaryWithTypeInfo() not available, falling back to introspection")
+            debugLog(f"⚠️ GetDictionaryWithTypeInfo() not available, falling back to introspection")
             return fallback_discovery(SC)
             
     except Exception as e:
-        print(f"❌ Error using GetDictionaryWithTypeInfo(): {e}")
+        debugLog(f"❌ Error using GetDictionaryWithTypeInfo(): {e}")
         return fallback_discovery(SC)
 
 def convert_type_info_to_structure(type_info_dict, prefix="visualizationSettings"):
@@ -350,7 +351,7 @@ def count_nested_settings(structure):
 
 def fallback_discovery(SC):
     """Fallback discovery method using introspection."""
-    print(f"🔄 Using fallback introspection method...")
+    debugLog(f"🔄 Using fallback introspection method...")
     
     visualizationSettings = SC.visualizationSettings
     
@@ -822,7 +823,7 @@ def collectVisualizationSettingsData(form):
                         # Parse scientific notation
                         value = float(text)
                     except ValueError:
-                        print(f"⚠️  Invalid scientific notation: {text}")
+                        debugLog(f"⚠️  Invalid scientific notation: {text}")
                         continue
                 else:
                     # Regular line edit - try to convert to appropriate type
@@ -859,21 +860,21 @@ def applyVisualizationSettings(SC, settings_data):
     Apply the collected settings data to the actual VisualizationSettings object.
     """
     if not hasattr(SC, 'visualizationSettings'):
-        print("❌ No visualizationSettings found in SystemContainer")
+        debugLog("❌ No visualizationSettings found in SystemContainer")
         return
-    print(f"🔧 Applying visualization settings...")
-    print(f"Settings data keys: {list(settings_data.keys())}")
+    debugLog(f"🔧 Applying visualization settings...")
+    debugLog(f"Settings data keys: {list(settings_data.keys())}")
     # Method 1: Try to use SetDictionary() method if available
     try:
         if hasattr(SC.visualizationSettings, 'SetDictionary'):
-            print("📊 Using SetDictionary() method for visualization settings")
+            debugLog("📊 Using SetDictionary() method for visualization settings")
             # Convert data to proper format for exudyn
             converted_data = convert_settings_data_for_exudyn(settings_data)
             SC.visualizationSettings.SetDictionary(converted_data)
-            print("✅ Visualization settings applied via SetDictionary()")
+            debugLog("✅ Visualization settings applied via SetDictionary()")
             return
     except Exception as e:
-        print(f"⚠️  SetDictionary() failed: {e}")
+        debugLog(f"⚠️  SetDictionary() failed: {e}")
         import traceback
         traceback.print_exc()
     # Method 2: Fallback to manual attribute setting with proper conversion
@@ -895,14 +896,14 @@ def applyVisualizationSettings(SC, settings_data):
                                 if isinstance(parsed, list):
                                     value = [float(x) for x in parsed]
                             except Exception as e:
-                                print(f"⚠️  Could not parse list from string for {path}.{key}: {e}")
+                                debugLog(f"⚠️  Could not parse list from string for {path}.{key}: {e}")
                         # Fix: Ensure all elements in lists are floats
                         if isinstance(value, list):
                             value = [float(x) for x in value]
                         setattr(obj, key, value)
-                        print(f"✅ Set {path}.{key} = {value}")
+                        debugLog(f"✅ Set {path}.{key} = {value}")
                     except Exception as e:
-                        print(f"❌ Failed to set {path}.{key}: {e}")
+                        debugLog(f"❌ Failed to set {path}.{key}: {e}")
     # Convert data for manual setting
     converted_data = convert_settings_data_for_exudyn(settings_data)
     apply_nested_settings(SC.visualizationSettings, converted_data, "visualizationSettings")
@@ -946,9 +947,9 @@ def getVisualizationSettingsWithHelp(SC):
     try:
         if hasattr(SC.visualizationSettings, 'GetDictionary'):
             current_values = SC.visualizationSettings.GetDictionary()
-            print("📊 Current values obtained via GetDictionary()")
+            debugLog("📊 Current values obtained via GetDictionary()")
     except Exception as e:
-        print(f"⚠️  GetDictionary() failed: {e}")
+        debugLog(f"⚠️  GetDictionary() failed: {e}")
     
     def merge_structure_with_values(structure, values_dict, prefix=""):
         """Merge discovered structure with current values."""
@@ -1103,45 +1104,44 @@ class ShowChangesDialog(QDialog):
     
     def copy_to_clipboard(self):
         """Copy the changes text to clipboard."""
-        print("🔄 Copy to clipboard called...")
+        debugLog("🔄 Copy to clipboard called...")
         try:
-            print("🔄 Getting QApplication instance...")
             app = QApplication.instance()
             if app is None:
-                print("❌ No QApplication instance found!")
+                debugLog("❌ No QApplication instance found!")
                 return
                 
-            print("🔄 Getting clipboard...")
+            debugLog("🔄 Getting clipboard...")
             clipboard = app.clipboard()
             if clipboard is None:
-                print("❌ Failed to get clipboard!")
+                debugLog("❌ Failed to get clipboard!")
                 return
                 
-            print("🔄 Getting text from text area...")
+            debugLog("🔄 Getting text from text area...")
             text_content = self.text_area.toPlainText()
-            print(f"🔄 Text length: {len(text_content)} characters")
+            debugLog(f"🔄 Text length: {len(text_content)} characters")
             
-            print("🔄 Setting clipboard text...")
+            debugLog("🔄 Setting clipboard text...")
             clipboard.setText(text_content)
-            print("✅ Clipboard text set successfully!")
+            debugLog("✅ Clipboard text set successfully!")
             
             # Show brief confirmation with proper button reference capture
-            print("🔄 Getting sender button...")
+            debugLog("🔄 Getting sender button...")
             sender_button = self.sender()
             if sender_button:
-                print("🔄 Setting button text to 'Copied!'...")
+                debugLog("🔄 Setting button text to 'Copied!'...")
                 sender_button.setText("✅ Copied!")
-                print("🔄 Scheduling button text reset...")
+                debugLog("🔄 Scheduling button text reset...")
                 # Use proper button reference instead of self.sender() in lambda
                 QTimer.singleShot(2000, lambda: self._reset_button_text(sender_button))
-                print("✅ Copy operation completed successfully!")
+                debugLog("✅ Copy operation completed successfully!")
             else:
-                print("⚠️ No sender button found")
+                debugLog("⚠️ No sender button found")
                 
         except Exception as e:
             import traceback
-            print(f"❌ Failed to copy to clipboard: {e}")
-            print("❌ Full traceback:")
+            debugLog(f"❌ Failed to copy to clipboard: {e}")
+            debugLog("❌ Full traceback:")
             traceback.print_exc()
             
             # Still show confirmation even if copy failed
@@ -1151,14 +1151,14 @@ class ShowChangesDialog(QDialog):
                     sender_button.setText("❌ Copy Failed!")
                     QTimer.singleShot(2000, lambda: self._reset_button_text(sender_button))
             except Exception as e2:
-                print(f"❌ Even error handling failed: {e2}")
+                debugLog(f"❌ Even error handling failed: {e2}")
     
     def _reset_button_text(self, button):
         """Helper method to reset button text."""
         try:
             button.setText("📋 Copy to Clipboard")
         except Exception as e:
-            print(f"❌ Failed to reset button text: {e}")
+            debugLog(f"❌ Failed to reset button text: {e}")
 
 
 def show_visualization_changes(form, original_SC):

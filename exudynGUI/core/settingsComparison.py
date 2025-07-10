@@ -1,14 +1,20 @@
-#!/usr/bin/env python3
-"""
-Settings Comparison Utility
+# -*- coding: utf-8 -*-
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# This file is part of the Exudyn GUI project
+#
+# Filename: core/settingsComparison.py
+#
+# Description:
+# Compares initial default values with current/selected values for both 
+# simulationSettings and visualizationSettings, and prints only the 
+# differences in generated code format.
+#
+# Authors:  Michael Pieber
+# Date:     2025-07-010
+# License:  BSD-3-Clause License
+#
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Compares initial default values with current/selected values for both 
-simulationSettings and visualizationSettings, and prints only the 
-differences in generated code format.
-
-Usage:
-    python settingsComparison.py [--show-all] [--simulation-only] [--visualization-only]
-"""
 
 import sys
 import os
@@ -18,6 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '.'))
 import exudyn as exu
 from exudynGUI.guiForms.simulationSettings import discoverSimulationSettingsStructure
 from exudynGUI.guiForms.visualizationSettings import discoverVisualizationSettingsStructure
+from exudynGUI.core.debug import debugLog
 
 # Global cache for default settings to avoid creating multiple SystemContainers
 _cached_default_simulation = None
@@ -55,9 +62,9 @@ def cache_default_visualization_settings(main_SC):
     try:
         # Get the default state as our reference
         _cached_default_visualization = discoverVisualizationSettingsStructure(main_SC)
-        print("✅ Cached default visualization settings from main SC")
+        debugLog("✅ Cached default visualization settings from main SC")
     except Exception as e:
-        print(f"⚠️ Error caching default visualization settings: {e}")
+        debugLog(f"⚠️ Error caching default visualization settings: {e}")
         _cached_default_visualization = {}
 
 def values_are_equivalent(default_val, current_val, path=""):
@@ -88,11 +95,11 @@ def values_are_equivalent(default_val, current_val, path=""):
         import enum
         # If it's an enum, use its name
         if isinstance(val, enum.Enum):
-            print(f"[DEBUG NORM] Enum detected: {val} -> {val.name}")
+            debugLog(f"[DEBUG NORM] Enum detected: {val} -> {val.name}")
             return val.name
         # Also check if it has enum-like attributes (backup check)
         elif hasattr(val, 'name') and hasattr(val, 'value') and hasattr(type(val), '__members__'):
-            print(f"[DEBUG NORM] Enum-like detected: {val} -> {val.name}")
+            debugLog(f"[DEBUG NORM] Enum-like detected: {val} -> {val.name}")
             return val.name
         # Handle string values (including string representations of enums)
         elif isinstance(val, str):
@@ -141,14 +148,14 @@ def values_are_equivalent(default_val, current_val, path=""):
     
     # Debug output for enum-like values
     if path and (isinstance(default_val, type(norm_default)) or '.' in str(default_val) or '.' in str(current_val)):
-        print(f"[DEBUG] Enum comparison at '{path}':")
-        print(f"  default: {repr(default_val)} (type: {type(default_val).__name__}) -> normalized: {repr(norm_default)}")
-        print(f"  current: {repr(current_val)} (type: {type(current_val).__name__}) -> normalized: {repr(norm_current)}")
-        print(f"  equal: {norm_default == norm_current}")
+        debugLog(f"[DEBUG] Enum comparison at '{path}':")
+        debugLog(f"  default: {repr(default_val)} (type: {type(default_val).__name__}) -> normalized: {repr(norm_default)}")
+        debugLog(f"  current: {repr(current_val)} (type: {type(current_val).__name__}) -> normalized: {repr(norm_current)}")
+        debugLog(f"  equal: {norm_default == norm_current}")
     
     # Only show debug for mismatches when path is provided
     if path and norm_default != norm_current:
-        print(f"[DEBUG] Mismatch at '{path}': default={default_val} (norm={norm_default}), current={current_val} (norm={norm_current})")
+        debugLog(f"[DEBUG] Mismatch at '{path}': default={default_val} (norm={norm_default}), current={current_val} (norm={norm_current})")
     
     # Direct comparison after normalization
     if norm_default == norm_current:
@@ -277,26 +284,26 @@ def initialize_settings_defaults(main_SC=None):
     Args:
         main_SC: Optional main SystemContainer to cache visualization defaults from
     """
-    print("🔧 Initializing settings defaults cache...")
+    debugLog("🔧 Initializing settings defaults cache...")
     
     # Initialize simulation defaults (safe - doesn't use OpenGL)
     try:
         get_default_simulation_settings()
-        print("✅ Simulation settings defaults cached")
+        debugLog("✅ Simulation settings defaults cached")
     except Exception as e:
-        print(f"⚠️ Error caching simulation defaults: {e}")
+        debugLog(f"⚠️ Error caching simulation defaults: {e}")
     
     # Initialize visualization defaults from provided SC
     if main_SC:
         try:
             cache_default_visualization_settings(main_SC)
-            print("✅ Visualization settings defaults cached from main SC")
+            debugLog("✅ Visualization settings defaults cached from main SC")
         except Exception as e:
-            print(f"⚠️ Error caching visualization defaults: {e}")
+            debugLog(f"⚠️ Error caching visualization defaults: {e}")
     else:
-        print("ℹ️ No main SC provided - visualization defaults will be created on demand")
+        debugLog("ℹ️ No main SC provided - visualization defaults will be created on demand")
     
-    print("✅ Settings defaults initialization complete")
+    debugLog("✅ Settings defaults initialization complete")
 
 
 def get_current_simulation_settings(current_settings):
@@ -438,7 +445,7 @@ def compare_and_print_differences(default_structure, current_structure, settings
         settings_name: Name for the settings object ("simulationSettings" or "visualizationSettings")
     """
     result = compare_and_get_differences(default_structure, current_structure, settings_name)
-    print(result)
+    debugLog(result)
 
 
 def compare_settings_with_forms():
@@ -449,57 +456,57 @@ def compare_settings_with_forms():
     
     app = QApplication(sys.argv)
     
-    print("🔧 Interactive Settings Comparison")
-    print("=" * 60)
+    debugLog("🔧 Interactive Settings Comparison")
+    debugLog("=" * 60)
     
     # Get default settings
-    print("📊 Getting default settings...")
+    debugLog("📊 Getting default settings...")
     default_sim_structure = get_default_simulation_settings()
     default_viz_structure = get_default_visualization_settings()
     
     # Show simulation settings form
-    print("🖥️  Opening Simulation Settings form...")
+    debugLog("🖥️  Opening Simulation Settings form...")
     sim_settings = exu.SimulationSettings()
     sim_form = createSimulationSettingsForm(None, sim_settings)
     
     if sim_form.exec_() == sim_form.Accepted:
-        print("✅ Simulation settings accepted")
+        debugLog("✅ Simulation settings accepted")
         from exudynGUI.guiForms.simulationSettings import collectSimulationSettingsData, applySimulationSettings
         sim_data = collectSimulationSettingsData(sim_form)
         applySimulationSettings(sim_settings, sim_data)
         current_sim_structure = get_current_simulation_settings(sim_settings)
         compare_and_print_differences(default_sim_structure, current_sim_structure, "simulationSettings")
     else:
-        print("❌ Simulation settings cancelled")
+        debugLog("❌ Simulation settings cancelled")
     
     # Show visualization settings form  
-    print("\n🖥️  Opening Visualization Settings form...")
+    debugLog("\n🖥️  Opening Visualization Settings form...")
     SC = exu.SystemContainer()
     viz_form = createVisualizationSettingsForm(None, SC)
     
     if viz_form.exec_() == viz_form.Accepted:
-        print("✅ Visualization settings accepted")
+        debugLog("✅ Visualization settings accepted")
         from exudynGUI.guiForms.visualizationSettings import collectVisualizationSettingsData, applyVisualizationSettings
         viz_data = collectVisualizationSettingsData(viz_form)
         applyVisualizationSettings(SC, viz_data)
         current_viz_structure = get_current_visualization_settings(SC)
         compare_and_print_differences(default_viz_structure, current_viz_structure, "visualizationSettings")
     else:
-        print("❌ Visualization settings cancelled")
+        debugLog("❌ Visualization settings cancelled")
 
 
 def compare_with_example_modifications():
     """Compare settings with example modifications (demo mode)."""
-    print("🔧 Example Settings Comparison")
-    print("=" * 60)
+    debugLog("🔧 Example Settings Comparison")
+    debugLog("=" * 60)
     
     # Get default settings
-    print("📊 Getting default settings...")
+    debugLog("📊 Getting default settings...")
     default_sim_structure = get_default_simulation_settings()
     default_viz_structure = get_default_visualization_settings()
     
     # Create modified simulation settings
-    print("🔧 Creating modified simulation settings...")
+    debugLog("🔧 Creating modified simulation settings...")
     modified_sim_settings = exu.SimulationSettings()
     modified_sim_settings.timeIntegration.numberOfSteps = 2000
     modified_sim_settings.timeIntegration.endTime = 2.0
@@ -511,7 +518,7 @@ def compare_with_example_modifications():
     compare_and_print_differences(default_sim_structure, current_sim_structure, "simulationSettings")
     
     # Create modified visualization settings
-    print("\n🔧 Creating modified visualization settings...")
+    debugLog("\n🔧 Creating modified visualization settings...")
     modified_SC = exu.SystemContainer()
     modified_SC.visualizationSettings.general.backgroundColor = [0.9, 0.9, 0.9, 1.0]
     modified_SC.visualizationSettings.nodes.show = False
@@ -545,16 +552,16 @@ def main():
             compare_with_example_modifications()
         else:
             # Default: show example
-            print("💡 Use --interactive (-i) for form-based comparison")
-            print("💡 Use --example (-e) for predefined example modifications")
-            print("💡 Use --help for all options\n")
+            debugLog("💡 Use --interactive (-i) for form-based comparison")
+            debugLog("💡 Use --example (-e) for predefined example modifications")
+            debugLog("💡 Use --help for all options\n")
             compare_with_example_modifications()
             
     except KeyboardInterrupt:
-        print("\n\n⏹️  Interrupted by user")
+        debugLog("\n\n⏹️  Interrupted by user")
         return 1
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        debugLog(f"\n❌ Error: {e}")
         import traceback
         traceback.print_exc()
         return 1
